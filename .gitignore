@@ -1,0 +1,98 @@
+# =============================================================================
+# Root .gitignore — applies to the whole monorepo
+#
+# Scope of this repo: backend/, credent-desktop/, and lesson curriculum
+# folders. Everything else (build artifacts, native engines, platformer,
+# iOS sources, project patches) is excluded from version control for the
+# beta deployment.
+# =============================================================================
+
+# ─── Secrets — NEVER commit ─────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# ─── Dependencies ───────────────────────────────────────────────────────────
+node_modules/
+**/node_modules/
+
+# ─── Python virtual envs & caches ───────────────────────────────────────────
+.venv/
+**/.venv/
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+# ─── Build artifacts ────────────────────────────────────────────────────────
+dist/
+build/
+out/
+*.dmg
+*.exe
+*.AppImage
+*.deb
+*.app/
+
+# ─── Uploaded files (runtime data, not source) ──────────────────────────────
+uploads/
+backend/uploads/
+
+# ─── Logs ───────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+pm2-debug.log*
+logs/
+
+# ─── OS / editor artifacts ──────────────────────────────────────────────────
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# ─── Backups ────────────────────────────────────────────────────────────────
+credent-backups/
+*.sql.gz
+
+# ─── Native engine + Electron build cache ──────────────────────────────────
+credent-desktop/dist/
+credent-desktop/out/
+
+# ─── Excluded sub-projects (not deployed for the beta) ──────────────────────
+# These are out of scope for the beta deploy. Backend, Electron, and the
+# hand-gesture lesson folders + python_calculator are what we ship.
+hand_gesture_platformer/
+core-engine/
+ios-swift/
+android-project-patch/
+actual-project-patch/
+swift-project-patch/
+*.command
+render_html_to_pdf.swift
+
+# ─── One-off junk that crept in ─────────────────────────────────────────────
+*.zip
+*.rtf
+*.pdf
+*.png
+backend-workflows.html
+backend-design-discussion.html
+backend-test-report.html
+render4000
+ql-out
+# macOS resource-fork shadow files (created when Mac reads/writes external drives)
+._*
+
+# ─── Claude/agent local config (this is your editor, not the app) ──────────
+.claude/

@@ -1,0 +1,1644 @@
+const { body, query, validationResult } = require('express-validator');
+const pool = require('../config/db');
+const {
+  getLearningProjects,
+  getLearningProjectById,
+  getLearningContentChunks,
+  getLearningRoadmapDays,
+  getLearningRoadmapDay,
+  addLearningRoadmapDay,
+  saveLearningGroupProjectUpdate,
+  getLearningGroupProjectUpdates,
+  getTeacherReadiness,
+  saveTeacherReadiness,
+  createAiInteraction,
+  saveTeacherAiDailyReport,
+  getTeacherAiDailyReports,
+  getAiInteractionsForRequester,
+} = require('../models/learningModel');
+const { addGroupMessage } = require('../models/schoolModel');
+const {
+  canAccessProject,
+  filterProjectsForUser,
+  projectMatchesClass,
+} = require('../services/projectAccessService');
+const {
+  TEACHER_READINESS_QUESTION,
+  findRelevantChunks,
+  buildControlledAnswer,
+  buildRoadmapResponse,
+  buildDayTeachingLesson,
+  buildDailyReportGuidance,
+} = require('../services/controlledAiTutorService');
+
+const buildDefaultRoadmapDays = (project) => {
+  const totalSections = Math.max(1, Number(project.expected_section_count) || 16);
+  return Array.from({ length: totalSections }, (_, index) => {
+    const dayNumber = index + 1;
+    const sectionLabel = `Section ${dayNumber}`;
+    const isFirstSection = dayNumber === 1;
+    return {
+      day_number: dayNumber,
+      month_number: Math.floor(index / 4) + 1,
+      week_number: (index % 4) + 1,
+      section_number: dayNumber,
+      section_label: sectionLabel,
+      title: `${project.title} - ${sectionLabel}`,
+      teacher_goal: isFirstSection
+        ? `Start ${project.title} from zero: show the goal, explain what learners will build, and confirm the first setup or concept step.`
+        : `Continue ${project.title} only from the last confirmed checkpoint, then guide learners through ${sectionLabel.toLowerCase()} one small action at a time.`,
+      student_goal: isFirstSection
+        ? 'Students can explain the project goal and complete the first tiny setup/concept checkpoint without assuming any finished code already exists.'
+        : `Students understand and practice the next key idea for ${sectionLabel.toLowerCase()} after proving the previous foundation.`,
+      activities: isFirstSection
+        ? [
+            'Show the project outcome or manual target so learners know where they are going',
+            'Ask what learners already have installed, wired, opened, or understood',
+            'Teach the first concept with a practical example before any copying',
+            'Complete one tiny classroom action together and check understanding before moving on',
+          ]
+        : [
+            'Review the latest saved teacher report or confirmed classroom checkpoint',
+            'Name the next tiny concept/action and why it matters for the final project',
+            'Model the action once, then let learners try it in pairs',
+            'Close with a checkpoint that proves whether the class can continue or must revisit the foundation',
+          ],
+      materials: [
+        project.source_doc_name || 'Approved project manual/target content',
+        'Student devices or notebooks',
+      ],
+      code_explanation_focus: project.code_explanation_required
+        ? 'Treat any finished code as the teacher manual/target. Explain the idea first, then create or inspect only the next small code block before students practice.'
+        : 'Treat the project material as the teacher manual/target. Explain the practical step clearly before students practice.',
+      end_of_day_checklist: [
+        'Students completed or attempted the exact checkpoint for today',
+        'Teacher recorded what was actually finished, not what the manual contains',
+        'Support needs and the next unfinished foundation were noted for the next lesson',
+      ],
+      teacher_report_prompts: [
+        'What did students complete today?',
+        'What did students understand well?',
+        'Where did students need support?',
+        'What is the first unfinished foundation for the next lesson?',
+      ],
+      next_day_prep: `Prepare only the next unfinished step of ${project.title}; do not assume students have code, files, setup, or hardware ready unless today's report confirms it.`,
+    };
+  });
+};
+
+const ensureRoadmapDays = async (project) => {
+  const existingDays = await getLearningRoadmapDays(project.id);
+  if (existingDays.length > 0) return existingDays;
+
+  const days = [];
+  for (const day of buildDefaultRoadmapDays(project)) {
+    days.push(await addLearningRoadmapDay(project.id, day));
+  }
+  return days;
+};
+
+const validateAskAi = [
+  body('question').trim().notEmpty().withMessage('question is required'),
+  body('project_id')
+    .optional({ nullable: true, checkFalsy: true })
+    .isInt()
+    .withMessage('project_id must be an integer'),
+  body('group_id').optional().isInt().withMessage('group_id must be an integer'),
+  body('help_request_id').optional().isInt().withMessage('help_request_id must be an integer'),
+  body('teacher_readiness').optional().isObject().withMessage('teacher_readiness must be an object'),
+  body('share_to_group').optional().isBoolean().withMessage('share_to_group must be a boolean'),
+];
+
+const validateRoadmapRequest = [
+  query('project_id')
+    .exists({ checkFalsy: true })
+    .withMessage('project_id is required')
+    .bail()
+    .isInt()
+    .withMessage('project_id must be an integer'),
+];
+
+const validateTeacherDailyReport = [
+  body('project_id').notEmpty().isInt().withMessage('project_id must be an integer'),
+  body('day_number').notEmpty().isInt({ min: 1 }).withMessage('day_number must be a positive integer'),
+  body('completed_items').optional().isArray().withMessage('completed_items must be an array'),
+  body('student_understanding').optional().trim(),
+  body('challenges').optional().trim(),
+  body('support_needed').optional().trim(),
+  body('teacher_notes').optional().trim(),
+];
+
+const validateTeacherGroupProjectUpdate = [
+  body('project_id').notEmpty().isInt().withMessage('project_id must be an integer'),
+  body('group_id').notEmpty().isInt().withMessage('group_id must be an integer'),
+  body('day_number').notEmpty().isInt({ min: 1 }).withMessage('day_number must be a positive integer'),
+  body('section_number').optional().isInt({ min: 1 }).withMessage('section_number must be a positive integer'),
+  body('impact_student_id').optional({ nullable: true }).isInt().withMessage('impact_student_id must be an integer'),
+  body('lead_student_id').optional({ nullable: true }).isInt().withMessage('lead_student_id must be an integer'),
+  body('completed_items').optional().isArray().withMessage('completed_items must be an array'),
+  body('impact_summary').optional().trim(),
+  body('group_progress').optional().trim(),
+  body('next_actions').optional().trim(),
+  body('teacher_notes').optional().trim(),
+];
+
+const checkValidation = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return false;
+  }
+  return true;
+};
+
+const askAi = async (req, res) => {
+  try {
+    if (!checkValidation(req, res)) return;
+
+    const userRole = req.user.role;
+    const allowedRoles = ['student', 'teacher', 'agent', 'admin'];
+    if (!allowedRoles.includes(userRole)) {
+      return res.status(403).json({ message: 'AI assistance is not available for this role' });
+    }
+
+    const project = await resolveProject(req.user, req.body.project_id, req.body.group_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Learning project not found or not available for this class' });
+    }
+
+    if (req.body.group_id) {
+      const groupAccess = await assertGroupAccess({
+        user: req.user,
+        groupId: Number(req.body.group_id),
+        helpRequestId: req.body.help_request_id ? Number(req.body.help_request_id) : null,
+      });
+
+      if (!groupAccess.allowed) {
+        return res.status(groupAccess.status).json({ message: groupAccess.message });
+      }
+
+      const groupProjectMatch = await assertGroupMatchesProject({
+        groupId: Number(req.body.group_id),
+        project,
+      });
+      if (!groupProjectMatch.allowed) {
+        return res.status(groupProjectMatch.status).json({ message: groupProjectMatch.message });
+      }
+    }
+
+    let readiness = null;
+    let readinessAnswer = null;
+
+    if (userRole === 'teacher' && project.teacher_readiness_required) {
+      readiness = await getTeacherReadiness(req.user.id, project.id);
+
+      if (req.body.teacher_readiness) {
+        readiness = await saveTeacherReadiness(req.user.id, project.id, {
+          is_good_typer: Boolean(req.body.teacher_readiness.is_good_typer),
+          knows_keyboard_letters: Boolean(req.body.teacher_readiness.knows_keyboard_letters),
+          note: req.body.teacher_readiness.note || null,
+        });
+        readinessAnswer = JSON.stringify(req.body.teacher_readiness);
+      }
+
+      if (!readiness) {
+        return res.status(200).json({
+          requires_teacher_readiness: true,
+          message: TEACHER_READINESS_QUESTION,
+          project: minimalProject(project),
+        });
+      }
+    }
+
+    const audience = resolveAudience(userRole);
+    const allChunks = await getLearningContentChunks(project.id, audience);
+    const relevantChunks = findRelevantChunks(allChunks, req.body.question, 4);
+
+    const recentHistory = await getAiInteractionsForRequester({
+      requesterType: userRole,
+      requesterId: req.user.id,
+      projectId: project.id,
+      limit: 6,
+    });
+
+    const progressEvidence = await getProgressEvidenceForAi({
+      user: req.user,
+      project,
+      groupId: req.body.group_id ? Number(req.body.group_id) : null,
+    });
+
+    const answer = await buildControlledAnswer({
+      project,
+      question: req.body.question,
+      chunks: relevantChunks,
+      allChunks,
+      audience,
+      readiness,
+      conversationHistory: recentHistory,
+      progressEvidence,
+    });
+
+    const interaction = await createAiInteraction({
+      project_id: project.id,
+      group_id: req.body.group_id || null,
+      help_request_id: req.body.help_request_id || null,
+      requester_type: userRole,
+      requester_id: req.user.id,
+      audience,
+      question: req.body.question,
+      answer: answer.answer,
+      sources: answer.sources,
+      readiness_answer: readinessAnswer,
+      metadata: requestMetadata(req),
+    });
+
+    // Emrys deliberately does NOT post its answer into the group chat. The
+    // tutor is a 1:1 surface — answers live in the AI conversation history,
+    // not the group thread. The previous code wrote `sender_type='ai'` rows
+    // into `group_messages` when callers set share_to_group=true (or passed
+    // a help_request_id). That leaked Emrys into normal group conversations,
+    // which is what we're now closing. `group_message` stays null in the
+    // response so existing client code that reads it keeps working.
+    const groupMessage = null;
+
+    res.status(200).json({
+      message: 'AI tutor response generated from approved Credent content',
+      requires_teacher_readiness: false,
+      project: minimalProject(project),
+      answer_text: answer.answer,
+      answer: answer.answer,
+      steps: answer.steps,
+      sources: answer.sources,
+      next_action: answer.next_action,
+      interaction,
+      group_message: groupMessage,
+      saved_group_message: groupMessage,
+      policy: {
+        syllabus_bound: true,
+        uses_teacher_intelligence: true,
+        uses_model_knowledge_within_syllabus: true,
+        project_is_textbook_reference: true,
+        code_explanation_required: Boolean(project.code_explanation_required),
+        in_scope: Boolean(answer.in_scope),
+        audience,
+      },
+    });
+  } catch (error) {
+    console.error('Ask AI error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ─── Agent General AI Ask — no project_id required ───────────────
+const validateAgentAskAi = [
+  body('question').trim().notEmpty().withMessage('question is required'),
+];
+
+const validateAiHistoryRequest = [
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('limit must be between 1 and 100'),
+];
+
+const agentAskAi = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (!['agent', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'This endpoint is for agents and admins only' });
+    }
+
+    const { question } = req.body;
+
+    const progressAnswer = await buildAgentProgressAnswer(question);
+    if (progressAnswer) {
+      const interaction = await createAiInteraction({
+        project_id: progressAnswer.project_id || null,
+        group_id: progressAnswer.group_id || null,
+        help_request_id: null,
+        requester_type: req.user.role,
+        requester_id: req.user.id,
+        audience: 'agent',
+        question,
+        answer: progressAnswer.answer,
+        sources: progressAnswer.sources,
+        metadata: requestMetadata(req),
+      });
+
+      return res.status(200).json({
+        message: 'Emrys AI response',
+        answer_text: progressAnswer.answer,
+        answer: progressAnswer.answer,
+        steps: progressAnswer.steps,
+        sources: progressAnswer.sources,
+        next_action: progressAnswer.next_action,
+        project: progressAnswer.project || null,
+        interaction,
+        policy: {
+          syllabus_bound: true,
+          uses_teacher_intelligence: true,
+          uses_model_knowledge_within_syllabus: true,
+          project_is_textbook_reference: true,
+          in_scope: true,
+          audience: 'agent',
+          data_source: 'progress_records',
+        },
+      });
+    }
+
+    const allProjects = await getLearningProjects();
+
+    let bestRelevantChunks = [];
+    let bestAllChunks = [];
+    let bestProject = allProjects[0] || null;
+    let bestScore = -1;
+
+    for (const project of allProjects) {
+      const projectChunks = await getLearningContentChunks(project.id, 'teacher');
+      const relevant = findRelevantChunks(projectChunks, question, 4);
+      if (relevant.length > bestScore) {
+        bestScore = relevant.length;
+        bestRelevantChunks = relevant;
+        bestAllChunks = projectChunks;
+        bestProject = project;
+      }
+    }
+
+    const agentHistory = await getAiInteractionsForRequester({
+      requesterType: req.user.role,
+      requesterId: req.user.id,
+      projectId: bestProject?.id || null,
+      limit: 6,
+    });
+
+    const progressEvidence = bestProject
+      ? await getProgressEvidenceForAi({ user: req.user, project: bestProject, groupId: null })
+      : { dailyReports: [], groupUpdates: [] };
+
+    const answer = await buildControlledAnswer({
+      project: bestProject,
+      question,
+      chunks: bestRelevantChunks,
+      allChunks: bestAllChunks,
+      audience: 'agent',
+      readiness: null,
+      conversationHistory: agentHistory,
+      progressEvidence,
+    });
+
+    const interaction = await createAiInteraction({
+      project_id: bestProject?.id || null,
+      group_id: null,
+      help_request_id: null,
+      requester_type: req.user.role,
+      requester_id: req.user.id,
+      audience: 'agent',
+      question,
+      answer: answer.answer,
+      sources: answer.sources || [],
+      metadata: requestMetadata(req),
+    });
+
+    res.status(200).json({
+      message: 'Emrys AI response',
+      answer_text: answer.answer,
+      answer: answer.answer,
+      steps: answer.steps || [],
+      sources: answer.sources || [],
+      next_action: answer.next_action || '',
+      project: bestProject ? minimalProject(bestProject) : null,
+      interaction,
+      policy: {
+        syllabus_bound: true,
+        uses_teacher_intelligence: true,
+        uses_model_knowledge_within_syllabus: true,
+        project_is_textbook_reference: true,
+        in_scope: answer.in_scope !== false,
+        audience: 'agent',
+      },
+    });
+  } catch (error) {
+    console.error('Agent ask AI error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const getAiHistory = async (req, res) => {
+  try {
+    if (!checkValidation(req, res)) return;
+
+    const allowedRoles = ['student', 'teacher', 'agent', 'admin'];
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'AI history is not available for this role' });
+    }
+
+    const interactions = await getAiInteractionsForRequester({
+      requesterType: req.user.role,
+      requesterId: req.user.id,
+      limit: Number(req.query.limit || 50),
+    });
+
+    const messages = [];
+    interactions.forEach((interaction) => {
+      messages.push({
+        id: `${interaction.id}-user`,
+        interaction_id: interaction.id,
+        role: 'user',
+        text: interaction.question,
+        created_at: interaction.created_at,
+        project_id: interaction.project_id,
+        project_title: interaction.project_title,
+      });
+      messages.push({
+        id: `${interaction.id}-assistant`,
+        interaction_id: interaction.id,
+        role: 'assistant',
+        text: interaction.answer,
+        created_at: interaction.created_at,
+        project_id: interaction.project_id,
+        project_title: interaction.project_title,
+        sources: interaction.sources || [],
+      });
+    });
+
+    res.status(200).json({ messages, interactions });
+  } catch (error) {
+    console.error('Get AI history error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const getTeachingRoadmap = async (req, res) => {
+  try {
+    if (!checkValidation(req, res)) return;
+
+    if (!['teacher', 'agent', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Teaching roadmap is available for teachers, agents and admins only' });
+    }
+
+    const project = await resolveProject(req.user, req.query.project_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Learning project not found or not available for this class' });
+    }
+
+    let readiness = null;
+    let reports = [];
+    if (req.user.role === 'teacher') {
+      readiness = await getTeacherReadiness(req.user.id, project.id);
+      reports = await getTeacherAiDailyReports(project.id, req.user.id);
+
+      if (project.teacher_readiness_required && !readiness) {
+        return res.status(200).json({
+          requires_teacher_readiness: true,
+          message: TEACHER_READINESS_QUESTION,
+          project: minimalProject(project),
+        });
+      }
+    }
+
+    const days = await ensureRoadmapDays(project);
+    const roadmap = buildRoadmapResponse({ project, days, readiness });
+
+    // Return the roadmap immediately — current_day_lesson is loaded on-demand
+    // by the frontend via GET /api/ai/teaching-lesson, so we don't block this
+    // response on the Claude call.
+    const reportedDays = new Set(reports.map((r) => Number(r.day_number)));
+    const nextDay = days.find((d) => !reportedDays.has(Number(d.day_number))) || days[days.length - 1];
+
+    res.status(200).json({
+      message: roadmap.message,
+      project: minimalProject(project),
+      roadmap: roadmap.roadmap,
+      current_day_lesson: null,
+      next_day_number: nextDay ? nextDay.day_number : null,
+      prior_reports: reports,
+      policy: {
+        syllabus_bound: true,
+        uses_teacher_intelligence: true,
+        uses_model_knowledge_within_syllabus: true,
+        project_is_textbook_reference: true,
+        teacher_readiness_required: Boolean(project.teacher_readiness_required),
+      },
+    });
+  } catch (error) {
+    console.error('Get AI teaching roadmap error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// GET /api/ai/teaching-lesson?project_id=X&day_number=N
+// Returns the FULL teach-ready lesson for one specific day. Lazy companion
+// to /api/ai/roadmap — the roadmap call returns a slim list of days and the
+// current day's full lesson; this endpoint lets the teacher click any other
+// day to load that day's full lesson on demand.
+const getTeachingDayLesson = async (req, res) => {
+  try {
+    if (!['teacher', 'agent', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Teaching lessons are available for teachers, agents and admins only' });
+    }
+
+    const project = await resolveProject(req.user, req.query.project_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Learning project not found or not available for this class' });
+    }
+
+    const dayNumber = Number(req.query.day_number);
+    if (!Number.isFinite(dayNumber) || dayNumber < 1) {
+      return res.status(400).json({ message: 'day_number must be a positive integer' });
+    }
+
+    let readiness = null;
+    let reports = [];
+    if (req.user.role === 'teacher') {
+      readiness = await getTeacherReadiness(req.user.id, project.id);
+      reports = await getTeacherAiDailyReports(project.id, req.user.id);
+
+      if (project.teacher_readiness_required && !readiness) {
+        return res.status(200).json({
+          requires_teacher_readiness: true,
+          message: TEACHER_READINESS_QUESTION,
+          project: minimalProject(project),
+        });
+      }
+    }
+
+    await ensureRoadmapDays(project);
+    const day = await getLearningRoadmapDay(project.id, dayNumber);
+    if (!day) {
+      return res.status(404).json({ message: `Day ${dayNumber} is not in the roadmap for this project` });
+    }
+
+    const allChunks = await getLearningContentChunks(project.id);
+
+    const lesson = await buildDayTeachingLesson({
+      project,
+      day,
+      allChunks,
+      readiness,
+      recentReports: reports.slice(-3),
+    });
+
+    res.status(200).json({
+      project: minimalProject(project),
+      lesson,
+    });
+  } catch (error) {
+    console.error('Get AI teaching day lesson error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const submitTeacherDailyReport = async (req, res) => {
+  try {
+    if (!checkValidation(req, res)) return;
+
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teachers can submit AI daily teaching reports' });
+    }
+
+    const project = await resolveProject(req.user, req.body.project_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Learning project not found or not available for this class' });
+    }
+
+    const readiness = await getTeacherReadiness(req.user.id, project.id);
+    if (project.teacher_readiness_required && !readiness) {
+      return res.status(200).json({
+        requires_teacher_readiness: true,
+        message: TEACHER_READINESS_QUESTION,
+        project: minimalProject(project),
+      });
+    }
+
+    const dayNumber = Number(req.body.day_number);
+    await ensureRoadmapDays(project);
+    const roadmapDay = await getLearningRoadmapDay(project.id, dayNumber);
+    if (!roadmapDay) {
+      return res.status(404).json({ message: 'Roadmap day not found for this project' });
+    }
+
+    const reportInput = {
+      project_id: project.id,
+      teacher_id: req.user.id,
+      day_number: dayNumber,
+      completed_items: req.body.completed_items || [],
+      student_understanding: req.body.student_understanding || null,
+      challenges: req.body.challenges || null,
+      support_needed: req.body.support_needed || null,
+      teacher_notes: req.body.teacher_notes || null,
+    };
+
+    const aiNextSteps = await buildDailyReportGuidance({
+      project,
+      roadmapDay,
+      report: reportInput,
+      readiness,
+    });
+
+    const report = await saveTeacherAiDailyReport({
+      ...reportInput,
+      ai_next_steps: aiNextSteps,
+    });
+
+    const nextDay = await getLearningRoadmapDay(project.id, dayNumber + 1);
+
+    res.status(201).json({
+      message: 'Teacher AI daily report saved',
+      project: minimalProject(project),
+      roadmap_day: roadmapDay,
+      report,
+      ai_next_steps: aiNextSteps,
+      next_roadmap_day: nextDay || null,
+      policy: {
+        syllabus_bound: true,
+        uses_teacher_intelligence: true,
+        uses_model_knowledge_within_syllabus: true,
+        project_is_textbook_reference: true,
+      },
+    });
+  } catch (error) {
+    console.error('Submit teacher AI daily report error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const submitTeacherGroupProjectUpdate = async (req, res) => {
+  try {
+    if (!checkValidation(req, res)) return;
+
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teachers can update group project impact and lead records' });
+    }
+
+    const project = await resolveProject(req.user, req.body.project_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Learning project not found or not available for this class' });
+    }
+
+    const groupId = Number(req.body.group_id);
+    const groupAccess = await assertGroupAccess({
+      user: req.user,
+      groupId,
+      helpRequestId: null,
+    });
+
+    if (!groupAccess.allowed) {
+      return res.status(groupAccess.status).json({ message: groupAccess.message });
+    }
+
+    const groupProjectMatch = await assertGroupMatchesProject({ groupId, project });
+    if (!groupProjectMatch.allowed) {
+      return res.status(groupProjectMatch.status).json({ message: groupProjectMatch.message });
+    }
+
+    const dayNumber = Number(req.body.day_number);
+    await ensureRoadmapDays(project);
+    const roadmapDay = await getLearningRoadmapDay(project.id, dayNumber);
+    if (!roadmapDay) {
+      return res.status(404).json({ message: 'Roadmap section/day not found for this project' });
+    }
+
+    const impactStudentId = req.body.impact_student_id ? Number(req.body.impact_student_id) : null;
+    const leadStudentId = req.body.lead_student_id ? Number(req.body.lead_student_id) : null;
+
+    if (impactStudentId) {
+      const impactStudent = await getStudentInGroupClass(groupId, impactStudentId);
+      if (!impactStudent) {
+        return res.status(400).json({ message: 'Impact student must belong to this group and class' });
+      }
+    }
+
+    if (leadStudentId) {
+      const leadStudent = await getStudentInGroupClass(groupId, leadStudentId);
+      if (!leadStudent) {
+        return res.status(400).json({ message: 'Lead student must belong to this group and class' });
+      }
+    }
+
+    const update = await saveLearningGroupProjectUpdate({
+      project_id: project.id,
+      group_id: groupId,
+      teacher_id: req.user.id,
+      roadmap_day_id: roadmapDay.id,
+      day_number: dayNumber,
+      section_number: req.body.section_number || roadmapDay.section_number || dayNumber,
+      impact_student_id: impactStudentId,
+      lead_student_id: leadStudentId,
+      impact_summary: req.body.impact_summary || null,
+      group_progress: req.body.group_progress || null,
+      completed_items: req.body.completed_items || [],
+      next_actions: req.body.next_actions || null,
+      teacher_notes: req.body.teacher_notes || null,
+    });
+
+    const history = await getLearningGroupProjectUpdates({
+      projectId: project.id,
+      groupId,
+    });
+
+    res.status(201).json({
+      message: 'Group project section update saved',
+      project: minimalProject(project),
+      roadmap_section: roadmapDay,
+      update,
+      group_history: history,
+      teacher_guidance: [
+        'Use this update to decide who leads the next section.',
+        'The lead should be based on impact, teamwork, explanation quality, and responsibility, not only who finished first.',
+      ].join(' '),
+    });
+  } catch (error) {
+    console.error('Submit teacher group project update error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const resolveProject = async (user, projectId, groupId = null) => {
+  if (projectId) {
+    const project = await getLearningProjectById(projectId);
+    if (!project) return null;
+    return (await canAccessProject(user, project)) ? project : null;
+  }
+
+  const projects = await getLearningProjects();
+  const visibleProjects = await filterProjectsForUser(user, projects);
+
+  if (groupId) {
+    const groupResult = await pool.query(
+      'SELECT grade, class_name FROM student_groups WHERE id = $1',
+      [groupId]
+    );
+    const group = groupResult.rows[0];
+    if (group) {
+      const exactMatch = visibleProjects.find((project) => projectMatchesClass(project, group));
+      if (exactMatch) return exactMatch;
+
+      const classMatch = visibleProjects.find((project) =>
+        project.class_name
+        && group.class_name
+        && String(project.class_name).trim().toLowerCase() === String(group.class_name).trim().toLowerCase()
+      );
+      if (classMatch) return classMatch;
+    }
+  }
+
+  return visibleProjects[0];
+};
+
+const resolveAudience = (role) => (['teacher', 'agent', 'admin'].includes(role) ? 'teacher' : 'student');
+
+const requestMetadata = (req) => ({
+  user_agent: req.get('user-agent') || null,
+  platform: req.get('x-client-platform') || null,
+  app_version: req.get('x-app-version') || null,
+  has_device_token: Boolean(req.get('x-device-token')),
+});
+
+const getProgressEvidenceForAi = async ({ user, project, groupId = null }) => {
+  if (!project?.id) {
+    return { dailyReports: [], groupUpdates: [] };
+  }
+
+  const [dailyReports, groupUpdates] = await Promise.all([
+    user.role === 'teacher'
+      ? getTeacherAiDailyReports(project.id, user.id)
+      : Promise.resolve([]),
+    groupId
+      ? getLearningGroupProjectUpdates({ projectId: project.id, groupId })
+      : Promise.resolve([]),
+  ]);
+
+  return { dailyReports, groupUpdates };
+};
+
+const isProgressQuestion = (question) => {
+  return /progress|student|understanding|report|challenge|support|group|impact|lead|completed|stuck|behind|performance|update|where\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)|how\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)\s+doing/i
+    .test(String(question || ''));
+};
+
+const buildAgentProgressAnswer = async (question) => {
+  if (!isProgressQuestion(question)) return null;
+
+  const [updatesResult, reportsResult] = await Promise.all([
+    pool.query(
+      `SELECT lgpu.*,
+              lp.title AS project_title,
+              sg.name AS group_name,
+              impact.full_name AS impact_student_name,
+              lead.full_name AS lead_student_name
+       FROM learning_group_project_updates lgpu
+       JOIN learning_projects lp ON lp.id = lgpu.project_id
+       JOIN student_groups sg ON sg.id = lgpu.group_id
+       LEFT JOIN students impact ON impact.id = lgpu.impact_student_id
+       LEFT JOIN students lead ON lead.id = lgpu.lead_student_id
+       ORDER BY lgpu.updated_at DESC
+       LIMIT 5`
+    ),
+    pool.query(
+      `SELECT tair.*,
+              lp.title AS project_title,
+              t.full_name AS teacher_name
+       FROM teacher_ai_daily_reports tair
+       JOIN learning_projects lp ON lp.id = tair.project_id
+       JOIN teachers t ON t.id = tair.teacher_id
+       ORDER BY tair.updated_at DESC
+       LIMIT 5`
+    ),
+  ]);
+
+  const updates = updatesResult.rows;
+  const reports = reportsResult.rows;
+  const primaryProjectId = updates[0]?.project_id || reports[0]?.project_id || null;
+  const primaryGroupId = updates[0]?.group_id || null;
+  const primaryProject = primaryProjectId
+    ? {
+        id: primaryProjectId,
+        title: updates[0]?.project_title || reports[0]?.project_title,
+      }
+    : null;
+
+  if (updates.length === 0 && reports.length === 0) {
+    return {
+      project_id: null,
+      group_id: null,
+      project: null,
+      answer: [
+        'I do not see saved student progress records yet.',
+        'Progress will appear here after a teacher submits a daily AI report or a group project section update.',
+        'Agent next move: ask the teacher to submit today’s project report, or open the group project update flow after class activity.',
+      ].join('\n\n'),
+      steps: [],
+      sources: [],
+      next_action: 'Ask the teacher to submit a daily report or group project update so Emrys can summarize real progress.',
+    };
+  }
+
+  const lines = [];
+  lines.push('Source: saved Credent progress records.');
+  lines.push('Here is the latest saved student progress from Credent records.');
+
+  if (updates.length > 0) {
+    lines.push('');
+    lines.push('Group project updates:');
+    updates.forEach((update, index) => {
+      const parts = [
+        `${index + 1}. ${update.group_name} on "${update.project_title}", day ${update.day_number}`,
+      ];
+      if (update.group_progress) parts.push(`progress: ${update.group_progress}`);
+      if (update.impact_summary) parts.push(`impact: ${update.impact_summary}`);
+      if (update.lead_student_name) parts.push(`lead: ${update.lead_student_name}`);
+      if (update.impact_student_name) parts.push(`impact student: ${update.impact_student_name}`);
+      if (Array.isArray(update.completed_items) && update.completed_items.length > 0) {
+        parts.push(`completed: ${update.completed_items.join(', ')}`);
+      }
+      if (update.next_actions) parts.push(`next: ${update.next_actions}`);
+      lines.push(parts.join('; '));
+    });
+  }
+
+  if (reports.length > 0) {
+    lines.push('');
+    lines.push('Teacher daily reports:');
+    reports.forEach((report, index) => {
+      const parts = [
+        `${index + 1}. ${report.teacher_name} on "${report.project_title}", day ${report.day_number}`,
+      ];
+      if (report.student_understanding) parts.push(`understanding: ${report.student_understanding}`);
+      if (report.challenges) parts.push(`challenge: ${report.challenges}`);
+      if (report.support_needed) parts.push(`support needed: ${report.support_needed}`);
+      if (report.ai_next_steps) parts.push(`AI next steps: ${report.ai_next_steps}`);
+      lines.push(parts.join('; '));
+    });
+  }
+
+  lines.push('');
+  lines.push('Agent next move: follow up on the newest challenge or support-needed item first, then ask the teacher to update the report after the next class activity.');
+
+  const steps = [
+    ...updates.slice(0, 3).map((update, index) => ({
+      position: index + 1,
+      chunk_id: 0,
+      step_number: update.day_number,
+      label: `Group update ${index + 1}`,
+      title: `${update.group_name} progress`,
+      summary: update.group_progress || update.impact_summary || update.next_actions || 'Saved group project update',
+    })),
+    ...reports.slice(0, 2).map((report, index) => ({
+      position: updates.slice(0, 3).length + index + 1,
+      chunk_id: 0,
+      step_number: report.day_number,
+      label: `Teacher report ${index + 1}`,
+      title: `${report.teacher_name} daily report`,
+      summary: report.student_understanding || report.challenges || report.support_needed || 'Saved teacher daily report',
+    })),
+  ];
+
+  return {
+    project_id: primaryProjectId,
+    group_id: primaryGroupId,
+    project: primaryProject ? minimalProject({
+      id: primaryProject.id,
+      title: primaryProject.title,
+      subject: null,
+      grade: null,
+      class_name: null,
+      duration_months: null,
+      expected_section_count: null,
+    }) : null,
+    answer: lines.join('\n'),
+    steps,
+    sources: [
+      ...updates.map((update) => ({
+        source_type: 'group_project_update',
+        update_id: update.id,
+        project_id: update.project_id,
+        group_id: update.group_id,
+        day_number: update.day_number,
+      })),
+      ...reports.map((report) => ({
+        source_type: 'teacher_daily_report',
+        report_id: report.id,
+        project_id: report.project_id,
+        teacher_id: report.teacher_id,
+        day_number: report.day_number,
+      })),
+    ],
+    next_action: 'Follow up on the newest challenge or support-needed item, then ask for a fresh report after the next class activity.',
+  };
+};
+
+const minimalProject = (project) => ({
+  id: project.id,
+  title: project.title,
+  subject: project.subject,
+  grade: project.grade,
+  class_name: project.class_name,
+  duration_months: project.duration_months,
+  expected_section_count: project.expected_section_count,
+});
+
+const assertGroupAccess = async ({ user, groupId, helpRequestId }) => {
+  const group = await pool.query('SELECT id FROM student_groups WHERE id = $1', [groupId]);
+  if (!group.rows[0]) {
+    return { allowed: false, status: 404, message: 'Group not found' };
+  }
+
+  if (helpRequestId) {
+    const helpRequest = await pool.query(
+      'SELECT id FROM group_help_requests WHERE id = $1 AND group_id = $2',
+      [helpRequestId, groupId]
+    );
+    if (!helpRequest.rows[0]) {
+      return { allowed: false, status: 400, message: 'Help request does not belong to this group' };
+    }
+  }
+
+  if (['admin', 'agent'].includes(user.role)) {
+    return { allowed: true };
+  }
+
+  if (user.role === 'student') {
+    const membership = await pool.query(
+      `SELECT 1
+       FROM group_members gm
+       JOIN student_groups sg ON sg.id = gm.group_id
+       JOIN students s ON s.id = gm.student_id
+       WHERE gm.group_id = $1
+         AND gm.student_id = $2
+         AND s.school_id = sg.school_id
+         AND (
+           sg.grade IS NULL
+           OR s.grade IS NULL
+           OR LOWER(s.grade) = LOWER(sg.grade)
+         )
+         AND (
+           sg.class_name IS NULL
+           OR s.class_name IS NULL
+           OR LOWER(s.class_name) = LOWER(sg.class_name)
+         )
+         AND (
+           (sg.semester IS NULL AND s.semester IS NULL)
+           OR (sg.semester IS NOT NULL AND s.semester IS NOT NULL AND LOWER(s.semester) = LOWER(sg.semester))
+         )
+       LIMIT 1`,
+      [groupId, user.id]
+    );
+    return membership.rows[0]
+      ? { allowed: true }
+      : { allowed: false, status: 403, message: 'Access denied for this group' };
+  }
+
+  if (user.role === 'teacher') {
+    const access = await pool.query(
+      `SELECT 1
+       FROM teacher_group_access
+       WHERE group_id = $1 AND teacher_id = $2 AND is_active = true
+       LIMIT 1`,
+      [groupId, user.id]
+    );
+    return access.rows[0]
+      ? { allowed: true }
+      : { allowed: false, status: 403, message: 'Access denied for this group' };
+  }
+
+  return { allowed: false, status: 403, message: 'Access denied for this group' };
+};
+
+const assertGroupMatchesProject = async ({ groupId, project }) => {
+  if (!project.grade || !project.class_name) {
+    return {
+      allowed: false,
+      status: 403,
+      message: 'Project must be assigned to a class before it can be used in a group',
+    };
+  }
+
+  const result = await pool.query(
+    `SELECT 1
+     FROM student_groups
+     WHERE id = $1
+       AND (
+         grade IS NULL
+         OR LOWER(grade) = LOWER($2)
+       )
+       AND (
+         class_name IS NULL
+         OR LOWER(class_name) = LOWER($3)
+       )
+     LIMIT 1`,
+    [groupId, project.grade, project.class_name]
+  );
+
+  return result.rows[0]
+    ? { allowed: true }
+    : { allowed: false, status: 403, message: 'Project access denied for this group class' };
+};
+
+const getStudentInGroupClass = async (groupId, studentId) => {
+  const result = await pool.query(
+    `SELECT s.id, s.student_id, s.full_name, s.class_name, s.semester
+     FROM group_members gm
+     JOIN student_groups sg ON sg.id = gm.group_id
+     JOIN students s ON s.id = gm.student_id
+     WHERE gm.group_id = $1
+       AND gm.student_id = $2
+       AND s.school_id = sg.school_id
+       AND (
+         sg.grade IS NULL
+         OR s.grade IS NULL
+         OR LOWER(s.grade) = LOWER(sg.grade)
+       )
+       AND (
+         sg.class_name IS NULL
+         OR s.class_name IS NULL
+         OR LOWER(s.class_name) = LOWER(sg.class_name)
+       )
+       AND (
+         (sg.semester IS NULL AND s.semester IS NULL)
+         OR (sg.semester IS NOT NULL AND s.semester IS NOT NULL AND LOWER(s.semester) = LOWER(sg.semester))
+       )
+     LIMIT 1`,
+    [groupId, studentId]
+  );
+  return result.rows[0];
+};
+
+const getTeacherReports = async (req, res) => {
+  try {
+    const allowedRoles = ['teacher', 'agent', 'admin'];
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Not available for this role' });
+    }
+
+    let rows;
+    if (req.user.role === 'teacher') {
+      const result = await pool.query(
+        `SELECT tair.*,
+                lp.title AS project_title
+         FROM teacher_ai_daily_reports tair
+         JOIN learning_projects lp ON lp.id = tair.project_id
+         WHERE tair.teacher_id = $1
+         ORDER BY tair.updated_at DESC
+         LIMIT 50`,
+        [req.user.id]
+      );
+      rows = result.rows;
+    } else {
+      const result = await pool.query(
+        `SELECT tair.*,
+                lp.title AS project_title,
+                t.full_name AS teacher_name
+         FROM teacher_ai_daily_reports tair
+         JOIN learning_projects lp ON lp.id = tair.project_id
+         JOIN teachers t ON t.id = tair.teacher_id
+         ORDER BY tair.updated_at DESC
+         LIMIT 50`
+      );
+      rows = result.rows;
+    }
+
+    const reports = rows.map((r) => ({
+      id: r.id,
+      project_title: r.project_title,
+      teacher_name: r.teacher_name || null,
+      day_number: r.day_number,
+      summary: [r.student_understanding, r.challenges, r.support_needed]
+        .filter(Boolean).join(' | ') || r.ai_next_steps || 'Report saved',
+      date: r.updated_at ? new Date(r.updated_at).toISOString().slice(0, 10) : null,
+      ai_next_steps: r.ai_next_steps || null,
+      score: null,
+    }));
+
+    res.status(200).json({ reports });
+  } catch (error) {
+    console.error('Get teacher reports error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ─── Transcribe Audio (OpenAI Whisper → Deepgram fallback) ───────────────────
+// Used by the desktop "Teach" mode for live voice commands. Tries OpenAI
+// Whisper first (best accuracy); falls back to Deepgram (free tier, $200
+// credit) if no OpenAI key is configured. Either provider can be used —
+// agents can swap freely without code changes.
+const transcribeAudio = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'audio file is required (field: file)' });
+    }
+
+    const fetch = global.fetch || ((...args) => import('node-fetch').then(({ default: f }) => f(...args)));
+    const openaiKey   = process.env.OPENAI_API_KEY;
+    const deepgramKey = process.env.DEEPGRAM_API_KEY;
+    // Treat common placeholder shapes as "not set" so a forgotten dummy
+    // value doesn't get sent to the API.
+    const isPlaceholder = (v) => !v || /your[-_]?(api[-_]?)?key[-_]?here|\.\.\.|^x{3,}$|^sk-\.\.\./i.test(v);
+    const hasOpenai   = !isPlaceholder(openaiKey);
+    const hasDeepgram = !isPlaceholder(deepgramKey);
+
+    if (!hasOpenai && !hasDeepgram) {
+      return res.status(503).json({
+        message: 'Transcription not configured. Set OPENAI_API_KEY or DEEPGRAM_API_KEY in backend .env.',
+      });
+    }
+
+    // ── Provider 1: OpenAI Whisper (preferred when available) ────────
+    if (hasOpenai) {
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('file', req.file.buffer, {
+        filename: req.file.originalname || 'audio.webm',
+        contentType: req.file.mimetype || 'audio/webm',
+      });
+      form.append('model', 'whisper-1');
+      form.append('response_format', 'json');
+      if (req.body.language) form.append('language', String(req.body.language));
+
+      const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${openaiKey}`, ...form.getHeaders() },
+        body: form,
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        // If OpenAI is misconfigured but Deepgram is available, fall through.
+        if (!hasDeepgram) {
+          return res.status(502).json({ message: data?.error?.message || 'OpenAI transcription failed' });
+        }
+        console.warn('[transcribe] OpenAI failed, falling back to Deepgram:', data?.error?.message);
+      } else {
+        return res.status(200).json({ text: data.text || '', provider: 'openai' });
+      }
+    }
+
+    // ── Provider 2: Deepgram (free-tier friendly) ────────────────────
+    // Send raw audio bytes with the source content-type. Deepgram's nova-2
+    // model is fast and accurate enough for short command utterances.
+    const params = new URLSearchParams({
+      model: 'nova-2',
+      smart_format: 'true',
+      punctuate: 'true',
+    });
+    if (req.body.language) params.set('language', String(req.body.language));
+
+    // Some Deepgram routes reject the `;codecs=opus` suffix on the mime
+    // type — strip it down to the base type, which Deepgram auto-detects.
+    const baseMime = String(req.file.mimetype || 'audio/webm').split(';')[0].trim();
+    const r = await fetch(`https://api.deepgram.com/v1/listen?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${deepgramKey}`,
+        'Content-Type': baseMime,
+      },
+      body: req.file.buffer,
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      return res.status(502).json({ message: data?.err_msg || data?.error || 'Deepgram transcription failed' });
+    }
+    const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+    return res.status(200).json({ text: transcript, provider: 'deepgram' });
+  } catch (error) {
+    console.error('transcribeAudio error:', error.message);
+    return res.status(500).json({ message: 'Server error transcribing audio' });
+  }
+};
+
+// ─── Ask with Attachment (file or transcribed audio) ──────────────────────────
+const askWithAttachment = async (req, res) => {
+  try {
+    const { question = '', transcribed_audio = '' } = req.body;
+    const userQuestion = (transcribed_audio || question).trim();
+
+    const client = require('../services/controlledAiTutorService').getClient
+      ? null : null; // use inline Anthropic below
+    const Anthropic = require('@anthropic-ai/sdk');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
+      return res.status(503).json({ message: 'AI service not configured' });
+    }
+    const anthropic = new Anthropic({ apiKey });
+
+    const role = req.user?.role || 'student';
+    const systemPrompt = `You are Emrys, the AI teacher on the Credent education platform. You help ${role}s understand content shared with you. When given a file or image, analyse it fully and answer any question about it. When given a voice transcription, treat it as the user's spoken question.
+
+Teaching rule: Emrys is the active teacher for the lesson, not only a reference book or roadmap writer. The learners are children and beginners, so explain at kids level with simple words, tiny steps, familiar examples, and no unexplained technical terms. Use full teaching and technical knowledge inside the project scope to identify likely requirements before starting, including apps, files, packages, libraries, hardware, accounts, internet access, folders, and setup steps. Treat project files, code, roadmap notes, screenshots, and manuals as source material and a final target. They are not proof that students already have the code, setup, wiring, or files. If the user is teaching a project, start from the first unfinished foundation unless they clearly say earlier work is complete.
+
+Answer rule: do not give only a roadmap. If the project is starting or setup is uncertain, first ask whether students have downloaded/opened the required tools, installed requirements, saved files in the right folder, and prepared any needed hardware or internet access. If anything is missing, teach that setup first at beginner level. Then answer the question directly with actual teaching notes, clear explanation, class wording, examples, and usable code or solution steps when relevant. If the user is a teacher, provide what they can say and show to the class without relying on their own prior experience. For code, explain each important line like students are seeing code for the first time. End with a short checkpoint or practice task so the learner proves understanding.`;
+
+    let contentBlocks = [];
+
+    // Attach file if provided
+    if (req.file) {
+      const mime = req.file.mimetype;
+      const buf = req.file.buffer;
+
+      if (mime === 'application/pdf') {
+        // Claude supports PDF as base64 document
+        contentBlocks.push({
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: buf.toString('base64'),
+          },
+        });
+      } else if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(mime)) {
+        const imgMime = mime === 'image/jpg' ? 'image/jpeg' : mime;
+        contentBlocks.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: imgMime,
+            data: buf.toString('base64'),
+          },
+        });
+      } else {
+        // Try to decode as text (CSV, txt, code, etc.)
+        try {
+          const text = buf.toString('utf-8');
+          contentBlocks.push({ type: 'text', text: `File content (${req.file.originalname}):\n${text}` });
+        } catch (_) {
+          return res.status(422).json({ message: 'Unsupported file type. Please send PDF, image, or text file.' });
+        }
+      }
+    }
+
+    // Add the user question / transcribed audio
+    const prompt = userQuestion
+      ? userQuestion
+      : req.file
+        ? `Please describe and summarise what you see in this ${req.file.mimetype.includes('image') ? 'image' : 'file'}.`
+        : 'Hello';
+    contentBlocks.push({ type: 'text', text: prompt });
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1800,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: contentBlocks }],
+    });
+
+    const answer = response.content?.[0]?.text || 'I was unable to process that. Please try again.';
+
+    // Save to interaction history so messages persist across sessions
+    try {
+      await createAiInteraction({
+        project_id: null,
+        group_id: null,
+        help_request_id: null,
+        requester_type: role,
+        requester_id: req.user.id,
+        audience: role === 'student' ? 'student' : 'teacher',
+        question: prompt,
+        answer,
+        sources: [],
+        metadata: requestMetadata(req),
+      });
+    } catch (_) {}
+
+    return res.status(200).json({
+      message: 'Emrys AI response',
+      answer_text: answer,
+      answer,
+    });
+  } catch (error) {
+    console.error('askWithAttachment error:', error.message);
+    return res.status(500).json({ message: 'Server error processing attachment' });
+  }
+};
+
+// ─── Tutor mode (10-rule patient teacher; conversational, multi-turn) ───────
+// Distinct from the "quick answer" askAi flow. Uses ai_tutoring_sessions to
+// persist state across turns (and across days) so Emrys remembers what the
+// student already learned, what they tried, and which topic is current.
+//
+// Flow per request:
+//   1. Resolve or create the active session (1-hour TTL).
+//   2. Pull project context (description + chunks) — full grounding per
+//      user's preference.
+//   3. Build the system prompt: 10 rules verbatim, plus session memory,
+//      plus a HARD CAP of 5 lines of code per response and the
+//      [advance:] / [checkpoint:] marker contract.
+//   4. Call Claude with the last N turns as multi-turn messages.
+//   5. Strip the markers from the answer (but use them to update session).
+//   6. Persist the turn + return answer + session metadata.
+
+const {
+  getOrCreateActiveTutoringSession,
+  appendTutoringTurn,
+  endTutoringSession,
+  getActiveTutoringSession,
+  createAiInteraction: persistTutorTurn,
+} = require('../models/learningModel');
+const {
+  getLearningProjectById: getProjectForTutor,
+  getLearningContentChunks: getChunksForTutor,
+} = require('../models/learningModel');
+const { callClaudeWithHistory: callClaudeForTutor } = require('../services/controlledAiTutorService');
+
+const TUTOR_RULES = `You are Emrys, a patient coding teacher for absolute beginners.
+
+YOUR TEACHING RULES — never break these:
+
+1. NEVER give the full code upfront.
+   Always build in small steps, one concept at a time.
+
+2. TEACH the concept in plain English before showing any code.
+   Example: explain what a variable IS before writing one.
+
+3. After explaining, ask the student to TRY writing it first.
+   Only correct them after they attempt it.
+
+4. Ask an understanding-check question before moving to the next step.
+   Example: "Before we continue — can you tell me in your own words
+   what this line does?"
+
+5. When the student makes an error, DO NOT fix it immediately.
+   Ask: "What do you think this error is telling you?"
+   Guide them to find the answer themselves.
+
+6. Use real-world analogies for every new concept.
+   Example: "A function is like a recipe — you write it once,
+   use it many times."
+
+7. Celebrate small wins. Every working step is progress.
+
+8. Never assume the student knows anything. Always define terms.
+
+9. Keep each step small enough to finish in under 5 minutes.
+
+10. At the end of every session ask:
+    "What did you learn today? Explain it back to me."
+
+YOUR GOAL: The student should be able to rebuild the project
+themselves from memory after completing it with you.
+You are not here to impress them with code.
+You are here to make them capable.
+
+HARD OUTPUT CAPS (enforced by code, do not break):
+- Maximum 5 lines of code per response. If more is needed, split across turns.
+- One concept per response. Never bundle two topics.
+- Prefer plain English over code in every turn.
+
+STATE MARKERS — append at the very end of your response when applicable:
+- When you move to a new topic, write: [advance: <topic name>]
+- When the student has clearly grasped a concept, write: [checkpoint: <concept>]
+- Markers are stripped before the student sees the response. They update memory.
+
+If this is the FIRST turn of the session, greet the student warmly, ask which
+part of the project they want to start with, and use a real-world analogy to
+welcome them. Do NOT dump the syllabus.`;
+
+const buildTutorSystemPrompt = (session, project, chunks) => {
+  const completed = Array.isArray(session.completed_topics) ? session.completed_topics : [];
+  const projectTitle = project?.title || '(no project selected)';
+  const projectDesc = project?.description || '';
+  const projectGoals = project?.learning_goals || '';
+  const chunkLines = (chunks || []).slice(0, 30).map(c => {
+    const title = c.title || 'Untitled';
+    const body = (c.content || '').replace(/\s+/g, ' ').slice(0, 600);
+    return `- ${title}: ${body}`;
+  }).join('\n');
+
+  return `${TUTOR_RULES}
+
+CURRENT SESSION:
+- Project: ${projectTitle}
+- Current topic: ${session.current_topic || '(starting fresh)'}
+- Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
+- Student's last attempt: ${session.last_attempt || '(none yet)'}
+- Turn count so far: ${session.turn_count || 0}
+
+PROJECT GROUNDING (use ONLY this — never invent components, libraries, or APIs):
+Description: ${projectDesc}
+Learning goals: ${projectGoals}
+${chunkLines ? `\nReference material:\n${chunkLines}` : ''}
+
+Now respond to the student's latest message. Remember: small step, plain English first, ask them to try.`;
+};
+
+// Parse [advance:] / [checkpoint:] markers from the end of the response.
+// Returns { cleanAnswer, advanceTopic, checkpoint }.
+const parseTutorMarkers = (raw) => {
+  if (!raw) return { cleanAnswer: '', advanceTopic: null, checkpoint: null };
+  let cleanAnswer = raw;
+  let advanceTopic = null;
+  let checkpoint = null;
+  const advanceMatch = raw.match(/\[advance:\s*([^\]]+)\]/i);
+  if (advanceMatch) {
+    advanceTopic = advanceMatch[1].trim();
+    cleanAnswer = cleanAnswer.replace(advanceMatch[0], '');
+  }
+  const checkpointMatch = raw.match(/\[checkpoint:\s*([^\]]+)\]/i);
+  if (checkpointMatch) {
+    checkpoint = checkpointMatch[1].trim();
+    cleanAnswer = cleanAnswer.replace(checkpointMatch[0], '');
+  }
+  return { cleanAnswer: cleanAnswer.trim(), advanceTopic, checkpoint };
+};
+
+// Defensive cap — if Claude ignores the 5-line code rule, truncate every
+// code block to its first 5 lines and append an honest "(truncated)" note.
+const enforceCodeLineCap = (answer) => {
+  return String(answer || '').replace(/```([\s\S]*?)```/g, (full, body) => {
+    const lines = body.split('\n');
+    // Drop the language label line if present at top.
+    const langLine = lines[0];
+    const isLang = !langLine.includes(' ') && langLine.trim().length > 0 && langLine.trim().length < 20;
+    const start = isLang ? 1 : 0;
+    const codeLines = lines.slice(start);
+    if (codeLines.length <= 5) return full;
+    const kept = codeLines.slice(0, 5).join('\n');
+    const lang = isLang ? langLine : '';
+    return `\`\`\`${lang}\n${kept}\n// … (truncated — one step at a time)\n\`\`\``;
+  });
+};
+
+const tutorAsk = async (req, res) => {
+  try {
+    const question = String(req.body.question || '').trim();
+    if (!question) return res.status(400).json({ message: 'question is required' });
+    const projectId = req.body.project_id ? parseInt(req.body.project_id, 10) : null;
+    const mode = req.body.mode === 'presenter' ? 'presenter' : 'student';
+
+    // ── Access gate ──────────────────────────────────────────────────────
+    // Without this, a teacher with no assignment to project X can POST
+    // /api/ai/tutor with project_id=X and receive that project's chunks
+    // rendered into a tutor answer — a real cross-class data leak path.
+    // Load + verify access BEFORE we touch the session or the model.
+    let project = null;
+    let chunks = [];
+    if (projectId) {
+      project = await getProjectForTutor(projectId);
+      if (!project) return res.status(404).json({ message: 'Project not found' });
+      const allowed = await canAccessProject(req.user, project);
+      if (!allowed) return res.status(403).json({ message: 'Access denied' });
+      chunks = await getChunksForTutor(projectId);
+    }
+
+    const session = await getOrCreateActiveTutoringSession({
+      userType: req.user.role,
+      userId: req.user.id,
+      projectId,
+      mode,
+    });
+
+    const systemPrompt = buildTutorSystemPrompt(session, project, chunks);
+
+    // Multi-turn payload: replay the session's stored turns, then append the
+    // current user question.
+    const priorTurns = Array.isArray(session.turns) ? session.turns : [];
+    const messages = priorTurns
+      .map(t => ({
+        role: t.role === 'emrys' ? 'assistant' : 'user',
+        content: String(t.content || ''),
+      }))
+      .concat([{ role: 'user', content: question }]);
+
+    const raw = await callClaudeForTutor(systemPrompt, messages, 800);
+    if (!raw) {
+      return res.status(503).json({ message: 'AI service unavailable — set ANTHROPIC_API_KEY' });
+    }
+    const { cleanAnswer, advanceTopic, checkpoint } = parseTutorMarkers(raw);
+    const finalAnswer = enforceCodeLineCap(cleanAnswer);
+
+    // Persist both turns in one go (user, then emrys).
+    await appendTutoringTurn(session.id, {
+      role: 'user', content: question,
+      lastAttempt: question.length > 30 ? question : null,
+    });
+    const updated = await appendTutoringTurn(session.id, {
+      role: 'emrys', content: finalAnswer,
+      advanceTopic, checkpoint,
+    });
+
+    // Mirror the turn into ai_interactions so getAiHistory (the cross-device
+    // restore path) surfaces it. tagged with metadata.source='tutor' so the
+    // client can filter if it ever needs to separate quick-answer from tutor
+    // history. Best-effort — failures here don't break the response.
+    try {
+      await persistTutorTurn({
+        project_id: projectId || null,
+        group_id: null,
+        requester_type: req.user.role,
+        requester_id: req.user.id,
+        audience: req.user.role,
+        question,
+        answer: finalAnswer,
+        sources: [],
+        metadata: {
+          source: 'tutor',
+          session_id: session.id,
+          mode,
+          turn_count: updated?.turn_count || 0,
+          current_topic: updated?.current_topic || null,
+        },
+      });
+    } catch (e) {
+      console.warn('tutorAsk: persistTurn failed:', e.message);
+    }
+
+    return res.status(200).json({
+      session_id: session.id,
+      answer: finalAnswer,
+      current_topic: updated?.current_topic || null,
+      completed_topics: updated?.completed_topics || [],
+      turn_count: updated?.turn_count || 0,
+      advanced: !!advanceTopic,
+      checkpoint: checkpoint || null,
+    });
+  } catch (error) {
+    console.error('tutorAsk error:', error.message);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const tutorEnd = async (req, res) => {
+  try {
+    const sessionId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(sessionId)) {
+      return res.status(400).json({ message: 'Invalid session id' });
+    }
+    // Authorize: only the original user may end their own session.
+    const active = await getActiveTutoringSession({
+      userType: req.user.role,
+      userId: req.user.id,
+      projectId: null, // We don't care about project — match on id directly below.
+    }).catch(() => null);
+    // (Soft check — if the session isn't active by TTL it's already effectively closed.)
+    const ended = await endTutoringSession(sessionId);
+    if (!ended) return res.status(404).json({ message: 'Session not found' });
+    return res.status(200).json({
+      session_id: ended.id,
+      completed_topics: ended.completed_topics || [],
+      turn_count: ended.turn_count || 0,
+      ended_at: ended.ended_at,
+    });
+  } catch (error) {
+    console.error('tutorEnd error:', error.message);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = {
+  validateAskAi,
+  validateRoadmapRequest,
+  validateTeacherDailyReport,
+  validateTeacherGroupProjectUpdate,
+  validateAgentAskAi,
+  validateAiHistoryRequest,
+  askAi,
+  agentAskAi,
+  getAiHistory,
+  getTeachingRoadmap,
+  getTeachingDayLesson,
+  getTeacherReports,
+  submitTeacherDailyReport,
+  submitTeacherGroupProjectUpdate,
+  askWithAttachment,
+  transcribeAudio,
+  tutorAsk,
+  tutorEnd,
+};

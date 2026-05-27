@@ -1,0 +1,68 @@
+# =============================================================================
+# Render Blueprint — Credent backend
+#
+# Render reads this file when you "Create New → Blueprint" and points it at
+# this repo. It defines the web service, build/start commands, env vars, and
+# the health check path. One file, declarative, version-controlled.
+#
+# After first deploy, every `git push` to the main branch triggers an
+# automatic rebuild + zero-downtime deploy. No SSH, no terminal commands.
+#
+# Free tier notes:
+#   • Service spins down after 15 min idle (first request after sleep waits
+#     30–60s). Pair with UptimeRobot (see backend/deploy/UPTIME_MONITORING.md)
+#     to keep it warm — pings /api/health every 5 min, free forever.
+#   • 750 instance-hours/month free (enough for one always-on service).
+#
+# Postgres: NOT included here. We use Neon (free, always-on, no spin-down)
+# and connect via the DATABASE_URL env var set in the Render dashboard.
+# =============================================================================
+
+services:
+  - type: web
+    name: credent-backend
+    runtime: node
+    plan: free
+    region: frankfurt          # closest free region to Africa/EU testers
+    rootDir: backend           # the backend lives in /backend in this repo
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true           # rebuild on every push to the main branch
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        # Render injects its own PORT — server.js already reads process.env.PORT
+        # so we leave the value blank and let Render set it at runtime.
+        value: 10000
+
+      # ─── Secrets (set in Render dashboard, NOT committed here) ─────────
+      # After first deploy, go to your service → Environment tab and add:
+      #   DATABASE_URL          postgresql://...neon.tech/credent?sslmode=require
+      #   JWT_SECRET            <128 hex chars>
+      #   JWT_REFRESH_SECRET    <128 hex chars, DIFFERENT from JWT_SECRET>
+      #   ANTHROPIC_API_KEY     sk-ant-...
+      #
+      # The `sync: false` flag marks them as set-once secrets — Render won't
+      # overwrite them on subsequent deploys.
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+      # ─── Non-secret config with safe defaults ──────────────────────────
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: AI_DAILY_CAP
+        value: "30"
+      # Leave CLIENT_URL empty — the Electron app sends no Origin header so
+      # it's always allowed. Add web origins here later if you build a portal.
+      - key: CLIENT_URL
+        value: ""
