@@ -13,6 +13,16 @@ const isProduction = process.env.NODE_ENV === 'production';
 const useUrl = !!databaseUrl;
 const useDiscrete = !!process.env.DB_HOST;
 
+if (useUrl && databaseUrl.includes('YOUR_NEON_PASSWORD')) {
+  console.error('❌ DATABASE_URL still contains the YOUR_NEON_PASSWORD placeholder.');
+  process.exit(1);
+}
+
+if (useUrl && /\s/.test(databaseUrl)) {
+  console.error('❌ DATABASE_URL contains whitespace. Copy the full Neon URL again without spaces or line breaks.');
+  process.exit(1);
+}
+
 if (isProduction && !useUrl) {
   console.error('❌ DATABASE_URL is missing in production. Set it on Render and redeploy.');
   process.exit(1);
