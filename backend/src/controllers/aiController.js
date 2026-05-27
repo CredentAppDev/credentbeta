@@ -349,6 +349,46 @@ const agentAskAi = async (req, res) => {
 
     const allProjects = await getLearningProjects();
 
+    if (!allProjects.length) {
+      const answerText = [
+        'I cannot find any active learning projects yet.',
+        'Seed the learning projects first, then ask me again and I can use the project lessons, source code, and classroom progress records.',
+      ].join('\n\n');
+
+      const interaction = await createAiInteraction({
+        project_id: null,
+        group_id: null,
+        help_request_id: null,
+        requester_type: req.user.role,
+        requester_id: req.user.id,
+        audience: 'agent',
+        question,
+        answer: answerText,
+        sources: [],
+        metadata: requestMetadata(req),
+      });
+
+      return res.status(200).json({
+        message: 'Emrys AI response',
+        answer_text: answerText,
+        answer: answerText,
+        steps: [],
+        sources: [],
+        next_action: 'Run the learning project seed/import scripts against the production database.',
+        project: null,
+        interaction,
+        policy: {
+          syllabus_bound: false,
+          uses_teacher_intelligence: false,
+          uses_model_knowledge_within_syllabus: false,
+          project_is_textbook_reference: false,
+          in_scope: false,
+          audience: 'agent',
+          data_source: 'no_active_projects',
+        },
+      });
+    }
+
     let bestRelevantChunks = [];
     let bestAllChunks = [];
     let bestProject = allProjects[0] || null;
