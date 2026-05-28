@@ -19,7 +19,11 @@ const validateFeedback = [
     .optional()
     .isIn(['low', 'normal', 'high', 'blocker'])
     .withMessage('severity invalid'),
-  body('email').optional().isEmail().withMessage('email invalid'),
+  body('email')
+    .customSanitizer(value => (typeof value === 'string' ? value.trim() : value))
+    .optional({ values: 'falsy' })
+    .isEmail()
+    .withMessage('email invalid'),
 ];
 
 // POST /api/feedback — any authenticated user can submit feedback.

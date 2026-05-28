@@ -38,7 +38,11 @@ const validateRedeem = [
     .exists({ checkFalsy: true })
     .withMessage('full_name is required')
     .isLength({ min: 2, max: 100 }),
-  body('email').optional().isEmail().withMessage('email invalid'),
+  body('email')
+    .customSanitizer(value => (typeof value === 'string' ? value.trim() : value))
+    .optional({ values: 'falsy' })
+    .isEmail()
+    .withMessage('email invalid'),
 ];
 
 // POST /api/beta/invites — agent/admin creates an invite code.
