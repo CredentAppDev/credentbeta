@@ -64,6 +64,14 @@ const listFeedback = async ({ status, limit = 100, offset = 0 } = {}) => {
   return result.rows;
 };
 
+const getFeedbackById = async (id) => {
+  const result = await pool.query(
+    `SELECT * FROM beta_feedback WHERE id = $1 LIMIT 1`,
+    [id]
+  );
+  return result.rows[0];
+};
+
 const updateFeedbackStatus = async (id, status) => {
   const result = await pool.query(
     `UPDATE beta_feedback
@@ -79,5 +87,6 @@ module.exports = {
   createFeedbackTable,
   insertFeedback,
   listFeedback,
+  getFeedbackById,
   updateFeedbackStatus,
 };

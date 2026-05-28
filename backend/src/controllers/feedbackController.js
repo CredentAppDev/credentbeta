@@ -54,13 +54,10 @@ const submitFeedback = async (req, res) => {
       const category = req.body.category || 'general';
       const severity = req.body.severity || 'normal';
       const sender = req.body.email || req.user?.email || 'Anonymous tester';
-      const snippet = req.body.message.length > 140
-        ? `${req.body.message.slice(0, 137)}...`
-        : req.body.message;
       const notification = {
         type: 'feedback',
         title: `New beta feedback (${category}, ${severity})`,
-        body: `${sender}: ${snippet}`,
+        body: `${sender}: ${req.body.message}`,
         reference_id: row.id,
         reference_type: 'beta_feedback',
       };

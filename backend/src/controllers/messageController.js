@@ -410,19 +410,15 @@ const sendMsg = async (req, res) => {
       if (!targetId) continue;
       if (io) io.to(`user_${targetId}`).emit('channel:message', socketPayload);
 
-      // Staff also get a persisted DB notification (existing behaviour for
-      // the agent dashboard). Teachers/students don't need one because the
-      // socket fan-out + the chat-list unread badge is enough.
-      if (member.member_type === 'staff' && member.user_id) {
-        await sendNotificationToUser({
-          userId: member.user_id,
-          type: 'message:new',
-          title: `New message from ${principal.displayName}`,
-          body: body.length > 50 ? body.substring(0, 50) + '...' : body,
-          reference_id: parseInt(id, 10),
-          reference_type: 'channel',
-        });
-      }
+      await sendNotificationToUser({
+        userId: targetId,
+        userRole: member.member_type === 'staff' ? null : member.member_type,
+        type: 'message:new',
+        title: `New message from ${principal.displayName}`,
+        body,
+        reference_id: parseInt(id, 10),
+        reference_type: 'channel',
+      });
     }
 
     res.status(201).json({ message: 'Message sent', data: message });

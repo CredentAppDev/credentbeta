@@ -405,12 +405,13 @@ const initSocket = (server) => {
 
 // ─── Send Notification to a Specific User ───────────────────────
 const sendNotificationToUser = async ({
-  userId, type, title, body,
+  userId, userRole, type, title, body,
   reference_id, reference_type
 }) => {
   try {
     const notification = await createNotification({
       user_id: userId,
+      user_role: userRole,
       type,
       title,
       body,
@@ -430,13 +431,13 @@ const sendNotificationToUser = async ({
 
 // ─── Send Notification to Multiple Users ────────────────────────
 const sendNotificationToMany = async ({
-  userIds, type, title, body,
+  userIds, userRole, type, title, body,
   reference_id, reference_type
 }) => {
   const notifications = await Promise.all(
     userIds.map(userId =>
       sendNotificationToUser({
-        userId, type, title, body,
+        userId, userRole, type, title, body,
         reference_id, reference_type
       })
     )
@@ -461,7 +462,7 @@ const sendNotificationToRole = async ({
 
     if (userIds.length > 0) {
       await sendNotificationToMany({
-        userIds, type, title, body,
+        userIds, userRole: role, type, title, body,
         reference_id, reference_type
       });
     }

@@ -5,6 +5,7 @@ const {
   readNotification,
   readAllNotifications,
   getUnread,
+  getNotificationDetail,
 } = require('../controllers/notificationController');
 const { protect } = require('../middleware/auth');
 
@@ -17,6 +18,10 @@ router.get('/', getNotifications);
 // @route   GET /api/notifications/unread
 // @desc    Get unread count
 router.get('/unread', getUnread);
+
+// @route   GET /api/notifications/:id/detail
+// @desc    Get notification plus referenced record details
+router.get('/:id/detail', getNotificationDetail);
 
 // @route   PATCH /api/notifications/:id/read
 // @desc    Mark single notification as read
