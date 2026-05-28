@@ -4,6 +4,7 @@ const {
   listFeedback,
   updateFeedbackStatus,
 } = require('../models/feedbackModel');
+const { sendNotificationToRole } = require('../services/socketService');
 
 const validateFeedback = [
   body('message')
@@ -48,6 +49,29 @@ const submitFeedback = async (req, res) => {
       platform: req.get('x-client-platform') || req.body.platform,
       user_agent: req.get('user-agent'),
     });
+
+    try {
+      const category = req.body.category || 'general';
+      const severity = req.body.severity || 'normal';
+      const sender = req.body.email || req.user?.email || 'Anonymous tester';
+      const snippet = req.body.message.length > 140
+        ? `${req.body.message.slice(0, 137)}...`
+        : req.body.message;
+      const notification = {
+        type: 'feedback',
+        title: `New beta feedback (${category}, ${severity})`,
+        body: `${sender}: ${snippet}`,
+        reference_id: row.id,
+        reference_type: 'beta_feedback',
+      };
+      await Promise.all([
+        sendNotificationToRole({ role: 'agent', ...notification }),
+        sendNotificationToRole({ role: 'admin', ...notification }),
+      ]);
+    } catch (notifyErr) {
+      console.error('feedback notify error:', notifyErr.message);
+    }
+
     res.status(201).json({ message: 'Thanks for the feedback!', id: row.id });
   } catch (error) {
     console.error('submitFeedback error:', error.message);
