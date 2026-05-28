@@ -698,11 +698,13 @@ const seed = async () => {
   await createSchoolTables();
   await createLearningTables();
 
+  const availableAssets = assets.filter((asset) => fs.existsSync(asset.file_path));
   const missingAssets = assets.filter((asset) => !fs.existsSync(asset.file_path));
   if (missingAssets.length > 0) {
-    throw new Error(
-      `Missing STL assets: ${missingAssets.map((asset) => asset.file_path).join(', ')}. `
-      + 'Set VOICE_ASSISTANT_ASSET_DIR to the folder containing Cover.stl, Housing.stl, and Mino.stl.'
+    console.warn(
+      `Voice assistant STL assets not found, seeding curriculum without STL asset records: `
+      + `${missingAssets.map((asset) => asset.file_path).join(', ')}. `
+      + 'Set VOICE_ASSISTANT_ASSET_DIR to attach them later.'
     );
   }
 
@@ -724,7 +726,7 @@ const seed = async () => {
   });
 
   const createdChunks = await replaceLearningContentChunks(project.id, chunks);
-  const createdAssets = await replaceLearningProjectAssets(project.id, assets);
+  const createdAssets = await replaceLearningProjectAssets(project.id, availableAssets);
   const createdRoadmapDays = await replaceLearningRoadmapDays(project.id, roadmapDays);
 
   return {

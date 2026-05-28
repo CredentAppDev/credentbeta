@@ -619,11 +619,13 @@ const seed = async () => {
   await createSchoolTables();
   await createLearningTables();
 
+  const availableAssets = assets.filter((asset) => fs.existsSync(asset.file_path));
   const missingAssets = assets.filter((asset) => !fs.existsSync(asset.file_path));
   if (missingAssets.length > 0) {
-    throw new Error(
-      `Missing source PDFs: ${missingAssets.map((asset) => asset.file_path).join(', ')}. `
-      + 'Set HUMAN_ENERGY_FIELD_SOURCE_DIR to the folder containing the two Human Energy Field PDFs.'
+    console.warn(
+      `Human Energy Field source PDFs not found, seeding curriculum without PDF asset records: `
+      + `${missingAssets.map((asset) => asset.file_path).join(', ')}. `
+      + 'Set HUMAN_ENERGY_FIELD_SOURCE_DIR to attach them later.'
     );
   }
 
@@ -645,7 +647,7 @@ const seed = async () => {
   });
 
   const createdChunks = await replaceLearningContentChunks(project.id, chunks);
-  const createdAssets = await replaceLearningProjectAssets(project.id, assets);
+  const createdAssets = await replaceLearningProjectAssets(project.id, availableAssets);
   const createdRoadmapDays = await replaceLearningRoadmapDays(project.id, roadmapDays);
 
   return {

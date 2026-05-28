@@ -26,15 +26,24 @@ if ($databaseUrl -match "\s") {
 
 $env:DATABASE_URL = $databaseUrl
 
+$failedScripts = @()
+
 foreach ($script in $scripts) {
   $scriptPath = Join-Path $backendRoot "scripts\$script"
   Write-Host ""
   Write-Host "==> Running $script"
   & node $scriptPath
   if ($LASTEXITCODE -ne 0) {
-    throw "$script failed with exit code $LASTEXITCODE"
+    $failedScripts += "$script (exit $LASTEXITCODE)"
+    Write-Host "WARNING: $script failed with exit code $LASTEXITCODE. Continuing..." -ForegroundColor Yellow
   }
 }
 
 Write-Host ""
+if ($failedScripts.Count -gt 0) {
+  Write-Host "Seed scripts completed with warnings:" -ForegroundColor Yellow
+  $failedScripts | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
+  exit 1
+}
+
 Write-Host "All learning project seed scripts completed."
