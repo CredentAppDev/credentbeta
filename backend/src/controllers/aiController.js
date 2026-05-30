@@ -1291,8 +1291,10 @@ const askWithAttachment = async (req, res) => {
     const { question = '', transcribed_audio = '' } = req.body;
     const userQuestion = (transcribed_audio || question).trim();
 
-    const client = require('../services/controlledAiTutorService').getClient
-      ? null : null; // use inline Anthropic below
+    if (!req.file && !userQuestion) {
+      return res.status(400).json({ message: 'Attach a file or type a question.' });
+    }
+
     const Anthropic = require('@anthropic-ai/sdk');
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
@@ -1335,13 +1337,37 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
           },
         });
       } else {
-        // Try to decode as text (CSV, txt, code, etc.)
-        try {
-          const text = buf.toString('utf-8');
-          contentBlocks.push({ type: 'text', text: `File content (${req.file.originalname}):\n${text}` });
-        } catch (_) {
-          return res.status(422).json({ message: 'Unsupported file type. Please send PDF, image, or text file.' });
+        // Try to decode as text (CSV, txt, code, JSON, etc.). buf.toString
+        // never throws, so we sniff for binary instead: a NUL byte or a high
+        // ratio of replacement chars (U+FFFD) means this is really a binary
+        // format (.docx/.xlsx/.zip/…) that we'd otherwise hand Claude as
+        // mojibake. Reject those with a clear message rather than guessing.
+        const text = buf.toString('utf-8');
+        const sample = text.slice(0, 4096);
+        const replacementChars = (sample.match(/�/g) || []).length;
+        // A NUL byte is the strongest signal of a binary file; the UTF-8
+        // replacement char (U+FFFD) appears when raw bytes weren't valid
+        // UTF-8. Either at meaningful frequency => treat as binary and reject.
+        const looksBinary =
+          new RegExp('\\u0000').test(sample) ||
+          (sample.length > 0 && replacementChars / sample.length > 0.1);
+
+        if (looksBinary) {
+          return res.status(422).json({
+            message:
+              'That file type can’t be read as text. Please send a PDF, an image (PNG/JPG), or a plain-text/code/CSV file. ' +
+              'For Word/Excel/PowerPoint, export to PDF first.',
+          });
         }
+
+        // Cap very large text files so we don't blow the model's context or
+        // the response budget. ~120k chars ≈ well within Claude's window while
+        // leaving room for the answer.
+        const MAX_TEXT_CHARS = 120000;
+        const clipped = text.length > MAX_TEXT_CHARS
+          ? `${text.slice(0, MAX_TEXT_CHARS)}\n\n…[truncated ${text.length - MAX_TEXT_CHARS} more characters]`
+          : text;
+        contentBlocks.push({ type: 'text', text: `File content (${req.file.originalname}):\n${clipped}` });
       }
     }
 
@@ -1354,13 +1380,17 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
     contentBlocks.push({ type: 'text', text: prompt });
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
       max_tokens: 1800,
       system: systemPrompt,
       messages: [{ role: 'user', content: contentBlocks }],
     });
 
-    const answer = response.content?.[0]?.text || 'I was unable to process that. Please try again.';
+    const answer = (response.content || [])
+      .filter((b) => b.type === 'text')
+      .map((b) => b.text)
+      .join('\n')
+      .trim() || 'I was unable to process that. Please try again.';
 
     // Save to interaction history so messages persist across sessions
     try {
