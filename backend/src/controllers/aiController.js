@@ -1414,8 +1414,24 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
       answer,
     });
   } catch (error) {
-    console.error('askWithAttachment error:', error.message);
-    return res.status(500).json({ message: 'Server error processing attachment' });
+    // Surface the real reason. Anthropic SDK errors carry .status and a
+    // structured .error; log the full shape and pass a useful message back so
+    // failures (bad model name, image too large, API error) are diagnosable
+    // instead of an opaque 500.
+    const detail =
+      error?.error?.error?.message ||
+      error?.error?.message ||
+      error?.message ||
+      'Unknown error';
+    console.error('askWithAttachment error:', {
+      status: error?.status,
+      type: error?.error?.error?.type || error?.name,
+      message: detail,
+    });
+    const status = Number.isInteger(error?.status) ? error.status : 500;
+    return res.status(status >= 400 && status < 600 ? status : 500).json({
+      message: `Emrys could not process that attachment: ${detail}`,
+    });
   }
 };
 
