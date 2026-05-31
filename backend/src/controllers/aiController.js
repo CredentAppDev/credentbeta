@@ -1528,7 +1528,22 @@ const buildTutorSystemPrompt = (session, project, chunks) => {
     return `- ${title}: ${body}`;
   }).join('\n');
 
+  // Hard class-scope rule: Emrys teaches ONLY this class's assigned project.
+  // If the learner asks to build a different/unrelated project, it must decline
+  // and redirect to the assigned project — it must not free-build anything.
+  const scopeRule = project
+    ? `CLASS PROJECT LOCK (critical):
+- This class is assigned EXACTLY ONE project: "${projectTitle}".
+- Teach ONLY this project. Do NOT start, plan, or build any other project.
+- If the learner asks for a different project (e.g. "build me a game/website/app" that is not this one), politely refuse and steer them back: say that for this class you teach "${projectTitle}", and offer the next step of THIS project.
+- You may still answer small general concept questions (e.g. "what is a variable?"), but always tie the lesson back to "${projectTitle}".`
+    : `CLASS PROJECT LOCK (critical):
+- No project is assigned to this class. Do NOT build or plan any project.
+- Only help with small general concepts and tell the learner a project must be assigned to their class first.`;
+
   return `${TUTOR_RULES}
+
+${scopeRule}
 
 CURRENT SESSION:
 - Project: ${projectTitle}
@@ -1542,7 +1557,7 @@ Description: ${projectDesc}
 Learning goals: ${projectGoals}
 ${chunkLines ? `\nReference material:\n${chunkLines}` : ''}
 
-Now respond to the student's latest message. Remember: small step, plain English first, ask them to try.`;
+Now respond to the student's latest message. Remember: small step, plain English first, ask them to try. Stay locked to "${projectTitle}".`;
 };
 
 // Parse [advance:] / [checkpoint:] markers from the end of the response.
@@ -1589,7 +1604,7 @@ const tutorAsk = async (req, res) => {
     const projectId = req.body.project_id ? parseInt(req.body.project_id, 10) : null;
     const mode = req.body.mode === 'presenter' ? 'presenter' : 'student';
 
-    // ── Access gate ──────────────────────────────────────────────────────
+    // ── Access gate + class scoping ──────────────────────────────────────
     // Without this, a teacher with no assignment to project X can POST
     // /api/ai/tutor with project_id=X and receive that project's chunks
     // rendered into a tutor answer — a real cross-class data leak path.
@@ -1602,6 +1617,38 @@ const tutorAsk = async (req, res) => {
       const allowed = await canAccessProject(req.user, project);
       if (!allowed) return res.status(403).json({ message: 'Access denied' });
       chunks = await getChunksForTutor(projectId);
+    } else {
+      // No explicit project: Emrys must teach ONLY the project assigned to this
+      // user's class — never free-build an arbitrary or unrelated project.
+      // filterProjectsForUser already restricts to the user's class scope
+      // (student: their class; teacher: their assigned classes).
+      const allProjects = await getLearningProjects();
+      const classProjects = await filterProjectsForUser(req.user, allProjects);
+
+      if (classProjects.length === 0) {
+        // Nothing is assigned to this class — say so instead of building
+        // a random project from general knowledge.
+        const who = req.user.role === 'teacher' ? 'your assigned classes' : 'your class';
+        return res.status(200).json({
+          session_id: null,
+          answer: [
+            `I don't have a learning project assigned to ${who} yet, so I can't start a project lesson.`,
+            'Once an agent assigns this class a project, I will teach that project step by step. ' +
+            'In the meantime, ask me to explain a concept and I will help.',
+          ].join('\n\n'),
+          current_topic: null,
+          completed_topics: [],
+          turn_count: 0,
+          advanced: false,
+          checkpoint: null,
+          no_project_for_class: true,
+        });
+      }
+
+      // Use the class's project (the single class project; if a class somehow
+      // has more than one, take the first — students have exactly one class).
+      project = classProjects[0];
+      chunks = await getChunksForTutor(project.id);
     }
 
     const session = await getOrCreateActiveTutoringSession({
