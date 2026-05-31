@@ -96,3 +96,7 @@ ql-out
 
 # ─── Claude/agent local config (this is your editor, not the app) ──────────
 .claude/
+
+# Jarvis runtime artifacts
+jarvis_assistant/__pycache__/
+jarvis_assistant/*.log
