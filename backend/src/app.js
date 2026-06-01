@@ -51,9 +51,10 @@ const allowedWebOrigins = (process.env.CLIENT_URL || '')
 
 // The Credent marketing/download website is hosted on Netlify, and its exact
 // subdomain (and any preview/branch deploys) can change. Rather than require
-// every URL to be pinned in CLIENT_URL, allow any HTTPS *.netlify.app origin
-// plus localhost dev servers automatically. CLIENT_URL still works for adding
-// a custom domain (e.g. https://credent.gh.com) on top of these.
+// every URL to be pinned in CLIENT_URL, allow any HTTPS *.netlify.app origin,
+// the credentgh.com custom domain (bare + any subdomain like www), plus
+// localhost dev servers automatically. CLIENT_URL still works for adding
+// further custom domains on top of these.
 const isAlwaysAllowedOrigin = (origin) => {
   try {
     const { protocol, hostname } = new URL(origin);
@@ -61,6 +62,8 @@ const isAlwaysAllowedOrigin = (origin) => {
     if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
     // any Netlify-hosted site (prod + deploy previews) over https
     if (protocol === 'https:' && /(^|\.)netlify\.app$/.test(hostname)) return true;
+    // the Credent custom domain — bare and any subdomain (www, etc.) over https
+    if (protocol === 'https:' && /(^|\.)credentgh\.com$/.test(hostname)) return true;
   } catch (_) { /* not a parseable origin */ }
   return false;
 };
