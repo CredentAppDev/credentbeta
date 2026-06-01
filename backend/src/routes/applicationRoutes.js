@@ -35,13 +35,17 @@ const upload = multer({
 });
 
 // ─── Ensure Table Exists ──────────────────────────────────────────
+// Runs once at startup. For an EXISTING table the CREATE is a no-op, so we
+// follow with idempotent ALTERs to add the passkey type + channel column and
+// widen the type CHECK constraint to allow 'passkey'.
 const ensureTable = pool.query(`
   CREATE TABLE IF NOT EXISTS website_applications (
     id          SERIAL PRIMARY KEY,
-    type        TEXT NOT NULL CHECK (type IN ('instructor','demo')),
+    type        TEXT NOT NULL CHECK (type IN ('instructor','demo','passkey')),
     name        TEXT NOT NULL,
     email       TEXT NOT NULL,
     phone       TEXT,
+    channel     TEXT,
     role        TEXT,
     subject     TEXT,
     experience  TEXT,
@@ -54,7 +58,22 @@ const ensureTable = pool.query(`
     status      TEXT NOT NULL DEFAULT 'pending',
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )
-`).catch(err => console.error('applications table error:', err.message));
+`)
+  // add the channel column if the table predates it
+  .then(() => pool.query(
+    `ALTER TABLE website_applications ADD COLUMN IF NOT EXISTS channel TEXT`
+  ))
+  // widen the type CHECK constraint to allow 'passkey' (drop old, add new)
+  .then(() => pool.query(`
+    DO $$
+    BEGIN
+      ALTER TABLE website_applications DROP CONSTRAINT IF EXISTS website_applications_type_check;
+      ALTER TABLE website_applications
+        ADD CONSTRAINT website_applications_type_check
+        CHECK (type IN ('instructor','demo','passkey'));
+    END $$;
+  `))
+  .catch(err => console.error('applications table error:', err.message));
 
 // ─── POST /api/applications — public, called by website ──────────
 router.post(
@@ -68,13 +87,16 @@ router.post(
     try {
       await ensureTable;
       const {
-        type, name, email, phone, role, subject, experience,
-        school_name, location, message,
+        type, name, email, phone, channel, role, subject, experience,
+        school_name, location, message, whatsapp,
       } = req.body;
 
       if (!type || !name || !email) {
         return res.status(400).json({ message: 'type, name, and email are required' });
       }
+
+      // passkey requests send 'whatsapp' as the number; fall back to it if phone is empty
+      const phoneValue = phone || whatsapp || null;
 
       const fileUrl = (fieldName) => {
         const f = req.files?.[fieldName]?.[0];
@@ -83,13 +105,13 @@ router.post(
 
       const { rows } = await pool.query(
         `INSERT INTO website_applications
-           (type, name, email, phone, role, subject, experience,
+           (type, name, email, phone, channel, role, subject, experience,
             school_name, location, message, cv_url, letter_url, degree_url)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
          RETURNING *`,
         [
           type, name, email,
-          phone || null, role || null, subject || null, experience || null,
+          phoneValue, channel || null, role || null, subject || null, experience || null,
           school_name || null, location || null, message || null,
           fileUrl('cv'), fileUrl('letter'), fileUrl('degree'),
         ]
@@ -101,13 +123,18 @@ router.post(
       // submission even if they're not on the Applications tab. Best-effort —
       // a notification failure must not break the public submit endpoint.
       try {
-        const isInstructor = app.type === 'instructor';
-        const title = isInstructor
-          ? `📩 New teacher application — ${app.name}`
-          : `🏫 New school demo request — ${app.school_name || app.name}`;
-        const bodyText = isInstructor
-          ? `${app.subject ? app.subject + ' · ' : ''}${app.email}${app.phone ? ' · ' + app.phone : ''}`
-          : `${app.name}${app.role ? ' (' + app.role + ')' : ''} · ${app.email}${app.location ? ' · ' + app.location : ''}`;
+        let title, bodyText;
+        if (app.type === 'instructor') {
+          title = `📩 New teacher application — ${app.name}`;
+          bodyText = `${app.subject ? app.subject + ' · ' : ''}${app.email}${app.phone ? ' · ' + app.phone : ''}`;
+        } else if (app.type === 'passkey') {
+          const via = app.channel === 'email' ? 'Email' : 'WhatsApp';
+          title = `🔑 Passkey request — ${app.name}`;
+          bodyText = `Send via ${via} · ${app.phone || 'no number'} · ${app.email}`;
+        } else {
+          title = `🏫 New school demo request — ${app.school_name || app.name}`;
+          bodyText = `${app.name}${app.role ? ' (' + app.role + ')' : ''} · ${app.email}${app.location ? ' · ' + app.location : ''}`;
+        }
 
         const { rows: agents } = await pool.query(
           `SELECT id FROM users WHERE role IN ('agent','admin')`
