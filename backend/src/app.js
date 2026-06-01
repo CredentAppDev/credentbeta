@@ -49,13 +49,31 @@ const allowedWebOrigins = (process.env.CLIENT_URL || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
+// The Credent marketing/download website is hosted on Netlify, and its exact
+// subdomain (and any preview/branch deploys) can change. Rather than require
+// every URL to be pinned in CLIENT_URL, allow any HTTPS *.netlify.app origin
+// plus localhost dev servers automatically. CLIENT_URL still works for adding
+// a custom domain (e.g. https://credent.gh.com) on top of these.
+const isAlwaysAllowedOrigin = (origin) => {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    // local dev (any port) over http/https
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+    // any Netlify-hosted site (prod + deploy previews) over https
+    if (protocol === 'https:' && /(^|\.)netlify\.app$/.test(hostname)) return true;
+  } catch (_) { /* not a parseable origin */ }
+  return false;
+};
+
 app.use(cors({
   origin: (origin, callback) => {
     // No origin = native mobile app or same-origin server call — allow.
     if (!origin) return callback(null, true);
     // Development: allow everything for local testing.
     if (process.env.NODE_ENV === 'development') return callback(null, true);
-    // Production: only listed web origins.
+    // Netlify sites + localhost are always permitted.
+    if (isAlwaysAllowedOrigin(origin)) return callback(null, true);
+    // Production: plus any extra web origins listed in CLIENT_URL.
     if (allowedWebOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: origin '${origin}' is not permitted`));
   },
