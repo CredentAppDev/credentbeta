@@ -6,6 +6,8 @@ const { ipKeyGenerator } = rateLimit;
 const path = require('path');
 require('dotenv').config();
 
+const pool = require('./config/db');
+
 const authRoutes = require('./routes/authRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const groupHelpRoutes = require('./routes/groupHelpRoutes');
@@ -174,12 +176,31 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/beta', betaRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: '✅ Credent API is running',
-    timestamp: new Date().toISOString(),
-  });
+// Verifies BOTH the web server and the database. A lightweight `SELECT 1`
+// confirms the Neon connection is live. If the DB is unreachable we return
+// 503 so uptime monitors flag a real outage even when Express itself is fine.
+// Used as the Render keep-alive ping target (every ~10 min).
+app.get('/api/health', async (req, res) => {
+  const startedAt = Date.now();
+  try {
+    await pool.query('SELECT 1');
+    res.status(200).json({
+      status: 'OK',
+      message: '✅ Credent API is running',
+      db: 'connected',
+      dbLatencyMs: Date.now() - startedAt,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('health check DB error:', err.message);
+    res.status(503).json({
+      status: 'DEGRADED',
+      message: '⚠️ Credent API is up but the database is unreachable',
+      db: 'error',
+      error: err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // ─── 404 Handler ─────────────────────────────────────────────────
