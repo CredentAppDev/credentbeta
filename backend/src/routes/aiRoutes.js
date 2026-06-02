@@ -21,6 +21,7 @@ const {
   transcribeAudio,
   tutorAsk,
   tutorEnd,
+  generateBuildPlan,
 } = require('../controllers/aiController');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -46,5 +47,8 @@ router.post('/teacher/group-project-update', protect, validateTeacherGroupProjec
 // Tutor mode (conversational, multi-turn, 10-rule patient teacher)
 router.post('/tutor', protect, aiDailyCap, tutorAsk);
 router.post('/tutor/:id/end', protect, tutorEnd);
+
+// Build Studio: dedicated 3D build-plan generator (calls Claude → capped).
+router.post('/build-plan', protect, aiDailyCap, generateBuildPlan);
 
 module.exports = router;

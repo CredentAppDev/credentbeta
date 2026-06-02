@@ -1755,6 +1755,79 @@ const tutorEnd = async (req, res) => {
   }
 };
 
+// ─── Build Studio: dedicated 3D build-plan endpoint ──────────────────────────
+// POST /api/ai/build-plan { topic }  →  { plan }
+// Generates a structured 3D BUILD ANIMATION PLAN for any project. The system
+// prompt lives here (server-side, not exposed to the client) and uses Claude
+// prompt caching so the large prompt is cheap/fast on repeat calls. Returns
+// validated JSON; the desktop Build Studio falls back to its own path if this
+// endpoint is unavailable, so nothing breaks if AI is down.
+const BUILD_PLAN_SYSTEM = `You are Emrys, an expert maker who can plan how to build ANY project — robotics, electronics, DIY hardware, mechanical, woodworking, science gadgets, anything documented anywhere on the internet. Use your full knowledge to produce a REAL, accurate, buildable plan, then express it as a 3D BUILD ANIMATION PLAN.
+Return ONLY valid minified JSON (no prose, no markdown fences) matching this schema:
+{"title":string,"summary":string,"difficulty":"beginner"|"intermediate"|"advanced","estimatedTime":string,"billOfMaterials":[{"name":string,"qty":number}],"steps":[{"title":string,"instruction":string,"parts":[{"name":string,"shape":"box"|"plate"|"cylinder"|"wheel"|"sphere"|"cone"|"capsule"|"torus"|"rod"|"tube"|"screw"|"gear"|"propeller"|"frame","size":{"x":num,"y":num,"z":num,"r":num,"h":num,"t":num,"teeth":num,"blades":num},"position":{"x":num,"y":num,"z":num},"rotation":{"x":deg,"y":deg,"z":deg},"from":{"x":num,"y":num,"z":num},"material":"metal"|"aluminum"|"plastic"|"pcb"|"copper"|"rubber"|"motor"|"battery"|"gold"|"silver"|"glass"|"wood"|"accent"|"cyan"|"wire"|"led"|"sensor","color":string}]}]}
+Rules:
+- Be FAITHFUL to how the project is really built — correct components, correct assembly order, correct relationships.
+- Pick the BEST shape+material per real part (board=plate+pcb; motor=cylinder/box+motor; wheel=wheel+rubber; frame=frame or box+aluminum; sensor=box+sensor; LED=cylinder+led; wire=tube+wire; standoff/axle=rod; bolt=screw+metal; gear=gear+metal with "teeth"; propeller=propeller+plastic with "blades"; lens/screen=glass; wood parts=wood). Use "color" (hex) so distinct parts read clearly. Name each part with its REAL component name.
+- World units ~cm scaled so the whole build fits ~6x6x6 centered near origin, on the ground (y>=0); sensible proportions; don't overlap parts that shouldn't touch.
+- Build BOTTOM-UP in real assembly order. 5-9 steps. Every step introduces at least one part. Output JSON ONLY.`;
+
+const generateBuildPlan = async (req, res) => {
+  try {
+    const topic = String(req.body?.topic || '').trim();
+    if (!topic) return res.status(400).json({ message: 'topic required' });
+    if (topic.length > 300) return res.status(400).json({ message: 'topic too long' });
+
+    const Anthropic = require('@anthropic-ai/sdk');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
+      return res.status(503).json({ message: 'AI service not configured' });
+    }
+    const anthropic = new Anthropic({ apiKey });
+
+    const response = await anthropic.messages.create({
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+      max_tokens: 3000,
+      // Prompt caching on the big system block → cheaper + faster on repeats.
+      system: [{ type: 'text', text: BUILD_PLAN_SYSTEM, cache_control: { type: 'ephemeral' } }],
+      messages: [{ role: 'user', content: `Build request: ${topic}` }],
+    });
+
+    const raw = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+
+    // Tolerant parse: strip fences, take the first balanced {...}, fix trailing commas.
+    let text = raw.replace(/```(?:json)?\s*([\s\S]*?)```/i, '$1').trim();
+    const s = text.indexOf('{'), e = text.lastIndexOf('}');
+    let plan = null;
+    if (s !== -1 && e > s) {
+      const slice = text.slice(s, e + 1);
+      try { plan = JSON.parse(slice); }
+      catch { try { plan = JSON.parse(slice.replace(/,\s*([}\]])/g, '$1')); } catch (_) {} }
+    }
+    if (!plan || !Array.isArray(plan.steps) || !plan.steps.length) {
+      return res.status(422).json({ message: 'Could not generate a valid plan', raw: raw.slice(0, 200) });
+    }
+    // Keep only steps that introduce renderable parts (matches the client viewer).
+    plan.steps = plan.steps.filter(st => Array.isArray(st.parts) && st.parts.length);
+    if (!plan.steps.length) return res.status(422).json({ message: 'Plan had no renderable parts' });
+
+    // Best-effort usage log (non-fatal) so we can see what people build.
+    try {
+      await createAiInteraction({
+        project_id: null, group_id: null, help_request_id: null,
+        requester_type: req.user?.role || 'student', requester_id: req.user?.id,
+        audience: (req.user?.role === 'student') ? 'student' : 'teacher',
+        question: `[build-plan] ${topic}`, answer: plan.title || '', sources: [],
+        metadata: requestMetadata(req),
+      });
+    } catch (_) {}
+
+    return res.status(200).json({ plan });
+  } catch (error) {
+    console.error('Build plan error:', error.message);
+    return res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
+
 module.exports = {
   validateAskAi,
   validateRoadmapRequest,
@@ -1774,4 +1847,5 @@ module.exports = {
   transcribeAudio,
   tutorAsk,
   tutorEnd,
+  generateBuildPlan,
 };
