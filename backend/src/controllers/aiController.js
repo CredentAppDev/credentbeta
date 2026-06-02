@@ -1764,10 +1764,11 @@ const tutorEnd = async (req, res) => {
 // endpoint is unavailable, so nothing breaks if AI is down.
 const BUILD_PLAN_SYSTEM = `You are Emrys, an expert maker who can plan how to build ANY project — robotics, electronics, DIY hardware, mechanical, woodworking, science gadgets, anything documented anywhere on the internet. Use your full knowledge to produce a REAL, accurate, buildable plan, then express it as a 3D BUILD ANIMATION PLAN.
 Return ONLY valid minified JSON (no prose, no markdown fences) matching this schema:
-{"title":string,"summary":string,"difficulty":"beginner"|"intermediate"|"advanced","estimatedTime":string,"billOfMaterials":[{"name":string,"qty":number}],"steps":[{"title":string,"instruction":string,"parts":[{"name":string,"shape":"box"|"plate"|"cylinder"|"wheel"|"sphere"|"cone"|"capsule"|"torus"|"rod"|"tube"|"screw"|"gear"|"propeller"|"frame","size":{"x":num,"y":num,"z":num,"r":num,"h":num,"t":num,"teeth":num,"blades":num},"position":{"x":num,"y":num,"z":num},"rotation":{"x":deg,"y":deg,"z":deg},"from":{"x":num,"y":num,"z":num},"material":"metal"|"aluminum"|"plastic"|"pcb"|"copper"|"rubber"|"motor"|"battery"|"gold"|"silver"|"glass"|"wood"|"accent"|"cyan"|"wire"|"led"|"sensor","color":string}]}]}
+{"title":string,"summary":string,"difficulty":"beginner"|"intermediate"|"advanced","estimatedTime":string,"billOfMaterials":[{"name":string,"qty":number}],"steps":[{"title":string,"instruction":string,"parts":[{"name":string,"shape":"box"|"plate"|"cylinder"|"wheel"|"sphere"|"cone"|"capsule"|"torus"|"rod"|"tube"|"screw"|"gear"|"propeller"|"frame","size":{"x":num,"y":num,"z":num,"r":num,"h":num,"t":num,"teeth":num,"blades":num},"position":{"x":num,"y":num,"z":num},"rotation":{"x":deg,"y":deg,"z":deg},"from":{"x":num,"y":num,"z":num},"material":"metal"|"aluminum"|"plastic"|"pcb"|"copper"|"rubber"|"motor"|"battery"|"gold"|"silver"|"glass"|"wood"|"accent"|"cyan"|"wire"|"led"|"sensor","color":string,"sub":[{"shape":...,"size":{...},"offset":{"x":num,"y":num,"z":num},"rotation":{"x":deg,"y":deg,"z":deg},"material":...,"color":string}]}]}]}
 Rules:
 - Be FAITHFUL to how the project is really built — correct components, correct assembly order, correct relationships.
 - Pick the BEST shape+material per real part (board=plate+pcb; motor=cylinder/box+motor; wheel=wheel+rubber; frame=frame or box+aluminum; sensor=box+sensor; LED=cylinder+led; wire=tube+wire; standoff/axle=rod; bolt=screw+metal; gear=gear+metal with "teeth"; propeller=propeller+plastic with "blades"; lens/screen=glass; wood parts=wood). Use "color" (hex) so distinct parts read clearly. Name each part with its REAL component name.
+- DETAIL with "sub": for parts that are visually compound, add a "sub" array of extra shapes RELATIVE to the part (their "offset" is local to the part's position). Examples: a DC motor = cylinder body + a thin "rod" shaft sub + a small "box" mount sub; an ultrasonic sensor = box body + two "cylinder" eyes subs; a wheel = wheel + a "cylinder" hub sub; a screw = cylinder shank + a wider short "cylinder" head sub. Keep subs to 1-4 per part, only where they add realism. Subs inherit the part's material/color unless they set their own.
 - World units ~cm scaled so the whole build fits ~6x6x6 centered near origin, on the ground (y>=0); sensible proportions; don't overlap parts that shouldn't touch.
 - Build BOTTOM-UP in real assembly order. 5-9 steps. Every step introduces at least one part. Output JSON ONLY.`;
 
@@ -1786,7 +1787,7 @@ const generateBuildPlan = async (req, res) => {
 
     const response = await anthropic.messages.create({
       model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-      max_tokens: 3000,
+      max_tokens: 4500,
       // Prompt caching on the big system block → cheaper + faster on repeats.
       system: [{ type: 'text', text: BUILD_PLAN_SYSTEM, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: `Build request: ${topic}` }],
