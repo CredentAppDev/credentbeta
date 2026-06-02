@@ -1892,10 +1892,15 @@ const generate3DPart = async (req, res) => {
     if (!r.ok || (data && typeof data.code === 'number' && data.code !== 0)) {
       // Out of credits / rate limited / bad request → let client fall back.
       const st = (r.status === 402 || r.status === 429) ? r.status : 502;
+      console.warn(`[3d] tripo create FAILED http=${r.status} code=${data?.code} msg=${data?.message || data?.suggestion || ''}`);
       return res.status(st).json({ message: data?.message || data?.suggestion || 'Tripo create failed', fallback: true });
     }
     const taskId = data?.data?.task_id || data?.data?.taskId || data?.task_id;
-    if (!taskId) return res.status(502).json({ message: 'No task id from 3D service', fallback: true });
+    if (!taskId) {
+      console.warn('[3d] tripo create OK but no task_id; keys=' + Object.keys(data?.data || data || {}).join(','));
+      return res.status(502).json({ message: 'No task id from 3D service', fallback: true });
+    }
+    console.log(`[3d] tripo task started id=${taskId} prompt="${prompt.slice(0, 60)}"`);
     return res.status(202).json({ taskId });
   } catch (error) {
     console.error('generate-3d error:', error.message);
@@ -1920,6 +1925,8 @@ const get3DPartStatus = async (req, res) => {
     const d = data?.data || data;
     const status = _normGenStatus(d?.status);
     const glb = status === 'SUCCEEDED' ? _genGlbUrl(d?.output) : null;
+    if (status === 'SUCCEEDED') console.log(`[3d] tripo task ${id} SUCCEEDED glb=${glb ? 'yes' : 'MISSING'}`);
+    else if (status === 'FAILED') console.warn(`[3d] tripo task ${id} FAILED raw=${d?.status}`);
     return res.status(200).json({
       status,                                       // IN_PROGRESS | SUCCEEDED | FAILED
       progress: Number(d?.progress) || 0,
