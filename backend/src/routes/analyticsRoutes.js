@@ -11,6 +11,7 @@ const {
   getLearningLeaderboard,
   getProjectAnalytics,
   getAnalyticsSummary,
+  getStudentAnalytics,
 } = require('../controllers/analyticsController');
 const { protect } = require('../middleware/auth');
 const { isAdmin, allowRoles } = require('../middleware/roles');
@@ -36,6 +37,19 @@ router.get(
   '/summary',
   allowRoles('student', 'teacher', 'agent', 'admin'),
   getAnalyticsSummary
+);
+
+// Per-student analytics. Students hit it bare (their own data); teachers/agents
+// pass a studentId. Access is enforced in the controller.
+router.get(
+  '/student',
+  allowRoles('student', 'teacher', 'agent', 'admin'),
+  getStudentAnalytics
+);
+router.get(
+  '/student/:studentId',
+  allowRoles('teacher', 'agent', 'admin'),
+  getStudentAnalytics
 );
 
 router.use(isAdmin);

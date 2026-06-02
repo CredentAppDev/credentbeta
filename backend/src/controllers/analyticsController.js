@@ -414,6 +414,11 @@ const getRatingProjectAnalytics = async (user) => {
        COUNT(DISTINCT gr.group_id)::integer                 AS group_count,
        COUNT(DISTINCT gm.student_id)::integer               AS student_count,
        MAX(gr.submitted_at)                                 AS last_updated,
+       -- Skill/competency breakdown (NULL-safe; only averages rows that have them)
+       ROUND(AVG(gr.creativity))::integer                   AS avg_creativity,
+       ROUND(AVG(gr.execution))::integer                    AS avg_execution,
+       ROUND(AVG(gr.teamwork))::integer                     AS avg_teamwork,
+       ROUND(AVG(gr.presentation))::integer                 AS avg_presentation,
        (SELECT sg2.name
           FROM student_groups sg2
           JOIN group_ratings gr2 ON gr2.group_id = sg2.id
@@ -572,6 +577,68 @@ const newestDateValue = (left, right) => {
   return new Date(left).getTime() >= new Date(right).getTime() ? left : right;
 };
 
+// ─── Per-student analytics ───────────────────────────────────────────────────
+// Returns a single student's project scores (from the ratings of the groups they
+// belong to) WITH the skill breakdown, plus the class-wide average per project so
+// the UI can show "this student vs the class". Access:
+//   • student  → only their own data (studentId is forced to req.user.id)
+//   • teacher  → any student in a group they have access to
+//   • agent/admin → any student
+const getStudentAnalytics = async (req, res) => {
+  try {
+    const role = req.user.role;
+    let studentId = role === 'student' ? req.user.id : (req.params.studentId || req.query.student_id);
+    if (!studentId) return res.status(400).json({ message: 'studentId required' });
+    studentId = Number(studentId);
+
+    // Teachers may only view students who share a group they have access to.
+    if (role === 'teacher') {
+      const ok = await pool.query(
+        `SELECT 1 FROM group_members gm
+           JOIN teacher_group_access tga ON tga.group_id = gm.group_id
+          WHERE gm.student_id = $1 AND tga.teacher_id = $2 AND tga.is_active = true LIMIT 1`,
+        [studentId, req.user.id]
+      );
+      if (!ok.rows.length) return res.status(403).json({ message: 'No access to this student' });
+    }
+
+    // The student's own per-project rows (avg across their groups' ratings).
+    const mine = await pool.query(
+      `SELECT gr.project_name,
+              ROUND(AVG(gr.score))::integer        AS score,
+              ROUND(AVG(gr.creativity))::integer   AS creativity,
+              ROUND(AVG(gr.execution))::integer    AS execution,
+              ROUND(AVG(gr.teamwork))::integer     AS teamwork,
+              ROUND(AVG(gr.presentation))::integer AS presentation,
+              MAX(gr.submitted_at)                 AS last_updated
+         FROM group_ratings gr
+         JOIN group_members gm ON gm.group_id = gr.group_id
+        WHERE gm.student_id = $1
+        GROUP BY gr.project_name
+        ORDER BY score DESC NULLS LAST`,
+      [studentId]
+    );
+
+    // Class-wide average per project (all groups) for comparison.
+    const cls = await pool.query(
+      `SELECT gr.project_name, ROUND(AVG(gr.score))::integer AS class_avg
+         FROM group_ratings gr GROUP BY gr.project_name`
+    );
+    const classMap = {};
+    cls.rows.forEach(r => { classMap[r.project_name] = r.class_avg; });
+
+    const projects = mine.rows.map(r => ({ ...r, class_avg: classMap[r.project_name] ?? null }));
+    const overall = projects.length
+      ? Math.round(projects.reduce((a, p) => a + (p.score || 0), 0) / projects.length)
+      : null;
+
+    res.status(200).json({ student_id: studentId, overall_score: overall, projects });
+  } catch (error) {
+    console.error('Student analytics error:', error.stack || error.message || error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
+
 module.exports = {
   getOverviewStats,
   getTicketVolume,
@@ -583,6 +650,7 @@ module.exports = {
   getLearningLeaderboard,
   getProjectAnalytics,
   getAnalyticsSummary,
+  getStudentAnalytics,
 };
 
 // ─── Analytics Summary — what iOS + desktop expect at /api/analytics/summary ──
