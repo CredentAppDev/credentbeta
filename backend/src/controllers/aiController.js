@@ -1012,6 +1012,7 @@ const minimalProject = (project) => ({
   id: project.id,
   title: project.title,
   subject: project.subject,
+  project_type: project.project_type || 'software',
   grade: project.grade,
   class_name: project.class_name,
   duration_months: project.duration_months,
@@ -1716,6 +1717,7 @@ const tutorAsk = async (req, res) => {
     return res.status(200).json({
       session_id: session.id,
       answer: finalAnswer,
+      project: project ? minimalProject(project) : null,   // carries project_type for client routing
       current_topic: updated?.current_topic || null,
       completed_topics: updated?.completed_topics || [],
       turn_count: updated?.turn_count || 0,

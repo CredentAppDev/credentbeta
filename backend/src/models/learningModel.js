@@ -169,6 +169,27 @@ const createLearningTables = async () => {
       ADD COLUMN IF NOT EXISTS expected_section_count INTEGER DEFAULT 16
   `);
 
+  // project_type splits the two product experiences so they never mix:
+  //   'robotics' → the Build studio (live 3D part-by-part build animation)
+  //   'software' → normal coding lessons / tutor (no 3D robot build)
+  // Default 'software' is the conservative choice (a class only gets the robotics
+  // Build experience when explicitly marked robotics).
+  await pool.query(`
+    ALTER TABLE learning_projects
+      ADD COLUMN IF NOT EXISTS project_type VARCHAR(20) NOT NULL DEFAULT 'software'
+  `);
+  // One-time backfill: mark the known hardware project (Mino / voice assistant)
+  // as robotics so existing data behaves correctly without manual editing.
+  await pool.query(`
+    UPDATE learning_projects
+       SET project_type = 'robotics'
+     WHERE project_type = 'software'
+       AND (LOWER(title) LIKE '%voice assistant%'
+            OR LOWER(title) LIKE '%mino%'
+            OR LOWER(title) LIKE '%robot%'
+            OR LOWER(COALESCE(subject,'')) LIKE '%robot%')
+  `);
+
   await pool.query(`
     ALTER TABLE learning_project_roadmap_days
       ADD COLUMN IF NOT EXISTS month_number INTEGER,
@@ -191,9 +212,9 @@ const createLearningProject = async (data) => {
      (title, subject, grade, class_name, description, learning_goals, difficulty_level,
       duration_months, expected_section_count, audience_scope,
       teacher_readiness_required, code_explanation_required, source_doc_name,
-      created_by_role, created_by_id)
+      created_by_role, created_by_id, project_type)
      VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8, 4), COALESCE($9, 16), $10,
-             COALESCE($11, true), COALESCE($12, true), $13, $14, $15)
+             COALESCE($11, true), COALESCE($12, true), $13, $14, $15, COALESCE($16, 'software'))
      ON CONFLICT (title) DO UPDATE SET
        subject = EXCLUDED.subject,
        grade = EXCLUDED.grade,
@@ -207,6 +228,7 @@ const createLearningProject = async (data) => {
        teacher_readiness_required = EXCLUDED.teacher_readiness_required,
        code_explanation_required = EXCLUDED.code_explanation_required,
        source_doc_name = EXCLUDED.source_doc_name,
+       project_type = EXCLUDED.project_type,
        updated_at = NOW()
      RETURNING *`,
     [
@@ -225,6 +247,7 @@ const createLearningProject = async (data) => {
       data.source_doc_name || null,
       data.created_by_role || null,
       data.created_by_id || null,
+      (data.project_type === 'robotics' ? 'robotics' : (data.project_type === 'software' ? 'software' : null)),
     ]
   );
   return result.rows[0];
