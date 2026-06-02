@@ -22,6 +22,8 @@ const {
   tutorAsk,
   tutorEnd,
   generateBuildPlan,
+  generate3DPart,
+  get3DPartStatus,
 } = require('../controllers/aiController');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -50,5 +52,11 @@ router.post('/tutor/:id/end', protect, tutorEnd);
 
 // Build Studio: dedicated 3D build-plan generator (calls Claude → capped).
 router.post('/build-plan', protect, aiDailyCap, generateBuildPlan);
+
+// Build Studio: organic 3D part generation (Meshy). POST kicks off a job (costs
+// credits → capped); GET polls status (cheap → uncapped so prefetch polling
+// doesn't drain the daily cap).
+router.post('/generate-3d', protect, aiDailyCap, generate3DPart);
+router.get('/generate-3d/:id', protect, get3DPartStatus);
 
 module.exports = router;
