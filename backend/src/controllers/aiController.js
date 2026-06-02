@@ -1829,21 +1829,43 @@ const generateBuildPlan = async (req, res) => {
   }
 };
 
-// ── Organic 3D generation (Meshy text-to-3D) ─────────────────────────────────
+// ── Organic 3D generation (Tripo text-to-3D) ─────────────────────────────────
 // Build Studio prefetches one organic mesh PER PART while Emrys is still teaching
 // earlier steps, so by the time the animation reaches a step its real 3D model is
-// ready. We use Meshy PREVIEW mode only (untextured mesh): faster, far cheaper in
-// credits, and we colour it with the viewer's material library anyway. The API
-// key lives ONLY here (server-side); if it's unset the client silently falls back
-// to its instant procedural geometry, so nothing breaks without a key.
+// ready. We use Tripo (genuinely-free API: free monthly + signup credits; Meshy's
+// API is paywalled). The API key lives ONLY here (server-side); if it's unset OR
+// out of credits, we respond `fallback:true` and the client silently uses its
+// instant procedural geometry, so nothing breaks without a key.
 //
-// Two endpoints:
+// Two endpoints (shape is service-agnostic so the client never changes):
 //   POST /api/ai/generate-3d        { prompt } -> { taskId }     (kick off a job)
 //   GET  /api/ai/generate-3d/:id               -> { status, progress, glb? }
 // The client kicks off jobs ahead of time and polls; we DON'T block one request
-// for the whole 20-90s job (that would tie up a worker + risk gateway timeouts).
-const MESHY_BASE = 'https://api.meshy.ai/openapi/v2/text-to-3d';
-const _meshyFetch = () => (global.fetch || ((...a) => import('node-fetch').then(({ default: f }) => f(...a))));
+// for the whole job (that would tie up a worker + risk gateway timeouts).
+//
+// Tripo API: POST https://api.tripo3d.ai/v2/openapi/task {type:"text_to_model",
+// prompt} -> {code:0,data:{task_id}}; GET .../task/:id -> data.status
+// (queued|running|success|failed|...) + data.output.{pbr_model|model|base_model}.
+const TRIPO_BASE = 'https://api.tripo3d.ai/v2/openapi';
+const _genFetch = () => (global.fetch || ((...a) => import('node-fetch').then(({ default: f }) => f(...a))));
+const _genKey = () => process.env.TRIPO_API_KEY || process.env.MESHY_API_KEY; // TRIPO preferred
+const _genUnset = (k) => !k || k === 'your_tripo_api_key_here' || k === 'your_meshy_api_key_here';
+
+// Normalise Tripo's status vocabulary to the SUCCEEDED/FAILED set the client uses.
+function _normGenStatus(s) {
+  const v = String(s || '').toLowerCase();
+  if (v === 'success' || v === 'succeeded') return 'SUCCEEDED';
+  if (v === 'failed' || v === 'cancelled' || v === 'canceled' || v === 'banned' || v === 'expired') return 'FAILED';
+  return 'IN_PROGRESS'; // queued | running | unknown
+}
+// Tolerant pull of a GLB url from Tripo's task output (field names have varied).
+function _genGlbUrl(out) {
+  if (!out || typeof out !== 'object') return null;
+  const cand = out.pbr_model || out.model || out.base_model || out.rendered_model || out.glb;
+  if (typeof cand === 'string' && /^https?:\/\//.test(cand)) return cand;
+  if (cand && typeof cand === 'object' && typeof cand.url === 'string') return cand.url;
+  return null;
+}
 
 const generate3DPart = async (req, res) => {
   try {
@@ -1851,32 +1873,29 @@ const generate3DPart = async (req, res) => {
     if (!prompt) return res.status(400).json({ message: 'prompt required' });
     if (prompt.length > 300) return res.status(400).json({ message: 'prompt too long' });
 
-    const key = process.env.MESHY_API_KEY;
-    if (!key || key === 'your_meshy_api_key_here') {
+    const key = _genKey();
+    if (_genUnset(key)) {
       // No key configured → tell the client to use its procedural fallback.
       return res.status(503).json({ message: '3D generation not configured', fallback: true });
     }
 
-    const fetch = _meshyFetch();
-    const r = await fetch(MESHY_BASE, {
+    const fetch = _genFetch();
+    const r = await fetch(`${TRIPO_BASE}/task`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        mode: 'preview',
+        type: 'text_to_model',
         prompt: `${prompt}, single isolated object, clean studio model, neutral, centered`,
-        ai_model: 'latest',
-        target_formats: ['glb'],
-        should_remesh: true,
       }),
     });
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
+    if (!r.ok || (data && typeof data.code === 'number' && data.code !== 0)) {
       // Out of credits / rate limited / bad request → let client fall back.
-      return res.status(r.status === 402 || r.status === 429 ? r.status : 502)
-        .json({ message: data?.message || 'Meshy create failed', fallback: true });
+      const st = (r.status === 402 || r.status === 429) ? r.status : 502;
+      return res.status(st).json({ message: data?.message || data?.suggestion || 'Tripo create failed', fallback: true });
     }
-    const taskId = data.result || data.id;
-    if (!taskId) return res.status(502).json({ message: 'No task id from Meshy', fallback: true });
+    const taskId = data?.data?.task_id || data?.data?.taskId || data?.task_id;
+    if (!taskId) return res.status(502).json({ message: 'No task id from 3D service', fallback: true });
     return res.status(202).json({ taskId });
   } catch (error) {
     console.error('generate-3d error:', error.message);
@@ -1888,22 +1907,23 @@ const get3DPartStatus = async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ message: 'id required' });
-    const key = process.env.MESHY_API_KEY;
-    if (!key || key === 'your_meshy_api_key_here') {
+    const key = _genKey();
+    if (_genUnset(key)) {
       return res.status(503).json({ message: '3D generation not configured', fallback: true });
     }
-    const fetch = _meshyFetch();
-    const r = await fetch(`${MESHY_BASE}/${encodeURIComponent(id)}`, {
+    const fetch = _genFetch();
+    const r = await fetch(`${TRIPO_BASE}/task/${encodeURIComponent(id)}`, {
       headers: { 'Authorization': `Bearer ${key}` },
     });
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) return res.status(502).json({ message: data?.message || 'Meshy poll failed', fallback: true });
-    const status = data.status || 'PENDING';
-    const glb = data.model_urls?.glb || null;
+    if (!r.ok) return res.status(502).json({ message: data?.message || '3D poll failed', fallback: true });
+    const d = data?.data || data;
+    const status = _normGenStatus(d?.status);
+    const glb = status === 'SUCCEEDED' ? _genGlbUrl(d?.output) : null;
     return res.status(200).json({
-      status,                       // PENDING | IN_PROGRESS | SUCCEEDED | FAILED | CANCELED
-      progress: data.progress || 0,
-      glb: status === 'SUCCEEDED' ? glb : null,
+      status,                                       // IN_PROGRESS | SUCCEEDED | FAILED
+      progress: Number(d?.progress) || 0,
+      glb,
     });
   } catch (error) {
     console.error('generate-3d status error:', error.message);
