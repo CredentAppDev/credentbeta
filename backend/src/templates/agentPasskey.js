@@ -1,4 +1,6 @@
-const agentPasskeyTemplate = ({ agentName, passkey, expiryHours = 24 }) => {
+const agentPasskeyTemplate = ({ agentName, passkey, expiryHours = 24, expiryLabel }) => {
+  // expiryLabel (e.g. "30 days") overrides the hours wording when provided.
+  const expiryText = expiryLabel || `${expiryHours} hours`;
   return {
     subject: `Your Credent Access Passkey`,
     html: `
@@ -39,7 +41,7 @@ const agentPasskeyTemplate = ({ agentName, passkey, expiryHours = 24 }) => {
                 <p class="passkey-number">${passkey}</p>
               </div>
               <div class="expiry-box">
-                <p>⏰ This passkey expires in <strong>${expiryHours} hours</strong>. Enter it in the app before it expires.</p>
+                <p>⏰ This passkey expires in <strong>${expiryText}</strong>. Enter it in the app before it expires.</p>
               </div>
               <div class="steps">
                 <p><strong>How to get started:</strong></p>
@@ -59,7 +61,7 @@ const agentPasskeyTemplate = ({ agentName, passkey, expiryHours = 24 }) => {
         </body>
       </html>
     `,
-    text: `Welcome ${agentName}! Your Credent passkey is: ${passkey}. It expires in ${expiryHours} hours. Enter it in the app to activate your account.`
+    text: `Welcome ${agentName}! Your Credent passkey is: ${passkey}. It expires in ${expiryText}. Enter it in the app to activate your account.`
   };
 };
 

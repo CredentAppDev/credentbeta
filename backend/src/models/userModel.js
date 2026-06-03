@@ -99,7 +99,7 @@ const findUserByRefreshToken = async (token) => {
 
 // ─── Save Passkey ────────────────────────────────────────────────
 const savePasskey = async (userId, passkey) => {
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
   const result = await pool.query(
     `UPDATE users SET
       passkey = $1,

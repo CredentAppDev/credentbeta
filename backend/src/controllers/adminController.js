@@ -92,7 +92,7 @@ const createAgent = async (req, res) => {
     const template = agentPasskeyTemplate({
       agentName: full_name,
       passkey,
-      expiryHours: 24,
+      expiryLabel: '30 days',
     });
 
     await sgMail.send({
@@ -243,7 +243,7 @@ const resendPasskey = async (req, res) => {
     const template = agentPasskeyTemplate({
       agentName: agent.full_name,
       passkey,
-      expiryHours: 24,
+      expiryLabel: '30 days',
     });
 
     await sgMail.send({
