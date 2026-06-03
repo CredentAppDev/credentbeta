@@ -1632,15 +1632,14 @@ const tutorAsk = async (req, res) => {
       const classProjects = await filterProjectsForUser(req.user, allProjects);
 
       if (classProjects.length === 0) {
-        // Nothing is assigned to this class — say so instead of building
-        // a random project from general knowledge.
-        const who = req.user.role === 'teacher' ? 'your assigned classes' : 'your class';
+        // Nothing is assigned to this class. Say so plainly and tell them to
+        // contact their agent — do NOT fall back to generic warm-up questions
+        // (e.g. "are you a great typer?"), which is confusing and goes nowhere.
         return res.status(200).json({
           session_id: null,
           answer: [
-            `I don't have a learning project assigned to ${who} yet, so I can't start a project lesson.`,
-            'Once an agent assigns this class a project, I will teach that project step by step. ' +
-            'In the meantime, ask me to explain a concept and I will help.',
+            'No project found for your class yet.',
+            'Please contact your agent to have a project assigned. Once a project is assigned, I will teach it with you step by step.',
           ].join('\n\n'),
           current_topic: null,
           completed_topics: [],
@@ -1657,10 +1656,14 @@ const tutorAsk = async (req, res) => {
       chunks = await getChunksForTutor(project.id);
     }
 
+    // Use the RESOLVED project's id (project.id), not the raw request value —
+    // for class-scoped sessions projectId is null but we still teach project.id,
+    // and the session must record it so progress/topics persist correctly.
+    const sessionProjectId = project ? project.id : projectId;
     const session = await getOrCreateActiveTutoringSession({
       userType: req.user.role,
       userId: req.user.id,
-      projectId,
+      projectId: sessionProjectId,
       mode,
     });
 
@@ -1699,7 +1702,7 @@ const tutorAsk = async (req, res) => {
     // history. Best-effort — failures here don't break the response.
     try {
       await persistTutorTurn({
-        project_id: projectId || null,
+        project_id: sessionProjectId || null,
         group_id: null,
         requester_type: req.user.role,
         requester_id: req.user.id,
