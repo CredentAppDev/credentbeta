@@ -13,8 +13,10 @@ const canAccessProject = async (user, project) => {
     });
   }
 
+  // Teachers can access ALL projects — no group assignment required. Adding a
+  // teacher is enough; groups are no longer part of project access.
   if (user.role === 'teacher') {
-    return teacherHasProjectClass(user.id, project);
+    return true;
   }
 
   return false;
@@ -33,11 +35,9 @@ const filterProjectsForUser = async (user, projects) => {
     );
   }
 
+  // Teachers see ALL projects — no group assignment required.
   if (user.role === 'teacher') {
-    const scopes = await getTeacherClassScopes(user.id);
-    return projects.filter((project) =>
-      scopes.some((scope) => projectMatchesClass(project, scope))
-    );
+    return projects;
   }
 
   return [];
