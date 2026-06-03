@@ -16,6 +16,7 @@ const {
   listProjectAssets,
   addProjectAsset,
   uploadProjectAsset,
+  uploadProjectContentPdf,
 } = require('../controllers/learningController');
 
 // On Render free tier the local FS is wiped on every deploy. Set UPLOAD_DIR
@@ -40,6 +41,13 @@ const uploadLearning = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
 });
 
+// Memory storage for the content PDF — we need the buffer in-process to extract
+// text with pdf-parse (no disk write needed; the text becomes the content).
+const uploadPdfMem = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+});
+
 const router = express.Router();
 
 router.get('/projects', protect, listProjects);
@@ -51,5 +59,9 @@ router.post('/projects/:id/content', protect, isAgent, validateContentChunk, add
 router.get('/projects/:id/assets', protect, listProjectAssets);
 router.post('/projects/:id/assets', protect, isAgent, validateAsset, addProjectAsset);
 router.post('/projects/:id/assets/upload', protect, isAgent, uploadLearning.single('file'), uploadProjectAsset);
+
+// Upload ONE content PDF → extract + AI-structure into the project's content
+// chunks (replaces existing). Agent/admin only.
+router.post('/projects/:id/content/pdf', protect, isAgent, uploadPdfMem.single('file'), uploadProjectContentPdf);
 
 module.exports = router;

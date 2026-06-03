@@ -5,6 +5,7 @@ const {
   getLearningProjectById,
   addLearningContentChunk,
   getLearningContentChunks,
+  replaceLearningContentChunks,
   addLearningProjectAsset,
   getLearningProjectAssets,
   addLearningRoadmapDay,
@@ -238,6 +239,111 @@ const uploadProjectAsset = async (req, res) => {
   }
 };
 
+// Upload ONE PDF that contains all of a project's content. We extract its text,
+// ask Claude to organise it into clean titled lesson chunks, and REPLACE the
+// project's content chunks with them — so Emrys/Build teach grounded in this PDF.
+// Agent/admin only (route-guarded). Uses pdf-parse (already a dependency).
+const uploadProjectContentPdf = async (req, res) => {
+  try {
+    const project = await getLearningProjectById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Learning project not found' });
+    if (!(await requireProjectAccess(req, res, project))) return;
+    if (!req.file) return res.status(400).json({ message: 'PDF file is required' });
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ message: 'File must be a PDF' });
+    }
+
+    // 1) Extract text from the PDF buffer. pdf-parse v2 exposes a PDFParse class:
+    //    new PDFParse({ data: buffer }) → await getText() → { text }.
+    let text = '';
+    try {
+      const { PDFParse } = require('pdf-parse');
+      const parser = new PDFParse({ data: req.file.buffer });
+      const parsed = await parser.getText();
+      try { await parser.destroy?.(); } catch (_) {}
+      const _nbsp = String.fromCharCode(160);
+      text = String(parsed.text || '')
+        .split(_nbsp).join(' ')
+        .replace(/^\s*--\s*\d+\s+of\s+\d+\s*--\s*$/gim, '')  // strip pdf-parse page markers
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    } catch (e) {
+      console.error('PDF parse failed:', e.message);
+      return res.status(422).json({ message: 'Could not read this PDF. Make sure it has selectable text (not a scan).' });
+    }
+    if (text.length < 30) {
+      return res.status(422).json({ message: 'This PDF had almost no readable text (it may be a scanned image).' });
+    }
+    // Cap to keep the AI call bounded (≈ first ~40k chars ~ a long doc).
+    const docText = text.slice(0, 40000);
+
+    // 2) Ask Claude to structure the text into titled lesson chunks (JSON).
+    let chunks = null;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (apiKey && apiKey !== 'your_anthropic_api_key_here') {
+      try {
+        const Anthropic = require('@anthropic-ai/sdk');
+        const anthropic = new Anthropic({ apiKey });
+        const sys = `You organise raw lesson/document text into a clean, ordered set of teaching chunks for an AI tutor to quote from. Return ONLY minified JSON: {"chunks":[{"title":string,"content":string,"step_number":number}]}. Rules: preserve the document's real content and order; 5-25 chunks; each chunk one coherent topic/section with a short clear title; keep code/commands/steps intact inside content; step_number is the 1-based order; do not invent material not in the text.`;
+        const resp = await anthropic.messages.create({
+          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+          max_tokens: 6000,
+          system: [{ type: 'text', text: sys, cache_control: { type: 'ephemeral' } }],
+          messages: [{ role: 'user', content: `Project: ${project.title}\n\nDocument text:\n${docText}` }],
+        });
+        const raw = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+        const slice = raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+        let obj = null;
+        try { obj = JSON.parse(slice); }
+        catch { try { obj = JSON.parse(slice.replace(/,\s*([}\]])/g, '$1')); } catch (_) {} }
+        if (obj && Array.isArray(obj.chunks)) {
+          chunks = obj.chunks
+            .filter(c => c && c.content && String(c.content).trim())
+            .map((c, i) => ({
+              title: String(c.title || `Section ${i + 1}`).slice(0, 250),
+              content: String(c.content).trim(),
+              step_number: Number.isFinite(c.step_number) ? c.step_number : (i + 1),
+              source_type: 'pdf',
+              audience: 'both',
+            }));
+        }
+      } catch (e) {
+        console.warn('PDF AI-structuring failed, will fall back to paragraph split:', e.message);
+      }
+    }
+
+    // 3) Fallback: if AI structuring unavailable/failed, split on blank lines.
+    if (!chunks || !chunks.length) {
+      const blocks = docText.split(/\n\s*\n+/).map(s => s.trim()).filter(s => s.length > 40);
+      chunks = blocks.slice(0, 40).map((b, i) => ({
+        title: (b.split('\n')[0] || `Section ${i + 1}`).slice(0, 120),
+        content: b,
+        step_number: i + 1,
+        source_type: 'pdf',
+        audience: 'both',
+      }));
+    }
+    if (!chunks.length) return res.status(422).json({ message: 'Could not derive any content from this PDF.' });
+
+    // 4) Replace the project's content chunks with the PDF-derived ones.
+    const created = await replaceLearningContentChunks(req.params.id, chunks);
+
+    // 5) Best-effort: record the source PDF name on the project + as an asset.
+    try {
+      await createLearningProject({ ...project, source_doc_name: req.file.originalname });
+    } catch (_) {}
+
+    return res.status(201).json({
+      message: `Project content set from PDF — ${chunks.length} sections.`,
+      count: chunks.length,
+      chunks: created || chunks,
+    });
+  } catch (error) {
+    console.error('Upload project content PDF error:', error.message);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   validateProject,
   validateContentChunk,
@@ -249,4 +355,5 @@ module.exports = {
   listProjectAssets,
   addProjectAsset,
   uploadProjectAsset,
+  uploadProjectContentPdf,
 };

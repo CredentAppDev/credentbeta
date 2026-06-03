@@ -1553,12 +1553,17 @@ CURRENT SESSION:
 - Student's last attempt: ${session.last_attempt || '(none yet)'}
 - Turn count so far: ${session.turn_count || 0}
 
-PROJECT GROUNDING (use ONLY this — never invent components, libraries, or APIs):
+PROJECT GROUNDING (prefer this material; it is the source of truth for THIS project):
 Description: ${projectDesc}
 Learning goals: ${projectGoals}
 ${chunkLines ? `\nReference material:\n${chunkLines}` : ''}
 
-Now respond to the student's latest message. Remember: small step, plain English first, ask them to try. Stay locked to "${projectTitle}".`;
+USING THE MATERIAL vs YOUR OWN KNOWLEDGE:
+- ALWAYS prefer the reference material above. When the answer IS in it, teach from it and stay faithful to its components, steps, libraries, and order.
+- When the student's question is NOT covered by the material (a gap, an error they hit, a "why", a debugging issue, a related concept), DO NOT refuse and DO NOT go blank — use your own expert knowledge to help them, while keeping it tied to "${projectTitle}" and consistent with the material.
+- Stay within this project's scope: don't switch to teaching a DIFFERENT project, but freely use general knowledge to unblock the student on THIS one.
+
+Now respond to the student's latest message. Remember: small step, plain English first, ask them to try. Stay on "${projectTitle}".`;
 };
 
 // Parse [advance:] / [checkpoint:] markers from the end of the response.
