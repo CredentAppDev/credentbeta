@@ -22,13 +22,23 @@ services:
   - type: web
     name: credent-backend
     runtime: node
-    plan: free
+    plan: starter              # disks require a paid instance (free tier has no disk)
     region: frankfurt          # closest free region to Africa/EU testers
     rootDir: backend           # the backend lives in /backend in this repo
     buildCommand: npm install --omit=dev
     startCommand: node server.js
     healthCheckPath: /api/health
     autoDeploy: true           # rebuild on every push to the main branch
+    # Persistent disk so uploaded files (Build Studio 3D models, group photos,
+    # voice notes) survive deploys. Without it, Render wipes the local FS on every
+    # deploy and uploaded models 404. Mounted at /var/data; UPLOAD_DIR points the
+    # app's uploads there. NOTE: applying this in the Render Blueprint upgrades the
+    # service to a paid plan + provisions the disk — confirm the change in the
+    # dashboard (Blueprint → Apply).
+    disk:
+      name: credent-uploads
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -36,6 +46,10 @@ services:
         # Render injects its own PORT — server.js already reads process.env.PORT
         # so we leave the value blank and let Render set it at runtime.
         value: 10000
+      # Uploaded files live on the persistent disk above so they survive deploys.
+      # (Falls back to an ephemeral ./uploads dir if the disk isn't mounted.)
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
 
       # ─── Secrets (set in Render dashboard, NOT committed here) ─────────
       # After first deploy, go to your service → Environment tab and add:
