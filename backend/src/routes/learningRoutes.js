@@ -16,6 +16,8 @@ const {
   listProjectAssets,
   addProjectAsset,
   uploadProjectAsset,
+  getBuildModel,
+  deleteProjectAsset,
   uploadProjectContentPdf,
 } = require('../controllers/learningController');
 
@@ -59,6 +61,10 @@ router.post('/projects/:id/content', protect, isAgent, validateContentChunk, add
 router.get('/projects/:id/assets', protect, listProjectAssets);
 router.post('/projects/:id/assets', protect, isAgent, validateAsset, addProjectAsset);
 router.post('/projects/:id/assets/upload', protect, isAgent, uploadLearning.single('file'), uploadProjectAsset);
+// Build Studio 3D model(s) for a project — readable by any class member (student
+// included) so the desktop can stream and assemble them.
+router.get('/projects/:id/build-model', protect, getBuildModel);
+router.delete('/projects/:id/assets/:assetId', protect, isAgent, deleteProjectAsset);
 
 // Upload ONE content PDF → extract + AI-structure into the project's content
 // chunks (replaces existing). Agent/admin only.

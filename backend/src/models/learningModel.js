@@ -203,6 +203,13 @@ const createLearningTables = async () => {
       ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb
   `);
 
+  // sort_order lets a multi-part 3D build model (STL/GLB uploaded per project)
+  // assemble in a defined order in Build Studio.
+  await pool.query(`
+    ALTER TABLE learning_project_assets
+      ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0
+  `);
+
   console.log('✅ Learning / AI tables ready');
 };
 
@@ -318,8 +325,8 @@ const getLearningContentChunks = async (projectId, audience = 'both') => {
 const addLearningProjectAsset = async (projectId, data) => {
   const result = await pool.query(
     `INSERT INTO learning_project_assets
-     (project_id, title, file_name, file_path, asset_type, mime_type)
-     VALUES ($1, $2, $3, $4, $5, $6)
+     (project_id, title, file_name, file_path, asset_type, mime_type, sort_order)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
     [
       projectId,
@@ -328,6 +335,7 @@ const addLearningProjectAsset = async (projectId, data) => {
       data.file_path,
       data.asset_type || 'file',
       data.mime_type || null,
+      Number.isInteger(data.sort_order) ? data.sort_order : 0,
     ]
   );
   return result.rows[0];
@@ -348,10 +356,36 @@ const getLearningProjectAssets = async (projectId) => {
      FROM learning_project_assets
      WHERE project_id = $1
        AND is_active = true
-     ORDER BY created_at ASC`,
+     ORDER BY sort_order ASC, created_at ASC`,
     [projectId]
   );
   return result.rows;
+};
+
+// 3D build models for Build Studio: STL/GLB parts the agent uploaded for this
+// project, in assembly order. Distinct from generic file assets (docs) — these
+// are display models whose URLs are safe to expose to students.
+const getProjectBuildModels = async (projectId) => {
+  const result = await pool.query(
+    `SELECT id, title, file_name, file_path, asset_type, mime_type, sort_order
+     FROM learning_project_assets
+     WHERE project_id = $1
+       AND is_active = true
+       AND asset_type IN ('build_model', 'model_part')
+     ORDER BY sort_order ASC, created_at ASC`,
+    [projectId]
+  );
+  return result.rows;
+};
+
+const deleteLearningProjectAsset = async (projectId, assetId) => {
+  const result = await pool.query(
+    `DELETE FROM learning_project_assets
+     WHERE id = $1 AND project_id = $2
+     RETURNING id`,
+    [assetId, projectId]
+  );
+  return result.rows[0];
 };
 
 const addLearningRoadmapDay = async (projectId, data) => {
@@ -731,6 +765,8 @@ module.exports = {
   addLearningProjectAsset,
   replaceLearningProjectAssets,
   getLearningProjectAssets,
+  getProjectBuildModels,
+  deleteLearningProjectAsset,
   addLearningRoadmapDay,
   replaceLearningRoadmapDays,
   getLearningRoadmapDays,
