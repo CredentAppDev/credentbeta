@@ -45,10 +45,17 @@ services:
       #   ANTHROPIC_API_KEY     sk-ant-...
       #   DEEPGRAM_API_KEY      <40-char Deepgram key>   ← voice→Emrys transcription
       #   OPENAI_API_KEY        sk-...  (optional; Whisper, preferred over Deepgram)
+      #   TRIPO_API_KEY         tsk_...  ← Build Studio organic 3D meshes (text→3D)
+      #   MESHY_API_KEY         msy_...  (optional alternative to Tripo)
       #
       # Voice input ("record your voice and Emrys replies") calls
       # /api/ai/transcribe, which needs DEEPGRAM_API_KEY *or* OPENAI_API_KEY.
       # Without at least one, transcription returns 503 and voice does nothing.
+      #
+      # Build Studio's "organic 3D" upgrade (real meshes instead of primitive
+      # shapes) calls /api/ai/generate-3d, which needs TRIPO_API_KEY (preferred)
+      # or MESHY_API_KEY. Without either, builds still work — they just stay as
+      # the procedural primitive shapes (graceful fallback).
       #
       # The `sync: false` flag marks them as set-once secrets — Render won't
       # overwrite them on subsequent deploys.
@@ -63,6 +70,10 @@ services:
       - key: DEEPGRAM_API_KEY
         sync: false
       - key: OPENAI_API_KEY
+        sync: false
+      - key: TRIPO_API_KEY
+        sync: false
+      - key: MESHY_API_KEY
         sync: false
 
       # ─── Non-secret config with safe defaults ──────────────────────────
