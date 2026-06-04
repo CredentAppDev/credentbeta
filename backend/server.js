@@ -11,6 +11,7 @@ const { createEmailSettingsTable } = require('./src/controllers/emailSettingsCon
 const { createAuditLogsTable }     = require('./src/models/auditModel');
 const { createHelpCenterTable }    = require('./src/models/helpCenterModel');
 const { createSchoolTables }       = require('./src/models/schoolModel');
+const { createAssignmentTables }   = require('./src/models/assignmentModel');
 const { createGroupCallTables }    = require('./src/models/groupCallModel');
 const { createLearningTables }     = require('./src/models/learningModel');
 const { createScreenSessionTables, purgeStaleSignals } = require('./src/models/screenSessionModel');
@@ -66,6 +67,9 @@ const dbInfo = await pool.query('SELECT current_database() AS db, current_user A
 
     // 7. Create school, teacher, student tables
     await createSchoolTables();
+
+    // 7b. Create assignments + submissions tables (depends on school tables)
+    await createAssignmentTables();
 
     // 8. Create group call tables
     await createGroupCallTables();
