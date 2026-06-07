@@ -9,6 +9,7 @@ const {
   addLearningProjectAsset,
   getLearningProjectAssets,
   getProjectBuildModels,
+  setLearningAssetGenerate,
   deleteLearningProjectAsset,
   addLearningRoadmapDay,
   getLearningRoadmapDays,
@@ -233,6 +234,7 @@ const uploadProjectAsset = async (req, res) => {
       asset_type: req.body.asset_type || 'file',
       mime_type: req.file.mimetype,
       sort_order: Number.parseInt(req.body.sort_order, 10) || 0,
+      generate: req.body.generate === 'true' || req.body.generate === true,
     });
 
     res.status(201).json({ message: 'Asset uploaded', asset });
@@ -260,6 +262,7 @@ const getBuildModel = async (req, res) => {
       mime_type: r.mime_type,
       asset_type: r.asset_type,
       sort_order: r.sort_order,
+      generate: r.generate === true,   // placeholder → Emrys Tripo-generates it
     }));
     res.status(200).json({ project_id: project.id, models });
   } catch (error) {
@@ -280,6 +283,25 @@ const deleteProjectAsset = async (req, res) => {
     res.status(200).json({ message: 'Asset removed', id: removed.id });
   } catch (error) {
     console.error('Delete learning asset error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Agent: toggle whether a build-model part is a placeholder Emrys Tripo-generates.
+const setAssetGenerate = async (req, res) => {
+  try {
+    const project = await getLearningProjectById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Learning project not found' });
+    if (!(await requireProjectAccess(req, res, project))) return;
+
+    const updated = await setLearningAssetGenerate(
+      req.params.id, req.params.assetId,
+      req.body.generate === true || req.body.generate === 'true'
+    );
+    if (!updated) return res.status(404).json({ message: 'Asset not found' });
+    res.status(200).json({ id: updated.id, generate: updated.generate });
+  } catch (error) {
+    console.error('Set asset generate error:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -402,5 +424,6 @@ module.exports = {
   uploadProjectAsset,
   getBuildModel,
   deleteProjectAsset,
+  setAssetGenerate,
   uploadProjectContentPdf,
 };

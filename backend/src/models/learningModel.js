@@ -207,7 +207,8 @@ const createLearningTables = async () => {
   // assemble in a defined order in Build Studio.
   await pool.query(`
     ALTER TABLE learning_project_assets
-      ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0
+      ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS generate BOOLEAN DEFAULT false
   `);
 
   console.log('✅ Learning / AI tables ready');
@@ -325,8 +326,8 @@ const getLearningContentChunks = async (projectId, audience = 'both') => {
 const addLearningProjectAsset = async (projectId, data) => {
   const result = await pool.query(
     `INSERT INTO learning_project_assets
-     (project_id, title, file_name, file_path, asset_type, mime_type, sort_order)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     (project_id, title, file_name, file_path, asset_type, mime_type, sort_order, generate)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
     [
       projectId,
@@ -336,6 +337,7 @@ const addLearningProjectAsset = async (projectId, data) => {
       data.asset_type || 'file',
       data.mime_type || null,
       Number.isInteger(data.sort_order) ? data.sort_order : 0,
+      data.generate === true,
     ]
   );
   return result.rows[0];
@@ -367,7 +369,7 @@ const getLearningProjectAssets = async (projectId) => {
 // are display models whose URLs are safe to expose to students.
 const getProjectBuildModels = async (projectId) => {
   const result = await pool.query(
-    `SELECT id, title, file_name, file_path, asset_type, mime_type, sort_order
+    `SELECT id, title, file_name, file_path, asset_type, mime_type, sort_order, generate
      FROM learning_project_assets
      WHERE project_id = $1
        AND is_active = true
@@ -376,6 +378,18 @@ const getProjectBuildModels = async (projectId) => {
     [projectId]
   );
   return result.rows;
+};
+
+// Toggle whether a build-model part is a placeholder Emrys should Tripo-generate.
+const setLearningAssetGenerate = async (projectId, assetId, generate) => {
+  const result = await pool.query(
+    `UPDATE learning_project_assets
+     SET generate = $3
+     WHERE id = $1 AND project_id = $2
+     RETURNING id, generate`,
+    [assetId, projectId, generate === true]
+  );
+  return result.rows[0];
 };
 
 const deleteLearningProjectAsset = async (projectId, assetId) => {
@@ -766,6 +780,7 @@ module.exports = {
   replaceLearningProjectAssets,
   getLearningProjectAssets,
   getProjectBuildModels,
+  setLearningAssetGenerate,
   deleteLearningProjectAsset,
   addLearningRoadmapDay,
   replaceLearningRoadmapDays,

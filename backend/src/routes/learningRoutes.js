@@ -18,6 +18,7 @@ const {
   uploadProjectAsset,
   getBuildModel,
   deleteProjectAsset,
+  setAssetGenerate,
   uploadProjectContentPdf,
 } = require('../controllers/learningController');
 
@@ -65,6 +66,7 @@ router.post('/projects/:id/assets/upload', protect, isAgent, uploadLearning.sing
 // included) so the desktop can stream and assemble them.
 router.get('/projects/:id/build-model', protect, getBuildModel);
 router.delete('/projects/:id/assets/:assetId', protect, isAgent, deleteProjectAsset);
+router.patch('/projects/:id/assets/:assetId', protect, isAgent, setAssetGenerate);
 
 // Upload ONE content PDF → extract + AI-structure into the project's content
 // chunks (replaces existing). Agent/admin only.
