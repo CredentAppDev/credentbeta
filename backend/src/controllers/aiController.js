@@ -161,6 +161,47 @@ const askAi = async (req, res) => {
       return res.status(403).json({ message: 'AI assistance is not available for this role' });
     }
 
+    // A student asking about their own records/progress is answered straight
+    // from their real scores + class standing (with encouragement) — this runs
+    // BEFORE project resolution so it works even when no project is in scope.
+    if (userRole === 'student') {
+      const studentRecords = await buildStudentProgressAnswer(req.user, req.body.question);
+      if (studentRecords) {
+        const interaction = await createAiInteraction({
+          project_id: null,
+          group_id: req.body.group_id || null,
+          help_request_id: null,
+          requester_type: userRole,
+          requester_id: req.user.id,
+          audience: 'student',
+          question: req.body.question,
+          answer: studentRecords.answer,
+          sources: studentRecords.sources,
+          metadata: requestMetadata(req),
+        });
+
+        return res.status(200).json({
+          message: 'Emrys AI response',
+          requires_teacher_readiness: false,
+          project: null,
+          answer_text: studentRecords.answer,
+          answer: studentRecords.answer,
+          steps: studentRecords.steps,
+          sources: studentRecords.sources,
+          next_action: studentRecords.next_action,
+          interaction,
+          group_message: null,
+          saved_group_message: null,
+          policy: {
+            syllabus_bound: false,
+            in_scope: true,
+            audience: 'student',
+            data_source: 'progress_records',
+          },
+        });
+      }
+    }
+
     const project = await resolveProject(req.user, req.body.project_id, req.body.group_id);
     if (!project) {
       return res.status(404).json({ message: 'Learning project not found or not available for this class' });
@@ -853,14 +894,14 @@ const getProgressEvidenceForAi = async ({ user, project, groupId = null }) => {
 };
 
 const isProgressQuestion = (question) => {
-  return /progress|student|understanding|report|challenge|support|group|impact|lead|completed|stuck|behind|performance|update|where\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)|how\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)\s+doing/i
+  return /progress|student|understanding|report|challenge|support|group|impact|lead|completed|stuck|behind|performance|update|leaderboard|score|scores|rank|ranking|grade|record|records|standing|top\s+group|where\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)|how\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)\s+doing/i
     .test(String(question || ''));
 };
 
 const buildAgentProgressAnswer = async (question) => {
   if (!isProgressQuestion(question)) return null;
 
-  const [updatesResult, reportsResult] = await Promise.all([
+  const [updatesResult, reportsResult, leadersResult] = await Promise.all([
     pool.query(
       `SELECT lgpu.*,
               lp.title AS project_title,
@@ -885,10 +926,22 @@ const buildAgentProgressAnswer = async (question) => {
        ORDER BY tair.updated_at DESC
        LIMIT 5`
     ),
+    // Top groups by rating — gives the agent the leaderboard standings too.
+    pool.query(
+      `SELECT sg.name AS group_name,
+              gr.project_name,
+              ROUND(AVG(gr.score))::int AS score
+       FROM group_ratings gr
+       JOIN student_groups sg ON sg.id = gr.group_id
+       GROUP BY sg.name, gr.project_name
+       ORDER BY AVG(gr.score) DESC
+       LIMIT 5`
+    ),
   ]);
 
   const updates = updatesResult.rows;
   const reports = reportsResult.rows;
+  const leaders = leadersResult.rows;
   const primaryProjectId = updates[0]?.project_id || reports[0]?.project_id || null;
   const primaryGroupId = updates[0]?.group_id || null;
   const primaryProject = primaryProjectId
@@ -898,7 +951,7 @@ const buildAgentProgressAnswer = async (question) => {
       }
     : null;
 
-  if (updates.length === 0 && reports.length === 0) {
+  if (updates.length === 0 && reports.length === 0 && leaders.length === 0) {
     return {
       project_id: null,
       group_id: null,
@@ -952,8 +1005,51 @@ const buildAgentProgressAnswer = async (question) => {
     });
   }
 
+  if (leaders.length > 0) {
+    lines.push('');
+    lines.push('Leaderboard (top groups by rating):');
+    leaders.forEach((leader, index) => {
+      lines.push(`${index + 1}. ${leader.group_name} — ${leader.score} pts on "${leader.project_name}"`);
+    });
+  }
+
   lines.push('');
   lines.push('Agent next move: follow up on the newest challenge or support-needed item first, then ask the teacher to update the report after the next class activity.');
+
+  // Structured facts → Claude writes a natural agent briefing (varies each
+  // time). The deterministic `lines` above stay as the fallback when the LLM
+  // is unavailable. Facts are the source of truth; the model only rephrases.
+  const facts = {
+    group_updates: updates.map((u) => ({
+      group: u.group_name,
+      project: u.project_title,
+      day: u.day_number,
+      progress: u.group_progress || null,
+      impact: u.impact_summary || null,
+      lead: u.lead_student_name || null,
+      impact_student: u.impact_student_name || null,
+      completed: Array.isArray(u.completed_items) ? u.completed_items : [],
+      next: u.next_actions || null,
+    })),
+    teacher_reports: reports.map((r) => ({
+      teacher: r.teacher_name,
+      project: r.project_title,
+      day: r.day_number,
+      understanding: r.student_understanding || null,
+      challenge: r.challenges || null,
+      support_needed: r.support_needed || null,
+      ai_next_steps: r.ai_next_steps || null,
+    })),
+    leaderboard: leaders.map((l, i) => ({
+      rank: i + 1,
+      group: l.group_name,
+      project: l.project_name,
+      points: l.score,
+    })),
+  };
+
+  const phrased = await phraseAgentProgressWithLLM(facts);
+  const answer = phrased || lines.join('\n');
 
   const steps = [
     ...updates.slice(0, 3).map((update, index) => ({
@@ -986,7 +1082,7 @@ const buildAgentProgressAnswer = async (question) => {
       duration_months: null,
       expected_section_count: null,
     }) : null,
-    answer: lines.join('\n'),
+    answer,
     steps,
     sources: [
       ...updates.map((update) => ({
@@ -1005,6 +1101,263 @@ const buildAgentProgressAnswer = async (question) => {
       })),
     ],
     next_action: 'Follow up on the newest challenge or support-needed item, then ask for a fresh report after the next class activity.',
+  };
+};
+
+// A student asking specifically about THEIR OWN records / progress / standing.
+// Tighter than isProgressQuestion: we require "my <record-word>" or an explicit
+// leaderboard/standing phrase so ordinary project questions that merely contain
+// the word "progress" don't get hijacked away from the controlled tutor.
+const isStudentRecordsQuestion = (question) => {
+  const s = String(question || '').toLowerCase();
+  return (
+    /\bmy\s+(progress|score|scores|result|results|grade|grades|mark|marks|record|records|rank|ranking|standing|position)\b/.test(s)
+    || /\b(leaderboard|how\s+am\s+i\s+doing|how\s+i'?m\s+doing|am\s+i\s+(doing|improving|passing)|where\s+am\s+i\b|what'?s\s+my\s+(score|rank|grade|position|standing))\b/.test(s)
+  );
+};
+
+// Pick a short, warm, age-appropriate motivation line keyed off the best score.
+// Emrys "sometimes motivates the child" — the tone scales with how they're doing
+// so a struggling learner gets encouragement, not empty praise.
+const motivationForScore = (bestScore) => {
+  if (bestScore == null) {
+    return "Every champion starts at zero — your first score is just around the corner. Keep showing up! 🌱";
+  }
+  if (bestScore >= 90) return "Outstanding work — you're shining! ⭐ Keep that curiosity burning and help a teammate level up too.";
+  if (bestScore >= 75) return "Really strong work! 💪 You're close to the top — one more push and you'll get there.";
+  if (bestScore >= 60) return "You're getting there, step by step. 🚀 Keep practising the tricky parts and your score will climb.";
+  return "Every expert was once a beginner. 🌟 Don't give up — ask questions, try again, and you'll surprise yourself.";
+};
+
+// Concrete, friendly study tip per scored skill (used in the deterministic
+// fallback and offered to the LLM as a hint).
+const SKILL_TIPS = {
+  creativity: 'try adding one of your own ideas to the next project',
+  execution: 'break the build into tiny steps and finish them one at a time',
+  teamwork: 'share a task with a groupmate and check in on each other',
+  presentation: 'practise explaining your project out loud in 3 short sentences',
+};
+
+// Lowest-scored skill on a rating row → { skill, value } (or null).
+const weakestSkill = (rating) => {
+  if (!rating) return null;
+  const dims = Object.keys(SKILL_TIPS).filter(
+    (k) => rating[k] !== null && rating[k] !== undefined
+  );
+  if (!dims.length) return null;
+  dims.sort((a, b) => Number(rating[a]) - Number(rating[b]));
+  return { skill: dims[0], value: Number(rating[dims[0]]) };
+};
+
+const tipForWeakestSkill = (rating) => {
+  const w = weakestSkill(rating);
+  if (!w) return null;
+  return `Tip: your lowest area is ${w.skill} — ${SKILL_TIPS[w.skill]}.`;
+};
+
+// Ask Claude to phrase the student's real records as a warm, varied,
+// kid-friendly motivational message. Returns the text, or null if the model is
+// unavailable (caller then falls back to the deterministic template). Reuses
+// callClaudeForTutor (= callClaudeWithHistory) so model + key handling match the
+// rest of the tutor flow. `facts` is the structured truth — the model only
+// rephrases it, it does not invent numbers.
+const phraseStudentRecordsWithLLM = async (facts) => {
+  const systemPrompt = [
+    'You are Emrys, a warm, encouraging AI teacher for children on the Credent learning platform.',
+    "You will be given ONE student's real learning records as JSON. Write a short message (3 to 5 sentences) spoken directly TO the child by their first name.",
+    'Rules:',
+    '- Use simple, friendly words a child understands. A couple of emojis are welcome; do not overdo it.',
+    '- Use ONLY the numbers in the JSON (class rank, points, project scores). Never invent or change a number.',
+    '- Mention their class leaderboard rank and a notable project score.',
+    '- Celebrate what is going well, then gently encourage them on their weakest_skill with ONE concrete, doable tip.',
+    '- Always end on a motivating note. If records are missing or scores are low, be reassuring and kind — never discouraging.',
+    '- Plain prose only: no markdown headings, no bullet lists, no preamble like "Sure" or "Here is".',
+  ].join('\n');
+
+  try {
+    const raw = await callClaudeForTutor(
+      systemPrompt,
+      [{ role: 'user', content: JSON.stringify(facts) }],
+      400
+    );
+    return raw && raw.trim() ? raw.trim() : null;
+  } catch (e) {
+    console.warn('phraseStudentRecordsWithLLM failed:', e.message);
+    return null;
+  }
+};
+
+// Ask Claude to turn the agent's saved progress records into a natural, concise
+// operational briefing (varies each time). Professional tone — this is for
+// staff managing schools/teachers/groups, NOT a child. Returns text or null
+// (caller falls back to the deterministic summary). The JSON facts are the
+// source of truth; the model only rephrases them.
+const phraseAgentProgressWithLLM = async (facts) => {
+  const systemPrompt = [
+    'You are Emrys, the AI assistant for a Credent agent/admin who manages schools, teachers and student groups.',
+    'You will be given the latest saved progress records as JSON: recent group project updates, teacher daily reports, and the current leaderboard (top groups).',
+    'Write a concise briefing for the agent:',
+    '- 2 to 4 short sentences (a couple of short bullet lines are fine if they aid scanning).',
+    '- Use ONLY the facts and numbers in the JSON. Never invent names, scores, or events.',
+    '- Surface what matters operationally: who is progressing, any challenges or support-needed flags, and the top leaderboard groups.',
+    '- End with ONE clear next move for the agent.',
+    '- Professional, clear tone for staff (not a child). No markdown headings, no preamble like "Sure" or "Here is".',
+  ].join('\n');
+
+  try {
+    const raw = await callClaudeForTutor(
+      systemPrompt,
+      [{ role: 'user', content: JSON.stringify(facts) }],
+      500
+    );
+    return raw && raw.trim() ? raw.trim() : null;
+  } catch (e) {
+    console.warn('phraseAgentProgressWithLLM failed:', e.message);
+    return null;
+  }
+};
+
+// Builds Emrys's answer when a STUDENT asks about their own records/progress.
+// Pulls real scores + feedback from group_ratings and the student's class
+// leaderboard standing, then wraps them in an encouraging, kid-friendly note.
+// Returns null when the question isn't a records question so the normal tutor
+// flow runs instead.
+const buildStudentProgressAnswer = async (student, question) => {
+  if (!isStudentRecordsQuestion(question)) return null;
+
+  const [ratingsResult, standingResult] = await Promise.all([
+    pool.query(
+      `SELECT gr.project_name,
+              ROUND(gr.score)::int AS score,
+              gr.feedback,
+              gr.creativity, gr.execution, gr.teamwork, gr.presentation,
+              sg.name AS group_name,
+              gr.submitted_at
+       FROM group_ratings gr
+       JOIN student_groups sg ON sg.id = gr.group_id
+       JOIN group_members gm ON gm.group_id = sg.id
+       WHERE gm.student_id = $1
+       ORDER BY gr.submitted_at DESC NULLS LAST
+       LIMIT 8`,
+      [student.id]
+    ),
+    pool.query(
+      `WITH class_scope AS (
+         SELECT sg.id AS group_id, sg.name AS group_name, AVG(gr.score) AS avg_score
+         FROM group_ratings gr
+         JOIN student_groups sg ON sg.id = gr.group_id
+         JOIN students viewer_s
+           ON viewer_s.id = $1
+          AND viewer_s.school_id = sg.school_id
+          AND (
+               sg.class_name IS NULL
+            OR viewer_s.class_name IS NULL
+            OR LOWER(sg.class_name) = LOWER(viewer_s.class_name)
+          )
+         GROUP BY sg.id, sg.name
+       ),
+       ranked AS (
+         SELECT group_id, group_name,
+                ROUND(avg_score)::int AS score,
+                ROW_NUMBER() OVER (ORDER BY avg_score DESC) AS rank,
+                COUNT(*) OVER () AS total_groups
+         FROM class_scope
+       )
+       SELECT r.rank, r.group_name, r.score, r.total_groups
+       FROM ranked r
+       JOIN group_members gm ON gm.group_id = r.group_id
+       WHERE gm.student_id = $1
+       ORDER BY r.rank ASC
+       LIMIT 1`,
+      [student.id]
+    ),
+  ]);
+
+  const ratings = ratingsResult.rows;
+  const standing = standingResult.rows[0] || null;
+  const hasData = ratings.length > 0 || !!standing;
+
+  const scores = ratings.map((r) => Number(r.score)).filter((n) => Number.isFinite(n));
+  if (standing && Number.isFinite(Number(standing.score))) scores.push(Number(standing.score));
+  const bestScore = scores.length ? Math.max(...scores) : null;
+
+  const firstName = student.full_name ? String(student.full_name).split(' ')[0] : null;
+  const weakest = weakestSkill(ratings[0]);
+
+  // ── Deterministic fallback text (used verbatim if the LLM is unavailable) ──
+  const lines = [];
+  if (!hasData) {
+    lines.push(`Hi ${firstName || 'there'}! 👋`);
+    lines.push("You don't have any project scores yet — that's totally fine, it just means your adventure is only getting started.");
+    lines.push('Your scores and class ranking will show up here as soon as your teacher rates your group on a project.');
+    lines.push(motivationForScore(null));
+  } else {
+    lines.push(`Here's your learning record so far, ${firstName || 'champ'} 🌟`);
+    if (standing) {
+      const place = standing.rank === 1
+        ? "you're at the TOP"
+        : `you're ranked #${standing.rank} of ${standing.total_groups}`;
+      lines.push('');
+      lines.push(`🏆 In your class leaderboard, ${place} with ${standing.group_name} (${standing.score} pts).`);
+    }
+    if (ratings.length > 0) {
+      lines.push('');
+      lines.push('📊 Your project scores:');
+      ratings.forEach((r) => {
+        const parts = [`• ${r.project_name}: ${r.score}/100`];
+        if (r.feedback) parts.push(`teacher said: "${r.feedback}"`);
+        lines.push(parts.join(' — '));
+      });
+    }
+    lines.push('');
+    lines.push(motivationForScore(bestScore));
+    const tip = tipForWeakestSkill(ratings[0]);
+    if (tip) lines.push(tip);
+  }
+  const fallbackText = lines.join('\n');
+
+  // ── Structured facts → Claude phrases them naturally (varies each time) ──
+  const facts = {
+    name: firstName || 'friend',
+    has_records: hasData,
+    class_rank: standing
+      ? {
+          rank: standing.rank,
+          total_groups: standing.total_groups,
+          group: standing.group_name,
+          points: standing.score,
+        }
+      : null,
+    best_score: bestScore,
+    projects: ratings.map((r) => ({
+      project: r.project_name,
+      score: r.score,
+      feedback: r.feedback || null,
+    })),
+    weakest_skill: weakest
+      ? { skill: weakest.skill, value: weakest.value, suggested_tip: SKILL_TIPS[weakest.skill] }
+      : null,
+  };
+
+  const phrased = await phraseStudentRecordsWithLLM(facts);
+  const answer = phrased || fallbackText;
+
+  const sources = ratings.map((r) => ({
+    source_type: 'group_rating',
+    project_name: r.project_name,
+    group_name: r.group_name,
+    score: r.score,
+  }));
+
+  return {
+    answer,
+    steps: [],
+    sources,
+    next_action: !hasData
+      ? 'Keep taking part in your group projects — your first score is on its way.'
+      : bestScore != null && bestScore < 75
+        ? 'Pick one tricky topic and ask Emrys to explain it again — small wins add up.'
+        : 'Keep up the great work and aim for your next project score.',
   };
 };
 
@@ -1627,6 +1980,42 @@ const tutorAsk = async (req, res) => {
     if (!question) return res.status(400).json({ message: 'question is required' });
     const projectId = req.body.project_id ? parseInt(req.body.project_id, 10) : null;
     const mode = req.body.mode === 'presenter' ? 'presenter' : 'student';
+
+    // A student asking about their OWN records/progress/standing is answered
+    // straight from real scores + class leaderboard standing (with a little
+    // encouragement), short-circuiting the project tutor flow. The chat sends
+    // students through this endpoint, so the intercept has to live here too
+    // (mirrors the one in askAi). Returns a tutor-shaped payload.
+    if (req.user.role === 'student') {
+      const studentRecords = await buildStudentProgressAnswer(req.user, question);
+      if (studentRecords) {
+        try {
+          await persistTutorTurn({
+            project_id: null,
+            group_id: null,
+            requester_type: req.user.role,
+            requester_id: req.user.id,
+            audience: 'student',
+            question,
+            answer: studentRecords.answer,
+            sources: studentRecords.sources,
+            metadata: { source: 'tutor', kind: 'records' },
+          });
+        } catch (e) {
+          console.warn('tutorAsk: records persist failed:', e.message);
+        }
+        return res.status(200).json({
+          session_id: null,
+          answer: studentRecords.answer,
+          current_topic: null,
+          completed_topics: [],
+          turn_count: 0,
+          advanced: false,
+          checkpoint: null,
+          data_source: 'progress_records',
+        });
+      }
+    }
 
     // ── Access gate + class scoping ──────────────────────────────────────
     // Without this, a teacher with no assignment to project X can POST

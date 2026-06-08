@@ -320,12 +320,37 @@ const createSchoolTables = async () => {
       ADD COLUMN IF NOT EXISTS phone_number VARCHAR(50)
   `);
 
+  // "About Me" profile fields the student fills in themselves. All nullable
+  // so existing rows stay valid; the agent reads them back on tap-through.
+  await pool.query(`
+    ALTER TABLE students
+      ADD COLUMN IF NOT EXISTS date_of_birth DATE,
+      ADD COLUMN IF NOT EXISTS gender VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS address TEXT,
+      ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS guardian_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS guardian_phone VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS hobbies TEXT
+  `);
+
   await pool.query(`
     ALTER TABLE teachers
       ADD COLUMN IF NOT EXISTS profile_picture_url TEXT,
       ADD COLUMN IF NOT EXISTS phone_number VARCHAR(50),
       ADD COLUMN IF NOT EXISTS account_number VARCHAR(100),
       ADD COLUMN IF NOT EXISTS certificate VARCHAR(255)
+  `);
+
+  // "About Me" profile fields the teacher fills in themselves.
+  await pool.query(`
+    ALTER TABLE teachers
+      ADD COLUMN IF NOT EXISTS date_of_birth DATE,
+      ADD COLUMN IF NOT EXISTS gender VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS address TEXT,
+      ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS qualification VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS subjects TEXT,
+      ADD COLUMN IF NOT EXISTS years_of_experience INTEGER
   `);
 
   await pool.query(`
@@ -544,8 +569,15 @@ const updateStudentProfile = async (studentDbId, data) => {
          student_id = $3,
          class_name = $4,
          grade = $5,
+         date_of_birth = $6,
+         gender = $7,
+         address = $8,
+         bio = $9,
+         guardian_name = $10,
+         guardian_phone = $11,
+         hobbies = $12,
          updated_at = NOW()
-     WHERE id = $6
+     WHERE id = $13
        AND is_active = true
      RETURNING *`,
     [
@@ -554,6 +586,13 @@ const updateStudentProfile = async (studentDbId, data) => {
       data.student_id,
       data.class_name || null,
       data.grade || null,
+      data.date_of_birth || null,
+      data.gender || null,
+      data.address || null,
+      data.bio || null,
+      data.guardian_name || null,
+      data.guardian_phone || null,
+      data.hobbies || null,
       studentDbId,
     ]
   );
@@ -714,6 +753,9 @@ const updateTeacherProfilePicture = async (teacherDbId, profilePictureUrl) => {
 
 const updateTeacherProfile = async (teacherDbId, data) => {
   const teacherId = normalizeTeacherId(data.teacher_id);
+  const yearsExperience = Number.isFinite(Number(data.years_of_experience)) && String(data.years_of_experience).trim() !== ''
+    ? Math.max(0, Math.trunc(Number(data.years_of_experience)))
+    : null;
   const result = await pool.query(
     `UPDATE teachers
      SET full_name = $1,
@@ -721,8 +763,15 @@ const updateTeacherProfile = async (teacherDbId, data) => {
          teacher_id = $3,
          account_number = $4,
          certificate = $5,
+         date_of_birth = $6,
+         gender = $7,
+         address = $8,
+         bio = $9,
+         qualification = $10,
+         subjects = $11,
+         years_of_experience = $12,
          updated_at = NOW()
-     WHERE id = $6
+     WHERE id = $13
        AND is_active = true
      RETURNING *`,
     [
@@ -731,6 +780,13 @@ const updateTeacherProfile = async (teacherDbId, data) => {
       teacherId,
       data.account_number || null,
       data.certificate || null,
+      data.date_of_birth || null,
+      data.gender || null,
+      data.address || null,
+      data.bio || null,
+      data.qualification || null,
+      data.subjects || null,
+      yearsExperience,
       teacherDbId,
     ]
   );
