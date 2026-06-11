@@ -20,6 +20,32 @@ Each lesson has the same shape:
 - **Line by Line** — every important line explained.
 - **Your Turn** — a small task YOU do to practise (the most important part!).
 - **Check Your Brain** — quick questions to make sure it stuck.
+- **More Examples** — extra runnable programs that stretch the idea further.
+- **Common Mistakes** — the real errors beginners hit, with the exact fix.
+- **Level Up 🚀** — a pro-feel challenge for fast finishers.
+
+### Your Workshop Is VS Code 🛠️
+
+All code in this course is typed, saved, and run in **Visual Studio Code
+(VS Code)** with the Python extension — the same editor professional
+programmers use every day. The rhythm for every piece of code is always:
+
+1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
+2. Type the code in the editor.
+3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
+4. Run: press the **▶ Run** button at the top-right, and read the result in
+   the **TERMINAL** panel at the bottom.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
+your workbench.
+
+### Show Emrys Your Work 📸
+
+After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
+printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
+celebrate what's right, and help fix anything that isn't. If something errored,
+paste the red error message too — errors are clues, and Emrys reads them like
+a detective. No skipping this step: real coders always show their output.
 
 Teach one lesson at a time: explain the idea, show the code, then let students type
 and run it. **Always do "Your Turn."** Understanding one lesson fully beats copying

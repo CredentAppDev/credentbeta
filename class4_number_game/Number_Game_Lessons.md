@@ -22,6 +22,32 @@ Each lesson has the same shape:
 - **Line by Line** — every important line explained.
 - **Your Turn** — a small task YOU do to practise (this is the most important part!).
 - **Check Your Brain** — quick questions to make sure it stuck.
+- **More Examples** — extra runnable programs that stretch the idea further.
+- **Common Mistakes** — the real errors beginners hit, with the exact fix.
+- **Level Up 🚀** — a pro-feel challenge for fast finishers.
+
+### Your Workshop Is VS Code 🛠️
+
+All code in this course is typed, saved, and run in **Visual Studio Code
+(VS Code)** with the Python extension — the same editor professional
+programmers use every day. The rhythm for every piece of code is always:
+
+1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
+2. Type the code in the editor.
+3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
+4. Run: press the **▶ Run** button at the top-right, and read the result in
+   the **TERMINAL** panel at the bottom.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
+your workbench.
+
+### Show Emrys Your Work 📸
+
+After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
+printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
+celebrate what's right, and help fix anything that isn't. If something errored,
+paste the red error message too — errors are clues, and Emrys reads them like
+a detective. No skipping this step: real coders always show their output.
 
 Teach one lesson at a time. Explain the idea first, then the code, then let
 students type it and run it themselves. **Always do "Your Turn" — that is where
@@ -65,20 +91,72 @@ print("Hello! I am your computer.")
 print("Let's make a game together.")
 ```
 
+**When you run it, the TERMINAL at the bottom of VS Code shows:**
+
+```text
+Hello! I am your computer.
+Let's make a game together.
+```
+
+Notice: the quotes are **gone** in the output. The quotes are for Python's
+eyes only — they mark where your message starts and ends.
+
 ### Line by Line
 - `print(...)` — `print` is a command that means "show this on the screen."
-- The words inside the quotes `" "` are exactly what gets shown.
-- Each `print` line shows on its own new line.
+  It is the computer's mouth: whatever you put inside, it says.
+- The words inside the quotes `" "` are exactly what gets shown — letter for
+  letter, space for space, even the punctuation.
+- Each `print` line shows on its own new line, in the exact order you wrote
+  them — top to bottom, like reading a book.
+
+### Slow Motion 🔬 — every single piece explained
+Look at `print("Hello! I am your computer.")` one piece at a time:
+
+- `print` — the command's name. It must be spelled in small letters exactly
+  like this. The computer has a dictionary of commands it knows, and `print`
+  is one of them.
+- `(` and `)` — the brackets are like HANDS. The computer holds whatever is
+  between them and works on it. Every `(` must have a matching `)`.
+- `"` and `"` — the quotes are like a GIFT BOX around your words. They tell
+  Python: "don't try to understand these words — just deliver them."
+- `Hello! I am your computer.` — the message itself. You can write ANYTHING
+  here: your name, a joke, even emoji.
+
+What actually happens when you press Run: VS Code hands your file to Python →
+Python reads line 1 → sees `print` → takes the message out of the gift box →
+shows it in the terminal → moves to line 2 → does it again → no more lines, so
+it stops. The whole thing takes less than a blink. That's a PROGRAM: a list of
+orders, followed perfectly, top to bottom.
+
+### Do It in VS Code 🛠️
+1. Open VS Code → **File → New File** → name it `hello.py` → save it on your
+   Desktop.
+2. Type the two `print` lines yourself (don't copy-paste — typing teaches your
+   fingers the language).
+3. Save: **Ctrl+S**. (A white dot on the file tab means UNSAVED — make it
+   disappear!)
+4. Press the **▶ Run** button at the top-right.
+5. Read the TERMINAL panel at the bottom — your two lines should be there.
 
 ### Your Turn
 1. Make the computer print your own name, like: `print("My name is Ama.")`
 2. Add two more `print` lines: your favourite food and your favourite colour.
-3. Run it. Did all three lines appear?
+3. BEFORE you run: predict out loud exactly what the terminal will show, in
+   order. Then run. Were you right, line for line?
+4. Now break it ON PURPOSE: remove one closing quote and run. Read the red
+   error slowly. Put the quote back, run again — green and clean. You just had
+   your first conversation with a Python error, and you won.
+
+### 📸 Show Emrys
+Copy everything the terminal printed (your three lines) and **paste it to
+Emrys** — or send a screenshot. Tell Emrys: "Lesson 1 done!" Emrys will check
+each line and give you your first ✅ of the course.
 
 ### Check Your Brain
 - What does `print` do?
-- What do the quotes `" "` mark?
+- What do the quotes `" "` mark — and do they appear in the output?
 - If you write three `print` lines, how many lines show on screen?
+- What are the brackets `( )` for?
 
 ### More Examples
 Try each one — predict what it shows BEFORE you run it:
@@ -141,24 +219,64 @@ You will run your game again and again as you build it, checking it each time.
 print("If you can see this, Python is working!")
 ```
 
-### Line by Line
-- This is one instruction. When you run the file, Python reads it top to bottom.
-- Save your file with a name ending in `.py`, for example `game.py`. The `.py`
-  tells the computer "this is Python."
+**When you run it, the TERMINAL shows:**
 
-### How to start (ask your teacher to help the first time)
-- **Windows**: open the file in the code editor, then press the Run button.
-- **Mac / Linux**: same idea — open and Run.
-- You can also type `python game.py` in the terminal.
+```text
+If you can see this, Python is working!
+```
+
+### Line by Line
+- This is one instruction. When you run the file, Python reads it top to
+  bottom, like you read a page.
+- Save your file with a name ending in `.py`, for example `game.py`. The `.py`
+  ending is a label that tells the computer "this is Python" — like `.mp3`
+  means music and `.jpg` means a picture.
+
+### Slow Motion 🔬 — writing vs running
+There are TWO different moments, and mixing them up confuses every beginner:
+
+- **Writing** = typing the code into the VS Code editor. Nothing happens yet —
+  it's like writing a letter that nobody has read.
+- **Saving** = Ctrl+S. Your words are now safely on the computer's disk. STILL
+  nothing happens.
+- **Running** = pressing **▶**. NOW Python reads your letter out loud and the
+  instructions actually happen. This is the magic moment.
+
+The biggest beginner trap: changing the code and running WITHOUT saving — the
+computer runs the OLD saved version and you sit there confused why nothing
+changed. The rhythm to burn into your fingers: **type → Ctrl+S → ▶ → read the
+terminal.** Every time. Forever.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `practice.py` → save on your Desktop.
+2. Type the print line above.
+3. **Ctrl+S** — watch the white "unsaved" dot on the tab disappear.
+4. Press **▶ Run** (top-right). The TERMINAL opens at the bottom by itself.
+5. Find your sentence in the terminal. That text travelled: your fingers → the
+   editor → the disk → Python → the screen. You're officially running programs.
+
+There's a second way to run, like the pros: open **Terminal → New Terminal**
+and type `python practice.py` then press Enter. Same result — the ▶ button
+just types that command for you.
 
 ### Your Turn
 1. Save a file called `practice.py`.
 2. Put one `print` line inside that says `"I ran my first program!"`.
-3. Run it. Show your teacher or a friend.
+3. Run it with the ▶ button. Then run it AGAIN with `python practice.py` typed
+   in the terminal — prove to yourself both roads lead to the same place.
+4. Change the message, but DON'T save, and run. See the old message? Now save
+   and run. THAT lesson — save first! — just saved you a hundred future
+   headaches.
+
+### 📸 Show Emrys
+Paste the terminal output of your `practice.py` to Emrys (or screenshot it) and
+tell Emrys which way you ran it — the ▶ button or the typed command. Emrys
+will confirm your setup is rock solid.
 
 ### Check Your Brain
 - What ending must a Python file name have?
 - What is the difference between "writing" code and "running" code?
+- Why must you SAVE before you run?
 
 ### More Examples
 Make a few tiny files and run each one — running programs should feel as easy as opening a book:
@@ -214,23 +332,70 @@ print(name)
 print(age)
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+Kofi
+9
+```
+
+See that? It printed `Kofi` — NOT the word `name`. Because there are no quotes
+around `name` in `print(name)`, Python knows you mean "open the box called
+name and show what's inside."
+
 ### Line by Line
 - `name = "Kofi"` — make a box called `name` and put the word `Kofi` inside.
+  The single `=` means "PUT INTO" (not "equals" like in maths!). Read it
+  right-to-left: take `"Kofi"`, put it into `name`.
 - `age = 9` — make a box called `age` and put the number `9` inside.
-- `print(name)` — show what is inside the `name` box (Kofi), NOT the word "name".
+- `print(name)` — show what is inside the `name` box (Kofi), NOT the word
+  "name". No quotes = "look inside the box". Quotes = "say this exact word".
 - Notice: words need quotes (`"Kofi"`), but numbers do not (`9`).
+
+### Slow Motion 🔬 — what IS a variable really?
+Inside the computer there is memory — millions of tiny shelves. When Python
+reads `name = "Kofi"`, it does three things:
+
+1. Finds an empty shelf.
+2. Puts the word `"Kofi"` on it.
+3. Sticks a label on the shelf that says `name`.
+
+From now on, whenever you write `name` (no quotes), Python walks to that
+shelf, reads the label, and brings you what's on it. When you later write
+`name = "Ama"`, Python doesn't get a new shelf — it REPLACES what's on the
+labelled shelf. The old value is gone forever. One label, one current value.
+
+**Naming rules** (Python is strict): letters, numbers, and `_` only — no
+spaces. `lucky_number` ✅, `lucky number` ❌ (SyntaxError). Names can't START
+with a number: `2cool` ❌, `cool2` ✅. And capitals matter: `Name` and `name`
+are two DIFFERENT shelves!
+
+### Do It in VS Code 🛠️
+1. Open `game.py` (or make `practice.py`) in VS Code.
+2. Type the four lines, save (**Ctrl+S**), run (**▶**).
+3. Confirm the terminal shows `Kofi` then `9` — values, not label names.
 
 ### Your Turn
 1. Make a variable `favourite_game` and put your favourite game inside it.
 2. Make a variable `lucky_number` with a number you like.
 3. Print both.
-4. Now change `lucky_number` to a different number and print it again. See how the
-   box can hold something new?
+4. Now change `lucky_number` to a different number on a NEW line below, and
+   print it again. Run it — you'll see the old number first, then the new one.
+   That's the shelf being replaced while the program runs!
+5. Predict first, then test: what does `print("lucky_number")` show — WITH
+   quotes? Run it. (It shows the words `lucky_number`, because quotes mean
+   "say exactly this". Quotes change everything!)
+
+### 📸 Show Emrys
+Paste your terminal output to Emrys and tell him your variable names. Emrys
+will check that your boxes are filled correctly — and might quiz you: "what's
+inside `lucky_number` right now?"
 
 ### Check Your Brain
 - What is a variable, in your own words?
 - Why does `"Kofi"` have quotes but `9` does not?
 - What does `print(name)` show — the word "name" or what's inside it?
+- What happens to the OLD value when you put a new one in the box?
 
 ### More Examples
 Boxes can hold all kinds of things, and you can have as many as you like:
@@ -289,20 +454,71 @@ print(a - b)
 print(a * b)
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+8
+2
+15
+```
+
+Only the ANSWERS appear — not the sums. The maths happens invisibly inside
+Python, and `print` shows the result.
+
 ### Line by Line
 - `a + b` — add (gives 8).
 - `a - b` — subtract (gives 2).
-- `a * b` — multiply. We use `*` (a star) for "times", not `x`.
-- The computer works out the answer, then `print` shows it.
+- `a * b` — multiply. We use `*` (a star) for "times", not `x` — because `x`
+  could be a variable name, so Python needs a different symbol.
+- The computer works out the answer FIRST, then hands it to `print` to show.
+  Two steps in one line: calculate, then display.
+
+### Slow Motion 🔬 — how Python reads `print(a + b)`
+Watch Python think, from the inside out:
+
+1. It sees `print(...)` and says: "before I can show anything, I must work out
+   what's inside the brackets."
+2. Inside it finds `a + b`. It opens box `a` → finds 5. Opens box `b` → finds 3.
+3. It adds: 5 + 3 = 8.
+4. NOW print has something to show: `8` goes to the terminal.
+
+The full symbol family you'll use in this course:
+
+```text
++   add          5 + 3   ->  8
+-   subtract     5 - 3   ->  2
+*   multiply     5 * 3   ->  15
+/   divide       6 / 3   ->  2.0   (division always gives a decimal!)
+```
+
+That `2.0` surprise: dividing always produces a decimal number in Python, even
+when it divides evenly. You'll meet this again — for now, just don't be shocked
+by the `.0`.
+
+### Do It in VS Code 🛠️
+1. In your practice file, type the five lines, save (**Ctrl+S**), run (**▶**).
+2. Check the terminal shows exactly `8`, `2`, `15`.
+3. Add a sixth line `print(a / b)` and run — see the decimal answer.
 
 ### Your Turn
 1. Make two number variables and print their sum.
 2. Try multiplying them.
 3. Predict the answer FIRST, then run it. Were you right?
+4. Calculator race: set `a = 123` and `b = 47`. Predict `a * b` in your head or
+   on paper... then let Python settle it. Who's faster — you or the machine?
+   (This is exactly why humans invented computers!)
+5. Try `print(a + b * 2)` with small numbers. Surprised? Python does `*` BEFORE
+   `+`, just like in maths class (BODMAS). Brackets win over everything:
+   `print((a + b) * 2)` forces the add first.
+
+### 📸 Show Emrys
+Paste your terminal output to Emrys, including the race result from task 4.
+Tell Emrys your prediction and whether you beat the computer. 😄
 
 ### Check Your Brain
 - Which symbol means "times"?
 - What does `a - b` give if `a = 10` and `b = 4`?
+- In `print(2 + 3 * 4)`, what does Python work out first — and what prints?
 
 ### More Examples
 The computer can solve real problems from your life:
@@ -360,19 +576,59 @@ guesses = guesses + 1
 print(guesses)
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+0
+1
+2
+```
+
+A counter, counting. You just built the heart of every scoreboard, step
+counter, and "likes" number you've ever seen.
+
 ### Line by Line
-- `guesses = 0` — start the counter at zero.
+- `guesses = 0` — start the counter at zero. (Counters must be BORN before
+  they can grow — this line is the birth.)
 - `guesses = guesses + 1` — new value is the old value plus one. Now it's 1.
-- Do it again and it becomes 2. The box keeps the latest number.
+- Do it again and it becomes 2. The box keeps only the latest number.
+
+### Slow Motion 🔬 — why `guesses = guesses + 1` isn't crazy
+In maths class, `x = x + 1` would be impossible — nothing equals itself plus
+one! But remember: in Python `=` does NOT mean "equals". It means **"work out
+the right side, then PUT it into the left side."** So Python does this:
+
+1. RIGHT SIDE first: open the `guesses` box → finds `0` → adds 1 → gets `1`.
+2. THEN the `=`: put `1` back into the `guesses` box, replacing the `0`.
+
+Old value out, new value in. Like adding one sweet to your jar: count what's
+in the jar, add one, that's the new count. The order — *right side first, then
+store* — is the key that makes it make sense.
+
+### Do It in VS Code 🛠️
+1. Type the six lines in your practice file. Save (**Ctrl+S**), run (**▶**).
+2. Confirm: `0`, `1`, `2` — one per line.
+3. Now add `guesses = guesses + 1` and `print(guesses)` once more — predict the
+   fourth number before running.
 
 ### Your Turn
 1. Start a variable `score = 0`.
 2. Add 10 to it, print it. Add 10 again, print it.
 3. Can you make it go up by 5 each time instead?
+4. Make a countdown instead: start `rocket = 3` and SUBTRACT 1 three times,
+   printing each step — `3, 2, 1` — then print `"LIFT OFF! 🚀"`.
+5. Pro shortcut unlock: `score += 10` does exactly the same as
+   `score = score + 10`, just shorter. Try replacing one line with it. (And
+   `rocket -= 1` counts down!) Now you write it like the pros.
+
+### 📸 Show Emrys
+Paste BOTH outputs to Emrys: your score counter going up, and your rocket
+counting down to lift-off. Emrys will check the numbers step by step.
 
 ### Check Your Brain
 - What does `count = count + 1` do?
 - If `score` is 20 and you run `score = score + 10`, what is it now?
+- Which side of the `=` does Python work out FIRST?
 
 ### More Examples
 Counters can go DOWN too — like lives in a game:
@@ -432,19 +688,72 @@ name = input("What is your name? ")
 print("Nice to meet you, " + name)
 ```
 
+**When you run it, the TERMINAL shows the question and then... WAITS:**
+
+```text
+What is your name? █
+```
+
+That blinking cursor is the computer listening — for the first time, your
+program needs YOU. Click in the terminal, type your name, press **Enter**:
+
+```text
+What is your name? Ama
+Nice to meet you, Ama
+```
+
 ### Line by Line
-- `input("What is your name? ")` — shows the question, then waits.
-- Whatever the player types is stored in the `name` box.
+- `input("What is your name? ")` — shows the question, then STOPS and waits.
+  The whole program freezes patiently until the player presses Enter.
+- Whatever the player types is stored in the `name` box — exactly like
+  `name = "Ama"`, except the PLAYER chose the value, not you.
 - `"Nice to meet you, " + name` — joins two pieces of text together with `+`.
+  This glueing has a fancy name: *concatenation* (kon-kat-en-NAY-shun) — drop
+  that word at home and watch the reaction. 😄
+
+### Slow Motion 🔬 — the conversation pattern
+`input()` is the doorway between your program and a human. Every chat-style
+program in the world follows this exact pattern:
+
+```text
+ASK  ->  the prompt text inside input("...")
+WAIT ->  the program freezes until Enter is pressed
+STORE -> the typed answer lands in a variable
+USE  ->  print (or calculate with) that variable
+```
+
+Two small but mighty details:
+- The space at the end of `"What is your name? "` is on PURPOSE — without it,
+  typing starts squashed against the question mark. Tiny detail, professional
+  feel.
+- With the glue `+`, spaces never appear by magic. `"Hi" + name` makes
+  `HiAma`. You must put the space INSIDE the quotes: `"Hi " + name`.
+
+### Do It in VS Code 🛠️
+1. Type the two lines, save (**Ctrl+S**), run (**▶**).
+2. **Click inside the TERMINAL panel** (important — your typing must go to the
+   terminal, not the editor!), type your name, press Enter.
+3. Read the greeting. You and your program just had a conversation.
 
 ### Your Turn
 1. Ask the player their favourite animal and store it.
 2. Print a friendly message using their answer.
 3. Ask a second question (their age) and print both answers.
+4. Build a two-question mini-interview that ends with one combined line, like:
+   `"Wow — a 9-year-old who loves leopards!"` (glue carefully: mind the spaces!)
+5. Run your interview on a CLASSMATE — let them type the answers. Watching
+   someone else use YOUR program for the first time is a feeling you'll never
+   forget.
+
+### 📸 Show Emrys
+Paste the whole conversation from the terminal — questions AND answers — to
+Emrys. Emrys will check your glueing (no squashed words!) and might ask what
+`input()` does while it waits.
 
 ### Check Your Brain
 - What does `input()` do after it shows the question?
 - What does `+` do between two pieces of text?
+- Where must you click before typing your answer — the editor or the terminal?
 
 ### More Examples
 The computer can have a whole conversation by asking several questions:
@@ -502,31 +811,77 @@ age = int(age_text)
 print(f"Next year you will be {age + 1}")
 ```
 
+**When you run it and type `9`, the TERMINAL shows:**
+
+```text
+How old are you? 9
+Next year you will be 10
+```
+
 ### Line by Line
 - `age_text` holds text, e.g. the drawing `"9"`.
 - `int(age_text)` turns `"9"` into the real number `9`.
 - `age + 1` does maths → 10.
-- `print(f"...")` — the little **`f`** before the quotes makes it an f-string. Now
-  anything inside `{ }` is worked out and dropped into the sentence. So
-  `{age + 1}` becomes `10`. **No `str()` needed — this is why f-strings are easier!**
+- `print(f"...")` — the little **`f`** before the quotes makes it an f-string.
+  Now anything inside `{ }` is worked out and dropped into the sentence. So
+  `{age + 1}` becomes `10`. **No `str()` needed — this is why f-strings are
+  easier!**
 
-### The old way (you'll see it too)
-You can also join with `+`, like `print("Next year: " + str(age + 1))`. That works,
-but you must remember `str(...)` around every number or Python complains. The
-f-string is friendlier, so we'll mostly use it.
+### Slow Motion 🔬 — the "drawing of a number" problem
+This is the single most important secret in beginner Python, so let's nail it:
+
+When you type `9` at an `input()`, Python receives the CHARACTER "9" — a
+drawing, a shape on the screen — not the QUANTITY nine. Try this experiment in
+your head:
+
+```text
+"9" + "1"   ->  "91"   (two drawings glued side by side!)
+ 9  +  1    ->  10     (real numbers, real maths)
+```
+
+Same symbols, totally different results. `int(...)` is the converter machine:
+drawing in, real number out. The name comes from *integer* — maths-speak for a
+whole number.
+
+And the f-string: `f"Next year you will be {age + 1}"` — the `f` switches on
+the magic braces. Python sees `{age + 1}`, pauses the sentence, works out the
+maths (9 + 1 = 10), converts the result to text, and stitches it into place.
+One line, no glue, no `str()` headache. (The old way,
+`"Next year: " + str(age + 1)`, still works — you'll see it in other people's
+code — but f-strings are friendlier, so this course uses them.)
+
+### Do It in VS Code 🛠️
+1. Type the three lines, save (**Ctrl+S**), run (**▶**).
+2. Click in the terminal, answer with a number, Enter.
+3. Now run it again and type `nine` (letters!) — watch the red `ValueError`
+   appear. Python is saying: "I can't turn the word 'nine' into a number."
+   Read it, don't fear it. Run once more with digits.
 
 ### Your Turn
-1. Ask the player for a number, `int()` it, and print it doubled using an f-string:
-   `print(f"Double is {number * 2}")`.
+1. Ask the player for a number, `int()` it, and print it doubled using an
+   f-string: `print(f"Double is {number * 2}")`.
 2. Ask their name AND age, then print one f-string sentence using BOTH, like
    `print(f"{name} will be {age + 1} next year")`.
-3. Try leaving out the `f` before the quotes and see what prints — what's different?
+3. Try leaving out the `f` before the quotes and see what prints — what's
+   different? (The braces stop working and print literally!)
+4. Build a tiny "age machine": ask for an age, then print three f-string
+   lines — their age in 10 years, their age doubled, and how old they were
+   3 years ago. One input, three calculations.
+5. Shortcut unlock: `age = int(input("Age? "))` asks AND converts in ONE line.
+   Rewrite your age machine using it. (Read it inside-out: input first, then
+   int wraps the answer.)
+
+### 📸 Show Emrys
+Paste your age machine's full conversation to Emrys — AND the `ValueError`
+from the experiment, if you still have it. Emrys loves seeing errors that got
+beaten. Tell Emrys in one sentence what `int()` does.
 
 ### Check Your Brain
 - What kind of thing does `input()` always give you — text or number?
 - What does `int()` do?
 - In an f-string, what happens to whatever you put inside `{ }`?
 - Why is an f-string easier than joining with `+` and `str()`?
+- What error appears if someone types `nine` instead of `9`?
 
 ### More Examples
 f-strings can hold as many `{ }` slots as you want:
@@ -587,21 +942,71 @@ print(f"Hello {name}!")
 print(f"In 5 years you will be {age + 5}")
 ```
 
+**A full run looks like this (with the player typing `Ama` and `9`):**
+
+```text
+Welcome to the Greeting Machine!
+What is your name? Ama
+How old are you? 9
+Hello Ama!
+In 5 years you will be 14
+```
+
 ### Line by Line
-- We `print` a welcome.
-- We ask for the name (text) and store it.
-- `int(input(...))` asks AND converts in one line — a neat shortcut.
+- We `print` a welcome — every good program greets its user.
+- We ask for the name (text) and store it. Names stay as text, so no `int()`.
+- `int(input(...))` asks AND converts in one line — a neat shortcut. Read it
+  inside-out: `input(...)` runs first and hands its text to `int(...)`.
 - We greet them with an f-string, dropping `{name}` right into the sentence.
 - `{age + 5}` does the little maths inside the f-string — no `str()` needed.
 
+### Slow Motion 🔬 — you now own the 4 superpowers
+Stop and look at what this tiny program uses. EVERYTHING from Part 1:
+
+```text
+Lesson 1+2  ->  print(...)            the computer speaks
+Lesson 3    ->  name = ...            the computer remembers
+Lesson 6    ->  input(...)            the computer listens
+Lesson 7    ->  int(...) + f-strings  the computer calculates and reports
+```
+
+Speak, remember, listen, calculate. That's not a toy list — it's the same four
+powers inside WhatsApp, games, and bank apps. They just stack thousands of
+these together. You have the full starter kit now, and the Magic Number Game
+ahead is built from exactly these four bricks.
+
+Notice also the SHAPE of the program: greet → ask → ask → respond → respond.
+Programs have a flow, like a conversation has a flow. Designing that flow is
+the fun part of being a programmer.
+
+### Do It in VS Code 🛠️
+1. New file: `greeting_machine.py` — your first named PROJECT file. Save it
+   next to your other files.
+2. Type all five lines. Save (**Ctrl+S**), run (**▶**).
+3. Answer both questions in the terminal. Read your machine's reply.
+4. Run it twice more with different answers — same machine, different
+   conversation every time. That's the power of variables!
+
 ### Your Turn
 1. Build the Greeting Machine above and run it.
-2. Add one more question of your own (favourite colour) and use it in a message.
-3. Show a friend and let them try it.
+2. Add one more question of your own (favourite colour) and use it in a
+   message, like `f"{colour} is a great colour, {name}!"` — two boxes in one
+   sentence.
+3. Add a maths line of your own invention using `{ }` — maybe the year they
+   were born: `f"You were born around {2026 - age}"`. (Mind-blowing, right?)
+4. Show a friend and let them try it. Don't touch the keyboard — watch them
+   use YOUR software.
+
+### 📸 Show Emrys
+Paste a COMPLETE run of your upgraded Greeting Machine (all questions and
+answers) to Emrys. This is your Part 1 graduation — Emrys will check all four
+superpowers are working and officially promote you to Part 2: teaching the
+computer to make choices. 🎓
 
 ### Check Your Brain
-- Why do we wrap the age question in `int(...)`?
+- Why do we wrap the age question in `int(...)` but not the name question?
 - What does `int(input(...))` do in one line?
+- What are the four superpowers, in your own words?
 
 ### More Examples
 Your Greeting Machine can become anything. A compliment machine:
@@ -677,21 +1082,85 @@ if number == 7:
     print("Lucky seven!")
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+Lucky seven!
+```
+
+Now change the first line to `number = 3`, save, run again — the terminal
+shows **nothing at all**. Silence! The computer checked, the answer was no, so
+it skipped the indented line. You just watched a computer make a decision.
+
 ### Line by Line
-- `if number == 7:` — check IF `number` is equal to 7. We use `==` (two equals)
-  for "is equal to". (One `=` means "put into the box"; two `==` means "compare".)
-- The `:` colon starts the "what to do if true" block.
-- The indented (spaced-in) line runs ONLY if the condition is true. Indentation
-  (the spaces at the start) is how Python knows which lines belong to the `if`.
+- `if number == 7:` — check IF `number` is equal to 7. We use `==` (two
+  equals) for "is equal to". (One `=` means "put into the box"; two `==`
+  means "compare what's in the box".)
+- The `:` colon at the end of the if-line is mandatory — it announces "the
+  instructions for YES are coming next."
+- The indented (spaced-in) line runs ONLY if the condition is true.
+  Indentation (the spaces at the start) is how Python knows which lines
+  belong to the `if`.
+
+### Slow Motion 🔬 — how a computer "decides"
+Until today, your programs ran every line, always, top to bottom. Boring
+obedience. The `if` changes everything — now there are lines that MIGHT run:
+
+1. Python reaches `if number == 7:` and asks a yes/no question: "is the value
+   in `number` equal to 7?"
+2. It opens the box, finds 7, compares: YES.
+3. Because YES, it enters the indented block and runs it.
+4. If the answer had been NO, it would JUMP over the indented block entirely,
+   as if those lines didn't exist.
+
+About that indentation: press **Tab** once (VS Code makes it 4 spaces). The
+indented lines are "inside" the if — like things written inside a box on a
+worksheet. When you stop indenting, you're back outside, in "always runs"
+land:
+
+```python
+number = 3
+if number == 7:
+    print("Lucky!")        # inside the if  -> only when YES
+print("Program finished")  # outside        -> ALWAYS runs
+```
+
+Run that — you'll see only `Program finished`. The membership of each line —
+inside or outside — is decided purely by the spaces at the start. In Python,
+**spaces have meaning**. This is THE most important formatting rule in the
+whole language.
+
+### Do It in VS Code 🛠️
+1. Type the three lines. When you press Enter after the `:`, watch VS Code
+   indent the next line for you automatically — it knows!
+2. Save (**Ctrl+S**), run (**▶**): see `Lucky seven!`.
+3. Change `number = 3`, save, run: silence (plus your outside line if you
+   added one).
+4. Try deleting the indentation before `print` and running — VS Code
+   underlines it red and Python says `IndentationError: expected an indented
+   block`. Put the Tab back. Error met, error beaten.
 
 ### Your Turn
-1. Make a variable `score = 10`. Write an `if` that prints "Great score!" if score
-   is equal to 10.
+1. Make a variable `score = 10`. Write an `if` that prints "Great score!" if
+   score is equal to 10.
 2. Change score to 5 and run again. Does the message still show? Why not?
+3. Make a secret-password check: `password = input("Password? ")` then
+   `if password == "banana":` print a welcome with TWO indented lines (a
+   welcome and a bonus message). Test it with the right and wrong password.
+4. Game preview: set `secret = 42` and `guess = int(input("Guess: "))`, then
+   `if guess == secret:` print "CORRECT!" — that's the actual heart of the
+   Magic Number Game, beating for the first time. Feel it!
+
+### 📸 Show Emrys
+Paste TWO runs of your password checker to Emrys — one with the correct
+password, one wrong — so Emrys can see the `if` saying yes AND no. Bonus
+respect: paste your guess-the-secret preview too.
 
 ### Check Your Brain
 - What is the difference between `=` and `==`?
 - Why are the spaces (indentation) before the print important?
+- What happens to the indented lines when the condition is false?
+- What punctuation must end every `if` line?
 
 ### More Examples
 `if` can check text answers too, not just numbers:
@@ -755,20 +1224,80 @@ else:
     print("Correct!")
 ```
 
+**With `guess = 50`, the TERMINAL shows:**
+
+```text
+Too high!
+```
+
+One question asked, one answer chosen, the other two skipped. This eight-line
+block IS the brain of the Magic Number Game — everything else we build is
+just decoration around it.
+
 ### Line by Line
-- `guess > secret` — is the guess bigger? `>` means "greater than".
+- `guess > secret` — is the guess bigger? `>` means "greater than". (Memory
+  trick: the arrow opens toward the BIGGER side, like a crocodile mouth that
+  always eats the bigger number. 🐊)
 - `elif guess < secret:` — otherwise, is it smaller? `<` means "less than".
-- `else:` — if neither bigger nor smaller, it must be equal → correct!
-- Only ONE of the three blocks runs.
+  `elif` is short for "else if" — "if not THAT, then is it THIS?"
+- `else:` — if neither bigger nor smaller, it must be equal → correct! Notice
+  `else` asks no question and has no condition: it's the catch-all for
+  "none of the above".
+- Only ONE of the three blocks ever runs. Never two, never zero.
+
+### Slow Motion 🔬 — the decision ladder
+Picture the if/elif/else as a ladder Python climbs from the top, stopping at
+the FIRST rung that says YES:
+
+```text
+guess = 50, secret = 42
+
+Rung 1:  if 50 > 42 ?      YES! -> print "Too high!" -> DONE, skip the rest
+Rung 2:  (never even looked at)
+Rung 3:  (never even looked at)
+```
+
+Now mentally run `guess = 42`:
+
+```text
+Rung 1:  if 42 > 42 ?      no  (42 is not bigger than itself)
+Rung 2:  elif 42 < 42 ?    no  (not smaller either)
+Rung 3:  else              -> print "Correct!"
+```
+
+That third case is beautiful: we never ask "is it equal?" — we don't need to!
+If a number is not bigger and not smaller, equality is the only possibility
+left. Programmers love this kind of "free" logic.
+
+### Do It in VS Code 🛠️
+1. Type the eight lines. Watch VS Code auto-indent after each `:` — and notice
+   `elif`/`else` must line up with `if` (NOT indented), while their print
+   lines ARE indented.
+2. Save, run, confirm `Too high!`.
+3. Edit → save → run three times: `guess = 42` (Correct!), `guess = 10`
+   (Too low!), `guess = 99` (Too high!). Three runs, three different paths
+   through the same code.
 
 ### Your Turn
 1. Change `guess` to 42 and run — which message shows?
 2. Change `guess` to 10, then to 99. Predict each result before running.
-3. This is almost the whole game brain — notice how close we are!
+3. Make it interactive: replace `guess = 50` with
+   `guess = int(input("Your guess: "))` and play it for real. One guess, real
+   feedback — the game is being born in front of you!
+4. Build a ladder of your own: ask for an age, then `if age < 6:` print
+   "Nursery", `elif age < 12:` print "Primary", `else:` print "JHS or beyond".
+   Test all three doors with ages 4, 9, and 14.
+
+### 📸 Show Emrys
+Paste three runs to Emrys — one "Too high!", one "Too low!", one "Correct!" —
+so Emrys can see you've walked all three paths. Then tell Emrys in one
+sentence why `else` needs no condition.
 
 ### Check Your Brain
 - What does `>` mean? What does `<` mean?
 - When does the `else` block run?
+- How many of the three blocks run each time?
+- Why don't we need to ask "is it equal?" anywhere?
 
 ### More Examples
 A grader that turns marks into messages — `elif`s check in order, top to bottom:
@@ -838,19 +1367,78 @@ print(guess == secret)
 print(guess > 100)
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+True
+False
+```
+
+The computer ANSWERED your questions — out loud! Every comparison secretly
+produces one of these two values, and today you get to see them with your own
+eyes.
+
 ### Line by Line
 - `guess == secret` — the computer works this out as `True` (they're equal).
 - `guess > 100` — this is `False` (42 is not over 100).
-- `True` and `False` have no quotes — they are special, not words.
+- `True` and `False` have no quotes — they are special built-in values, not
+  words. (And the capital T and F matter: `true` ❌, `True` ✅.)
+
+### Slow Motion 🔬 — the secret behind every if
+Here's the curtain-lifting moment. When you wrote `if guess == secret:` in the
+last lessons, Python actually did this:
+
+1. Worked out `guess == secret` → got `True` or `False` (a *boolean* — named
+   after George Boole, a mathematician who studied yes/no logic).
+2. Handed that single value to `if`.
+3. `if True:` → run the block. `if False:` → skip it.
+
+So `if` never sees your comparison — it only ever sees a True or a False!
+That means a boolean can live in a VARIABLE, travel around your program, and
+be used later:
+
+```python
+is_winner = (guess == secret)   # the answer gets stored!
+print(is_winner)                # True
+if is_winner:
+    print("We have a champion!")
+```
+
+`if is_winner:` reads almost like English. Naming your booleans `is_...` or
+`has_...` is a real professional habit — it makes code read like sentences.
+
+### Do It in VS Code 🛠️
+1. Type the four lines, save, run. Confirm `True` then `False`.
+2. Add `print(type(guess == secret))` and run — Python says
+   `<class 'bool'>`. You just asked Python "what KIND of thing is this?" and
+   it answered: a boolean.
 
 ### Your Turn
 1. Print whether `10 > 3` (predict first).
 2. Print whether `5 == 6`.
 3. Make a variable `is_winner = (guess == secret)` and print it.
+4. Boolean quiz machine — predict each, then run all five at once:
+   ```python
+   print(7 < 2)
+   print(100 == 100)
+   print(50 > 49)
+   print("cat" == "cat")
+   print("Cat" == "cat")
+   ```
+   That last one is sneaky: capitals make different words, so it's `False`!
+5. Use your stored boolean: write `if is_winner:` with a celebration print
+   under it. One variable driving a decision — that's real program design.
+
+### 📸 Show Emrys
+Paste your five-question quiz output to Emrys WITH your predictions, like
+"I predicted True False True True True — got 4/5!" Emrys will explain any
+one that surprised you.
 
 ### Check Your Brain
 - What are the only two boolean values?
 - Is `7 < 2` True or False?
+- What does `if` actually receive — your comparison, or its answer?
+- Why is `"Cat" == "cat"` False?
 
 ### More Examples
 Booleans hide inside every check your game makes. You can store them in boxes like any value:
@@ -919,23 +1507,82 @@ while count <= 5:
 print("Done!")
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+Count is 1
+Count is 2
+Count is 3
+Count is 4
+Count is 5
+Done!
+```
+
+You wrote `print` ONCE — and got five lines. That's the magic of loops: write
+a little, run a lot.
+
 ### Line by Line
-- `while count <= 5:` — keep looping while count is 5 or less (`<=` means "less
-  than or equal to").
-- The indented lines run each time around.
+- `while count <= 5:` — keep looping while count is 5 or less (`<=` means
+  "less than or equal to").
+- The indented lines are the loop's body — they run each time around.
 - `count = count + 1` — VERY important: it moves the count up so the loop
   eventually stops. Without it, the loop would run forever!
-- `print("Done!")` is not indented, so it runs once after the loop ends.
+- `print("Done!")` is not indented, so it's OUTSIDE the loop — it runs once,
+  after the loop ends.
+
+### Slow Motion 🔬 — one full lap at a time
+A while loop is a racetrack with a gatekeeper at the entrance. Every lap,
+the gatekeeper checks the condition before letting you in:
+
+```text
+Lap 1: count is 1.  Is 1 <= 5? YES -> print "Count is 1" -> count becomes 2
+Lap 2: count is 2.  Is 2 <= 5? YES -> print "Count is 2" -> count becomes 3
+Lap 3: count is 3.  Is 3 <= 5? YES -> print "Count is 3" -> count becomes 4
+Lap 4: count is 4.  Is 4 <= 5? YES -> print "Count is 4" -> count becomes 5
+Lap 5: count is 5.  Is 5 <= 5? YES -> print "Count is 5" -> count becomes 6
+Lap 6: count is 6.  Is 6 <= 5? NO  -> loop OVER, jump to "Done!"
+```
+
+Tracing laps like this — slowly, on paper or out loud — is how professionals
+debug loops to this day. Notice the three jobs every healthy loop needs:
+**a starting value** (count = 1), **a condition** (count <= 5), and **a
+change** (count + 1). Remove any one and the loop misbehaves.
+
+The infinite loop you were warned about? Without `count = count + 1`, count
+stays 1 forever, `1 <= 5` is forever YES, and the loop never ends — the
+terminal floods with text. If it ever happens: **click in the terminal and
+press Ctrl+C** (the universal STOP), or hit the trash-can icon. Every
+programmer alive has done this. It's a rite of passage, not a disaster.
+
+### Do It in VS Code 🛠️
+1. Type the five lines — watch the indentation: two lines inside, "Done!"
+   outside.
+2. Save, run, count the five lines plus Done.
+3. NOW, with your teacher's blessing: comment out the count line by putting
+   `#` in front (`# count = count + 1`), save, run — meet the infinite loop —
+   and stop it with **Ctrl+C** in the terminal. Remove the `#`, save, run,
+   order restored. You've now survived the most famous bug in programming. 🏅
 
 ### Your Turn
 1. Make a loop that counts from 1 to 10.
 2. Make a loop that prints "Hello" three times.
-3. (Careful!) What would happen if you removed `count = count + 1`? Ask your
-   teacher before trying — that makes a "forever loop".
+3. Make a countdown: start at 5, loop `while rocket > 0:`, SUBTRACT 1 each
+   lap, then print "LIFT OFF! 🚀" after the loop. (Trace it on paper first —
+   which value never prints?)
+4. Times-table machine: pick a number, and loop to print its table from
+   `x 1` to `x 10` using an f-string like
+   `print(f"7 x {count} = {7 * count}")`. Ten seconds of homework, forever. 😄
+
+### 📸 Show Emrys
+Paste your countdown output AND your times-table to Emrys. If you met the
+infinite loop, tell Emrys how you stopped it — Emrys gives a special badge
+for surviving that one.
 
 ### Check Your Brain
 - What does a `while` loop do?
 - Why must something change inside the loop?
+- What are the loop's three jobs (start, ___, ___)?
+- How do you stop a runaway loop in the terminal?
 
 ### More Examples
 A rocket countdown — loops can count DOWN as well as up:
@@ -999,21 +1646,79 @@ while answer != "stop":
 print("You stopped the loop.")
 ```
 
+**A real run looks like this:**
+
+```text
+Type something (or 'stop' to quit): hello
+You typed: hello
+Type something (or 'stop' to quit): banana
+You typed: banana
+Type something (or 'stop' to quit): stop
+You typed: stop
+You stopped the loop.
+```
+
+The program kept talking with you for as LONG AS YOU WANTED. The player —
+not the programmer — decided when it ended. That's a huge upgrade.
+
 ### Line by Line
-- `answer = ""` — start with empty text so the loop can begin.
+- `answer = ""` — start with empty text so the loop can begin. (The gatekeeper
+  needs SOMETHING in the box to check — empty text isn't "stop", so we're in.)
 - `while answer != "stop":` — keep going while the answer is NOT "stop". `!=`
-  means "is not equal to".
-- Inside, we ask again and store the new answer.
-- When the player types `stop`, the condition becomes false and the loop ends.
+  means "is not equal to" — the opposite of `==`.
+- Inside, we ask again and store the new answer — each lap REPLACES what's in
+  the `answer` box.
+- When the player types `stop`, the condition becomes false at the next
+  gate-check and the loop ends.
+
+### Slow Motion 🔬 — the gate checks at the TOP
+A subtle but important detail: the gatekeeper only checks when a lap BEGINS.
+Trace what happens when you type `stop`:
+
+```text
+Lap 3 begins: answer is "banana".  "banana" != "stop"? YES -> enter
+   - input asks... player types "stop" -> answer box now holds "stop"
+   - print runs: "You typed: stop"   <- still inside the lap!
+Lap 4 begins: "stop" != "stop"? NO -> loop over -> "You stopped the loop."
+```
+
+That's why `You typed: stop` still printed — the lap was already underway when
+the box changed. The gate isn't checked mid-lap, only at the top. Knowing this
+saves you from many "why did it run one extra time?!" mysteries.
+
+This ask-inside-a-loop shape has a name — the **conversation loop** — and it
+is EXACTLY how the Magic Number Game will keep asking for guesses, how ATMs
+keep showing menus, and how chat apps wait for messages. Learn this shape
+once, recognise it everywhere.
+
+### Do It in VS Code 🛠️
+1. Type the five lines — note which are inside (indented) and which outside.
+2. Save, run, chat with your program. Type at least 3 things, then `stop`.
+3. Run again and type `STOP` (capitals) — the loop does NOT stop! Why?
+   Because `"STOP" != "stop"` is True (capitals matter, Lesson 11!). Type
+   lowercase `stop` to exit. Remember this gotcha — we'll fix it properly
+   later with `.lower()`.
 
 ### Your Turn
 1. Build the loop above and run it. Type a few things, then `stop`.
 2. Change the magic stop word from `stop` to `quit`.
-3. Count how many times the player typed something (use a counter variable!).
+3. Count how many times the player typed something: add `count = 0` before the
+   loop, `count = count + 1` inside, and after the loop print
+   `f"You typed {count} things!"`. (Two skills — counters and loops — now
+   working together.)
+4. Make an echo robot with attitude: instead of "You typed: ...", reply
+   `f"{answer}?? How interesting!"` — suddenly it has personality.
+
+### 📸 Show Emrys
+Paste a full conversation with your counting loop to Emrys — including the
+final count line. Did the count include the "stop" itself? Tell Emrys why
+(hint: the gate-checks-at-the-top story).
 
 ### Check Your Brain
 - What does `!=` mean?
 - Why did we set `answer = ""` before the loop?
+- Why does "You typed: stop" still print before the loop ends?
+- Why doesn't typing `STOP` in capitals stop the loop?
 
 ### More Examples
 A patient quiz that repeats the question until it's right — this is half of our game already:
@@ -1075,22 +1780,74 @@ secret = random.randint(1, 100)
 print(f"Secret picked! (Shhh, it's {secret})")
 ```
 
+**When you run it, the TERMINAL might show:**
+
+```text
+Secret picked! (Shhh, it's 73)
+```
+
+Run it again: a different number. Again: different again! For the first time,
+your program does something even YOU can't predict.
+
 ### Line by Line
-- `import random` — bring in Python's random-number helper. We do this once at the
-  top.
-- `random.randint(1, 100)` — pick a whole number from 1 to 100 (both included).
-- We store it in `secret`. In the real game we will NOT print it — that would be
-  cheating! Here we print it just to learn.
+- `import random` — bring in Python's random-number helper. We do this once,
+  at the very top of the file.
+- `random.randint(1, 100)` — pick a whole number from 1 to 100 (BOTH ends
+  included — 1 can come out, and so can 100).
+- We store it in `secret`. In the real game we will NOT print it — that would
+  be cheating! Here we print it just to learn.
+
+### Slow Motion 🔬 — what is `import`, really?
+Python comes with a giant TOOLSHED of extra powers, kept outside your program
+so it stays fast and tidy. Each toolbox in the shed has a name: `random`
+(chance and dice), `time` (clocks and waiting), `math` (advanced maths)...
+
+- `import random` — walk to the shed, fetch the toolbox named `random`, put
+  it on your desk. Done once, at the top.
+- `random.randint(1, 100)` — open that toolbox (`random`), take out the tool
+  called `randint` (RANDom INTeger), and use it with your settings (1, 100).
+  The dot means "look inside": *toolbox DOT tool*.
+
+If you forget the import and use the tool anyway, Python says
+`NameError: name 'random' is not defined` — "I don't see that toolbox on your
+desk!" The fix is always the same: import at the top.
+
+One mind-tickler: computers actually CAN'T do true randomness — they follow
+instructions perfectly, remember? `randint` uses clever maths on things like
+the exact microsecond of your click to produce numbers so unpredictable they
+count as random. Computer scientists call it *pseudo-random* — "fake random
+that's good enough to fool everyone."
+
+### Do It in VS Code 🛠️
+1. Type the three lines (import FIRST, at the top), save, run.
+2. Run it five times in a row — collect five different secrets. (Same number
+   twice in a row is possible and fair, like rolling doubles with dice!)
+3. Delete the import line, save, run — meet the `NameError`. Put it back.
+   Another error met, another error beaten.
 
 ### Your Turn
-1. Pick a random number from 1 to 6 (like a dice) and print it. Run it 5 times —
-   different each time?
+1. Pick a random number from 1 to 6 (like a dice) and print it. Run it 5
+   times — different each time?
 2. Pick a random number from 1 to 10.
-3. Why is `random` perfect for a guessing game?
+3. Why is `random` perfect for a guessing game? (Say it out loud: even the
+   PROGRAMMER can't cheat!)
+4. Build a two-dice roller: roll two `randint(1, 6)` into `die1` and `die2`,
+   then print `f"You rolled {die1} and {die2} — total {die1 + die2}!"`.
+   Ludo night will never be the same.
+5. Make a coin flipper: `flip = random.randint(1, 2)`, then an if/else prints
+   "HEADS" or "TAILS". Run it ten times and tally the results — roughly half
+   and half?
+
+### 📸 Show Emrys
+Paste your dice roller AND coin flipper outputs to Emrys (run each a few
+times). Tell Emrys your heads-vs-tails tally — Emrys may explain why 7-3 in
+ten flips is still perfectly fair randomness.
 
 ### Check Your Brain
 - What does `random.randint(1, 100)` give you?
 - Why must we `import random` first?
+- What does the dot in `random.randint` mean?
+- Can 100 itself come out of `randint(1, 100)`?
 
 ### More Examples
 Roll two dice at once — like a board game:
@@ -1154,20 +1911,80 @@ cheer()
 cheer()
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+Well done!
+You are a star!
+Well done!
+You are a star!
+```
+
+Two prints written, four lines shown — because the machine ran twice.
+
 ### Line by Line
-- `def cheer():` — `def` means "define a machine called cheer".
-- The indented lines are the machine's job.
+- `def cheer():` — `def` means "define a machine called cheer". Note the empty
+  brackets `()` and the colon `:` — both required.
+- The indented lines are the machine's job — what it does when switched on.
 - `cheer()` — press the button: it runs both prints. We called it twice, so it
   ran twice.
+
+### Slow Motion 🔬 — defining is NOT running
+Here's the part that surprises everyone. When Python reads the `def` block, it
+does **NOTHING visible**. No printing. It just *memorises the recipe*:
+
+```text
+Python reads:  def cheer(): ...     -> "Noted. A machine called cheer exists.
+                                        I'll remember what it does."
+Python reads:  cheer()              -> "Ah, RUN it!" -> Well done! / You are a star!
+Python reads:  cheer()              -> runs it again
+```
+
+Two separate moments, just like writing vs running a file (Lesson 2):
+**defining** stores the recipe, **calling** cooks it. A function nobody calls
+never runs at all — a recipe nobody cooks.
+
+Why bother? Three professional reasons:
+1. **Write once, use everywhere** — fix a typo in the function, and EVERY call
+   gets the fix instantly.
+2. **Names that explain themselves** — `cheer()` tells you what it does
+   without reading its insides.
+3. **Programs become Lego** — big apps are hundreds of small named machines
+   snapped together. You're learning the snapping today.
+
+And: you've ALREADY been calling functions all course! `print()`, `input()`,
+`int()`, `random.randint()` — all machines someone else defined. Today you
+built your own. Welcome to the makers' side.
+
+### Do It in VS Code 🛠️
+1. Type the function (watch the auto-indent after `:`), then a blank line,
+   then the two calls — calls start at the LEFT edge, not indented.
+2. Save, run — count four lines.
+3. Delete both calls, save, run: total silence. The recipe exists but nobody
+   cooked it. Put one call back.
+4. Add a third `cheer()` — six lines now. One machine, any number of presses.
 
 ### Your Turn
 1. Make a function `welcome()` that prints a two-line welcome message.
 2. Call it.
 3. Make a function `goodbye()` and call it at the end of a program.
+4. Build a `drumroll()` function that prints "DRRRR..." three times, and use
+   it before announcing anything dramatic:
+   `drumroll()` then `print("...the winner is YOU!")`.
+5. Order experiment: try CALLING `welcome()` ABOVE its `def` block, save,
+   run — `NameError`! Python reads top-to-bottom and hadn't memorised the
+   recipe yet. Rule learned: **define first, call after.** Fix it back.
+
+### 📸 Show Emrys
+Paste your program with at least two functions and their output to Emrys.
+Tell Emrys which line DEFINES and which line CALLS — if you can say that
+clearly, you've truly got it.
 
 ### Check Your Brain
 - What word defines a function?
 - What does it mean to "call" a function?
+- What does Python do when it reads a `def` block — run it or remember it?
+- Name two functions you'd already used before today without knowing it.
 
 ### More Examples
 A drum machine — define once, play many times:
@@ -1240,20 +2057,73 @@ greet("Akua")
 greet("Yaw")
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+Hello Akua! Welcome to the game.
+Hello Yaw! Welcome to the game.
+```
+
+ONE machine, TWO different outputs — because we fed it different ingredients.
+
 ### Line by Line
-- `def greet(name):` — this machine needs one thing: a `name`.
-- Inside, `name` stands for whatever we hand over.
-- `greet("Akua")` — run it with "Akua". Then again with "Yaw". Same machine,
-  different results.
+- `def greet(name):` — this machine needs one ingredient: a `name`. The word
+  in the brackets is called a **parameter** — an ingredient slot.
+- Inside, `name` stands for whatever we hand over — it's a temporary variable
+  that exists only while the machine runs.
+- `greet("Akua")` — run it with "Akua". Then again with "Yaw". The value you
+  hand over is called an **argument** — the actual ingredient.
+
+### Slow Motion 🔬 — how the ingredient travels
+Watch the journey of "Akua" through the machine, step by step:
+
+```text
+1. Python reads greet("Akua")
+2. It finds the greet recipe it memorised earlier
+3. It pours "Akua" into the slot called name      <- name = "Akua" happens invisibly!
+4. It runs the body: print(f"Hello {name}!...")   <- {name} is "Akua" right now
+5. Output: Hello Akua! Welcome to the game.
+6. Machine finishes; the temporary name box vanishes
+7. Next call pours "Yaw" in -> same steps, new result
+```
+
+Think of a toaster: the toaster (function) stays the same; the bread
+(argument) changes; the slot (parameter) is where bread goes. You don't build
+a new toaster for every slice — and you don't write a new print for every
+player. THIS is why functions with parameters are the most useful idea in
+programming: one recipe, infinite variations.
+
+The remote-control test: parameters even work with variables and maths —
+`greet(input("Who are you? "))` pipes the player's typed name straight into
+the machine!
+
+### Do It in VS Code 🛠️
+1. Type the function and the two calls. Save, run, confirm both greetings.
+2. Add a third call with YOUR name.
+3. Try calling `greet()` with EMPTY brackets — Python refuses:
+   `TypeError: greet() missing 1 required positional argument: 'name'`.
+   The machine won't run without its ingredient. Give it one.
 
 ### Your Turn
 1. Make a function `double(number)` that prints the number times 2.
 2. Call it with 5, then with 50.
 3. Make a `cheer(name)` that says "Well done, NAME!" using the player's name.
+4. Two-slot machine: `def introduce(name, age):` printing
+   `f"{name} is {age} years old"`. Call it twice with different people. (Two
+   parameters = two ingredients, in order: first goes to first slot.)
+5. Connect to input: ask the player's name with `input`, then `cheer` them
+   with it. Input → function → output: a full pipeline, built by you.
+
+### 📸 Show Emrys
+Paste your `double`, `cheer`, and `introduce` outputs to Emrys. Then answer
+Emrys's favourite quiz: in `greet("Akua")`, which is the parameter and which
+is the argument?
 
 ### Check Your Brain
-- What is a parameter?
+- What is a parameter? What is an argument?
 - Why is `greet(name)` better than writing a new print for every player?
+- What happens to the `name` box when the machine finishes?
+- In `introduce("Ama", 9)`, which slot does 9 land in?
 
 ### More Examples
 A function can take a NUMBER and work with it:
@@ -1333,19 +2203,74 @@ else:
     print("Too low!")
 ```
 
+**A real run might look like:**
+
+```text
+I am thinking of a number between 1 and 100.
+Your guess: 50
+Too high!
+```
+
+The computer is HIDING something from you and judging your guess. That's a
+real game — and you built it.
+
 ### Line by Line
-- `import random` then pick the `secret` (we do NOT print it — no cheating).
-- Ask for a guess and `int()` it.
-- Compare with `if / elif / else` — the brain we learned in Lesson 10.
+- `import random` then pick the `secret` (we do NOT print it — no cheating!).
+  The secret sits invisibly in memory; only the comparisons reveal clues.
+- Ask for a guess and `int()` it — the guess must be a real number to compare
+  against the secret.
+- Compare with `if / elif / else` — the decision ladder from Lesson 10, now
+  with a real job.
+
+### Slow Motion 🔬 — your lessons, assembled
+This is the moment the bricks become a building. Label each line with the
+lesson that taught it:
+
+```text
+import random                       <- Lesson 14 (toolboxes)
+secret = random.randint(1, 100)     <- Lesson 14 + Lesson 3 (variables)
+print("I am thinking...")           <- Lesson 1 (print)
+guess = int(input("Your guess: "))  <- Lessons 6 + 7 (input + int)
+if guess == secret:                 <- Lessons 9-11 (decisions, ==)
+elif guess > secret:                <- Lesson 10 (the ladder)
+else:                               <- Lesson 10
+```
+
+NOTHING in this game is new. Every single line is a skill you already own —
+arranged in a new order. That's the deepest secret of programming: big things
+are small things, combined. When you see an app with thousands of features,
+it's this same trick at giant scale.
+
+One design detail worth noticing: the program picks the secret BEFORE asking
+for your guess. Order matters — you can't compare against a secret that
+doesn't exist yet. Programs are stories; events must happen in sequence.
+
+### Do It in VS Code 🛠️
+1. New file: `number_game.py` — THE project file. From now on, this game grows
+   inside it, lesson by lesson, until Lesson 24.
+2. Type the whole program. Save (**Ctrl+S**), run (**▶**).
+3. Play three rounds (run it three times). Score any "Amazing!"?
 
 ### Your Turn
-1. Build this and play it a few times. Can you win on the first try? (It's hard —
-   that's why we add loops next!)
-2. Change the range to 1–20 to make it easier for testing.
+1. Build this and play it a few times. Can you win on the first try? (It's
+   hard — about a 1-in-100 chance. That's WHY we add loops next lesson!)
+2. Change the range to 1–20 to make it easier for testing. (Two places to
+   think about: the `randint` AND the welcome message — keep them telling the
+   same story!)
+3. Add a fourth message of pure style: after the if/elif/else, print
+   `f"(My secret was {secret} — see you next round!)"` — revealing the answer
+   AFTER judging is fair play and makes losing less sour.
+
+### 📸 Show Emrys
+Paste a full round to Emrys — welcome, your guess, and the verdict. Tell Emrys
+which lesson number each line of your game came from (the Slow Motion table
+helps). Proving you know WHERE each brick came from is what makes you a
+builder, not a copier.
 
 ### Check Your Brain
-- Why don't we print the secret number?
-- Which earlier lessons does this combine?
+- Why don't we print the secret number before the guess?
+- Which earlier lessons does this combine? (Name at least four.)
+- Why must the secret be picked before the guess is asked?
 
 ### More Examples
 While testing, coders often add a secret "debug" line — print the answer ON PURPOSE, then remove it before anyone plays:
@@ -1417,21 +2342,80 @@ while guess != secret:
 print(f"You got it! The number was {secret}")
 ```
 
+**A real game (secret was 42) plays like this:**
+
+```text
+Your guess: 50
+Too high!
+Your guess: 25
+Too low!
+Your guess: 40
+Too low!
+Your guess: 42
+You got it! The number was 42
+```
+
+THE GAME LIVES. It answers back, it keeps going, it ends in victory. This is
+the lesson where students gasp.
+
 ### Line by Line
-- `guess = 0` — a starting value so the loop can begin (0 won't be the secret in
-  1–100).
-- `while guess != secret:` — keep looping until the guess equals the secret.
-- Inside: ask, then say too high or too low.
-- When correct, the `while` condition becomes false → loop ends → we celebrate.
+- `guess = 0` — a starting value so the loop's gatekeeper has something to
+  check (and 0 can never be the secret in 1–100, so the loop always begins).
+- `while guess != secret:` — keep looping AS LONG AS the guess is wrong. The
+  conversation loop from Lesson 13, now powering a game.
+- Inside: ask, then say too high or too low — the brain from Lesson 17, now
+  running once per lap.
+- When correct, the `while` condition becomes false at the next gate-check →
+  loop ends → the celebration line (outside the loop) finally runs.
+
+### Slow Motion 🔬 — why there's no "Correct!" inside
+Sharp eyes noticed: the if/elif has no "Correct!" branch anymore. Watch why,
+lap by lap (secret = 42):
+
+```text
+Lap 1: gate: 0 != 42? YES, enter -> guess becomes 50 -> "Too high!"
+Lap 2: gate: 50 != 42? YES, enter -> guess becomes 25 -> "Too low!"
+Lap 3: gate: 25 != 42? YES, enter -> guess becomes 42 -> (not >, not <... nothing prints)
+Lap 4: gate: 42 != 42? NO -> loop OVER
+       -> "You got it! The number was 42"
+```
+
+The winning itself is what KILLS the loop — so the line right after the loop
+can only ever be reached by a winner. The loop's exit IS the victory door.
+This is elegant program design: instead of checking "did they win?" inside,
+we let the loop's own condition do that job for free.
+
+Also notice what happens to `guess` each lap: the same box is refilled with
+each new guess (Lesson 3 — one label, latest value). The whole game runs on
+just TWO variables.
+
+### Do It in VS Code 🛠️
+1. Update `number_game.py` to this version. Mind the indentation: four lines
+   inside the loop, the celebration OUTSIDE (left edge).
+2. Save, run, and PLAY TO THE WIN. However many guesses it takes.
+3. Play again with the smart strategy: always guess the MIDDLE of what's
+   possible (50 → 25 or 75 → ...). Count your guesses. Seven or fewer is
+   mathematically guaranteed — this strategy has a famous name, *binary
+   search*, and it's taught in university. You just used it in Class 4.
 
 ### Your Turn
 1. Build this and play until you win. Feels like a real game now!
 2. Notice we removed the "Correct!" from inside — why can the win message live
-   after the loop instead?
+   after the loop instead? (Say the answer out loud — the Slow Motion table
+   has it.)
+3. Challenge a classmate: they pick the strategy (random guesses vs
+   halve-the-middle) — who wins in fewer tries?
+
+### 📸 Show Emrys
+Paste your full winning game to Emrys — every guess, every clue, the victory
+line. Tell Emrys how many guesses you took and whether you used the
+halving strategy. Emrys keeps an eye out for 7-or-under wins. 🏆
 
 ### Check Your Brain
 - What makes the loop finally stop?
 - Why did we set `guess = 0` at the start?
+- Why can the win message live AFTER the loop?
+- What's the guaranteed-win strategy called, and how does it work?
 
 ### More Examples
 The same loop pattern works for a WORD game too — same skeleton, different skin:
@@ -1503,19 +2487,74 @@ while guess != secret:
 print(f"You got it in {tries} tries!")
 ```
 
+**The end of a game now looks like:**
+
+```text
+Your guess: 42
+You got it in 4 tries!
+```
+
+A score! Suddenly there's something to BEAT. Watch what happens to your
+classmates the moment a number appears — everyone wants a rematch. That's
+game design psychology, and you just used it.
+
 ### Line by Line
-- `tries = 0` — start the counter (Lesson 5 + 12 skills).
-- `tries = tries + 1` — add one for every guess, inside the loop.
-- At the end we print the total with an f-string — `{tries}` drops the number in.
+- `tries = 0` — start the counter BEFORE the loop (a counter must be born
+  before it can grow — Lesson 5).
+- `tries = tries + 1` — add one for every guess, INSIDE the loop, right after
+  the input. Each lap = each guess = one tick.
+- At the end we print the total with an f-string — `{tries}` drops the number
+  into the sentence.
+
+### Slow Motion 🔬 — placement is everything
+The counter line could physically go in four places. Watch how only one is
+right:
+
+```text
+BEFORE the loop:        counts... once, ever.   Final answer: always 1. ❌
+INSIDE, after input:    one tick per guess.     CORRECT! ✅
+INSIDE, after the ifs:  also works — same lap.  ✅ (style choice)
+AFTER the loop:         ticks once at the end.  Always says 1. ❌
+```
+
+WHERE a line lives decides WHEN and HOW OFTEN it runs. Same line, different
+homes, completely different programs. This placement-thinking is the #1 skill
+that separates "I can type code" from "I can build programs."
+
+Three variables now run your game, each with one clear job:
+`secret` (never changes after birth), `guess` (refilled every lap),
+`tries` (grows by one every lap). Give each variable ONE job and a name that
+says it — your future self will thank you.
+
+### Do It in VS Code 🛠️
+1. Add the two `tries` lines to `number_game.py` — one before the loop, one
+   inside it. Update the final print to the f-string with `{tries}`.
+2. Save, run, play to the win, read your score.
+3. Experiment: move `tries = tries + 1` to ABOVE the input line, save, play.
+   Same count? (Yes — anywhere inside the lap works once per lap. Placement
+   within the lap is style; inside-vs-outside is correctness!)
 
 ### Your Turn
 1. Add the counter and play. How few tries can you manage?
 2. Add a message: if `tries` is less than 8, print "You're a guessing genius!"
    (use an `if` after the loop).
+3. Personal best tracker (paper edition): play three full games, write down
+   each score, circle your best. Next lesson block we'll teach the GAME to
+   remember things like this.
+4. Stretch: change the final line to also reveal the secret —
+   `f"You got it in {tries} tries! The number was {secret}."` Two boxes, one
+   sentence.
+
+### 📸 Show Emrys
+Paste your full game (all guesses + the score line) to Emrys. Report your best
+score out of three games — Emrys is keeping a class leaderboard in spirit.
+Under 7 with the halving strategy? Tell Emrys; that's the certified-genius
+zone. 🧠
 
 ### Check Your Brain
 - Where must `tries = tries + 1` go — inside or outside the loop? Why?
 - Why is an f-string easier here than joining with `+` and `str()`?
+- What are the three variables in the game, and what is each one's single job?
 
 ### More Examples
 Show the try number AS they play — players love seeing the count tick up:
@@ -1583,14 +2622,51 @@ else:
     print("Please type a number, like 42.")
 ```
 
+**Two runs, two behaviours:**
+
+```text
+Your guess: 42
+Thanks! You guessed 42
+```
+
+```text
+Your guess: hello
+Please type a number, like 42.
+```
+
+No red error. No crash. The program PROTECTED itself — like a goalkeeper
+catching a bad ball instead of letting it smash the net.
+
 ### Line by Line
-- `guess_text.isdigit()` — asks "is this text made only of digits?" Gives True/False.
-- If True, it's safe to `int()` it.
-- If False (they typed letters), we politely ask again instead of crashing.
+- `guess_text.isdigit()` — asks the text "are you made ONLY of digits?" and
+  gets True or False (a boolean — Lesson 11 paying off!). `"42"` → True.
+  `"hello"` → False. `"4x2"` → False too — ONE letter spoils it.
+- If True, it's safe to `int()` it — no surprise ValueError possible.
+- If False (they typed letters), we politely guide them instead of crashing.
+
+### Slow Motion 🔬 — check BEFORE you convert
+Remember Lesson 7's experiment: `int("nine")` explodes with `ValueError`. In
+your own practice that's fine — read the error, fix, rerun. But imagine your
+little cousin playing your game, typing "fifty", and the whole game DIES with
+red text. Heartbreaking!
+
+The professional rule: **never trust input — check it first.** The pattern is
+called *validation*, and it reads like airport security:
+
+```text
+1. Receive the text       (input)
+2. Inspect it             (.isdigit() -> True/False)
+3. Safe? -> convert & continue    Suspicious? -> reject politely & re-ask
+```
+
+`.isdigit()` is something the TEXT ITSELF can do — notice the dot:
+`guess_text.isdigit()`, like `random.randint` — "ask the thing for one of its
+own tricks." Text has many built-in tricks; you'll meet `.lower()` soon.
 
 ### Using it inside the game (the safe pattern)
-Here is how the check fits INSIDE the guessing loop. If the player types letters,
-we say so and use `continue`, which means "skip the rest and ask again":
+Here is how the check fits INSIDE the guessing loop. If the player types
+letters, we say so and use `continue`, which means "skip the rest and ask
+again":
 
 ```python
 while guess != secret:
@@ -1599,26 +2675,50 @@ while guess != secret:
         print("Please type a number, like 42.")
         continue          # go back to the top of the loop and ask again
     guess = int(guess_text)
+    tries = tries + 1
     if guess > secret:
         print("Too high!")
     elif guess < secret:
         print("Too low!")
 ```
 
-- `if not guess_text.isdigit():` — `not` flips True/False, so this means "if it is
-  NOT all digits".
-- `continue` — jump straight back to the top of the loop (don't run the rest this
-  time). The player gets asked again, and the game never crashes.
+- `if not guess_text.isdigit():` — `not` flips True/False, so this means "if
+  it is NOT all digits". Reads like English!
+- `continue` — jump straight back to the loop's gate (don't run the rest of
+  this lap). The player gets asked again, and the game never crashes.
+- Sharp detail: because `continue` skips `tries = tries + 1`, typo laps don't
+  count against the player's score. Kind AND fair.
+
+### Do It in VS Code 🛠️
+1. Try the small top version in a practice file first: run twice — once
+   typing `42`, once `hello`.
+2. Now upgrade `number_game.py` with the safe loop pattern.
+3. The crash test: run the game and type `abc`, `4x2`, an EMPTY Enter, then
+   a real guess. The game should sail through all of it, politely re-asking.
+   If it survives, your game is officially crash-proof.
 
 ### Your Turn
-1. Try the small code at the top; type `42`, then type `hello`. See the difference.
-2. Copy the safe pattern above into your game loop. Test it by typing `abc` — the
+1. Try the small code at the top; type `42`, then type `hello`. See the
+   difference.
+2. Copy the safe pattern into your game loop. Test it by typing `abc` — the
    game should politely ask again instead of crashing.
+3. Make the rejection message friendlier and YOURS — maybe
+   `"Numbers only, champion! Try something like 50."` Kind software has a
+   personality.
+4. Think like a tester: what's the WEIRDEST thing someone could type at your
+   game? Try it. (Spaces? Emoji? A minus number? `-5` fails `.isdigit()` —
+   the minus sign isn't a digit — so your goalkeeper catches that too!)
+
+### 📸 Show Emrys
+Paste a run showing your game surviving at least two bad inputs and then
+winning. That survival is the proof. Tell Emrys your weirdest test input —
+Emrys collects those. 😄
 
 ### Check Your Brain
 - What does `.isdigit()` tell you?
 - What does `not` do to True or False?
 - What does `continue` do inside a loop?
+- Why doesn't a typo lap increase `tries` in our pattern?
 
 ### More Examples
 See `.isdigit()` think — run this truth-table on different inputs:
@@ -1684,19 +2784,76 @@ def welcome():
 welcome()
 ```
 
+**When you run it, the TERMINAL shows:**
+
+```text
+==============================
+ THE MAGIC NUMBER GAME 
+==============================
+I will think of a number from 1 to 100.
+Try to guess it. I'll say higher or lower!
+```
+
+A title screen! Compare the feeling: a game that just barks "Your guess:" at
+you, versus one that rolls out a banner and explains itself. Same engine —
+totally different welcome. Players feel the difference instantly.
+
 ### Line by Line
-- `def welcome():` — a function (Lesson 15) holding our intro.
-- `"=" * 30` — a neat trick: it prints the `=` sign 30 times to make a line.
+- `def welcome():` — a function (Lesson 15) holding our intro. The whole
+  opening ceremony has ONE name now.
+- `"=" * 30` — a neat trick: text times a number repeats the text. Thirty `=`
+  signs make a clean banner line without typing them all.
 - We call `welcome()` once at the very start of the game.
+
+### Slow Motion 🔬 — multiplying text?!
+You knew `5 * 3` = 15. But `"=" * 30`?! In Python, multiplying TEXT by a
+NUMBER means "repeat it that many times":
+
+```python
+print("=" * 30)     # ==============================
+print("ab" * 3)     # ababab
+print("🎉" * 5)     # 🎉🎉🎉🎉🎉
+print("-=" * 15)    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+```
+
+One symbol, two meanings: between two numbers `*` is maths; between text and a
+number it's a repeater. Python looks at WHAT you're multiplying and picks the
+right meaning. (But `"=" + 30` crashes — you can't ADD text and a number.
+Repeating makes sense; adding doesn't.)
+
+Why a FUNCTION for the welcome? Organisation. Your game file is growing, and
+top-of-file functions act like a table of contents: the program's "main story"
+at the bottom stays short and readable —
+`welcome()` ... loop ... celebrate — while the details live in their named
+boxes above. Real codebases with millions of lines survive ONLY because of
+this habit. You're learning it at 24 lines. Perfect timing.
+
+### Do It in VS Code 🛠️
+1. Add the `welcome()` function at the TOP of `number_game.py` (right under
+   `import random`), and the `welcome()` call as the first line of the main
+   program.
+2. Save, run — admire your title screen, then play through.
+3. Experiment in a practice file: print your name times 3, and a `"~"` banner
+   exactly as wide as your title (count the characters!).
 
 ### Your Turn
 1. Add the `welcome()` function to your game and call it first.
-2. Change the title and the decoration line to your own style.
-3. Add a line telling the player your name as the game-maker.
+2. Change the title and the decoration line to your own style — different
+   symbols (`*`, `~`, `🎲`), different width. Make it YOURS.
+3. Add a line telling the player your name as the game-maker — every artist
+   signs their work.
+4. Add a `rules()` function too, with 2–3 lines explaining how to win, and
+   call it right after `welcome()`. Two ceremonies, two named machines.
+
+### 📸 Show Emrys
+Screenshot your title screen (banners look best as pictures!) or paste it,
+and send it to Emrys. Style points are real points today — Emrys will judge
+the banner like an art teacher. 🎨
 
 ### Check Your Brain
 - What does `"=" * 30` do?
 - Why put the welcome in a function instead of just printing?
+- What's the difference between `"=" * 30` and `"=" + 30`?
 
 ### More Examples
 Different border styles — pick your favourite:
@@ -1773,21 +2930,96 @@ while playing == "yes":
 print("Thanks for playing!")
 ```
 
+**A two-round session looks like:**
+
+```text
+Your guess: 50
+Too low!
+Your guess: 75
+Correct! It took 2 tries.
+Play again? (yes/no): yes
+Your guess: 30
+Too high!
+Your guess: 15
+Correct! It took 2 tries.
+Play again? (yes/no): no
+Thanks for playing!
+```
+
+A NEW secret each round, fresh scores, and the player decides when the fun
+ends. This is a complete game session — like a real arcade machine.
+
 ### Line by Line
-- An OUTER loop `while playing == "yes":` holds a whole round.
-- Inside it we pick a NEW secret and reset `guess` and `tries` each round.
+- An OUTER loop `while playing == "yes":` holds a whole round — everything
+  indented under it happens once per round.
+- Inside it we pick a NEW secret and reset `guess` and `tries` each round —
+  fresh game, fresh state.
 - The INNER loop is the guessing we already built — a loop inside a loop!
-- At the end of a round we ask "Play again?"; if not "yes", the outer loop stops.
+  (Indented TWICE: the inner loop's body is inside the inner loop which is
+  inside the outer loop.)
+- At the end of a round we ask "Play again?"; any answer except exactly "yes"
+  ends the outer loop.
+
+### Slow Motion 🔬 — loops inside loops (and where variables live)
+Zoom out and see the two wheels turning:
+
+```text
+OUTER LOOP (rounds)                 spins once per ROUND
+   pick new secret, reset scores
+   INNER LOOP (guesses)             spins once per GUESS
+      ask, count, judge
+   celebrate + ask "again?"
+```
+
+Like a clock: the inner loop is the fast second-hand (many guesses), the outer
+loop the slow minute-hand (ticks one round forward after the inner finishes).
+The inner loop must completely finish before the outer takes its next step.
+
+Now the most valuable map in this whole course — WHERE a variable is created
+decides WHEN it resets:
+
+```text
+BEFORE the outer loop   -> survives the whole session   (playing)
+INSIDE outer, before inner -> fresh every ROUND         (secret, guess, tries)
+INSIDE the inner loop   -> fresh every GUESS            (guess_text, if you add it)
+```
+
+Move `tries = 0` ABOVE the outer loop and watch the bug: round 2 would START
+at round 1's count — "Correct! It took 9 tries" when you guessed in 2. Wrong
+shelf, wrong story. When a variable behaves strangely, check WHERE it lives
+first. This map answers 90% of "why is my variable weird?!" questions you'll
+ever have — in any program, forever.
+
+### Do It in VS Code 🛠️
+1. Rebuild `number_game.py` to this full version (keep your `welcome()` from
+   Lesson 21 at the top — call it once, ABOVE the outer loop... or inside it
+   to greet every round. Try both; which feels right?).
+2. Watch the double indentation carefully — VS Code shows faint vertical
+   guide-lines connecting each level. Use them!
+3. Save, run, play exactly two rounds then `no`. Confirm round 2 got a fresh
+   tries count.
 
 ### Your Turn
 1. Build this full version and play two rounds.
 2. Why must `secret`, `guess`, and `tries` be reset INSIDE the outer loop?
-3. Accept "Yes", "YES", and "y" as yes (hint: `.lower()` and checking the first
-   letter — ask your teacher).
+   (Answer with the shelf map!)
+3. Accept "Yes", "YES", and "y" as yes: change the last line to
+   `playing = input("Play again? (yes/no): ").lower()` — the `.lower()` trick
+   makes every answer lowercase before checking. Then add after it:
+   `if playing == "y": playing = "yes"`. Test all three spellings!
+4. Add a round counter: `round_number = 0` BEFORE the outer loop (it must
+   survive rounds — check the map!), `+ 1` inside, and announce
+   `f"--- Round {round_number} ---"` at each round's start.
+
+### 📸 Show Emrys
+Paste a full two-round session to Emrys — including the fresh tries count in
+round 2 and your round announcements. Then answer Emrys's map quiz: where
+would you create a variable that counts TOTAL guesses across ALL rounds?
 
 ### Check Your Brain
 - What is a "loop inside a loop"?
-- What resets at the start of each new round?
+- What resets at the start of each new round — and what survives all rounds?
+- Where would a "total guesses across the whole session" variable live?
 
 ### More Examples
 The friendly yes-checker — `.lower()` turns ANY typing style into lowercase, so one check handles `YES`, `Yes`, and `yes`:
@@ -1849,21 +3081,73 @@ else:
     print("You got there in the end — well done!")
 ```
 
+**A win in 4 tries now ends like:**
+
+```text
+Correct! It took 4 tries.
+Wow, that was fast!
+```
+
+Same victory, warmer feeling. Small words, big difference.
+
 ### Line by Line
-- After a win, we look at `tries` and choose an encouraging message.
-- `elif tries <= 5:` — "5 or fewer". The checks go from best to gentlest.
-- Everyone gets a kind message no matter how many tries.
+- After a win, we look at `tries` and choose ONE encouraging message — the
+  decision ladder from Lesson 10, now used for kindness.
+- `elif tries <= 5:` — "5 or fewer". The checks go from best score to
+  gentlest.
+- Everyone gets a kind message no matter how many tries — the `else` catches
+  all remaining players. Nobody leaves empty-handed.
+
+### Slow Motion 🔬 — why the ORDER of the ladder matters
+Try mentally swapping the ladder: what if `tries <= 10` came FIRST? A player
+who won in 1 try hits `1 <= 10` → YES → gets "Nice guessing!" — and the
+ladder STOPS (first yes wins, remember?). They never reach their deserved
+"INCREDIBLE"! The champion got the bronze message. 😱
+
+The rule: **when ladder ranges overlap, put the most specific/most special
+check first.** `== 1` is inside `<= 5` is inside `<= 10` — so we check
+narrowest to widest. Trace each of these through the ladder to prove the
+order works: tries = 1, 3, 7, 15 → INCREDIBLE / fast / Nice / got there.
+
+And the hint feature uses a tiny maths gem: `abs(guess - secret)` measures
+DISTANCE. If secret is 42: guess 45 → 45-42 = 3. Guess 39 → 39-42 = **-3**,
+but `abs(-3)` = 3 — `abs` throws away the minus sign, because being 3 below
+is just as CLOSE as 3 above. Distance has no direction!
+
+```python
+if abs(guess - secret) <= 5:
+    print("🔥 You're VERY close!")
+```
+
+This goes INSIDE the inner loop, after the too-high/too-low lines — the
+"warmer/colder" from hide-and-seek, in three lines of Python.
+
+### Do It in VS Code 🛠️
+1. Add the encouragement ladder right after the `Correct!` line, INSIDE the
+   outer loop (it should run every round — check your shelf map!).
+2. Add the 🔥 close-hint inside the inner loop.
+3. Save, run, and deliberately fish for each message: try to win fast once,
+   then guess badly on purpose once. All four messages reachable?
 
 ### Your Turn
 1. Add these messages right after the player wins.
-2. Write your OWN four encouragement messages.
-3. Add a "hint": if a guess is within 5 of the secret, print "You're very close!"
-   (hint: you can check `if abs(guess - secret) <= 5:` — ask your teacher about
-   `abs`, which means "distance, ignoring minus signs").
+2. Write your OWN four encouragement messages — your humour, your style. (A
+   game's personality is its writer's personality.)
+3. Add the 🔥 hint: if a guess is within 5 of the secret, print "You're very
+   close!" using `abs(guess - secret) <= 5`.
+4. Extra spice: a SECOND hint tier — within 15 prints "Getting warm...",
+   within 5 prints "🔥 VERY close!". Mind the ladder order — which check must
+   come first, and why? (You know this now!)
+
+### 📸 Show Emrys
+Paste a round where a 🔥 hint appeared AND the final encouragement message.
+Tell Emrys your four custom messages — best set in the class gets Emrys's
+applause. Then answer: why must the `== 1` check be first on the ladder?
 
 ### Check Your Brain
 - Why do we order the checks from fewest tries to most?
 - What makes a game feel "friendly"?
+- What does `abs(guess - secret)` measure, and why ignore the minus sign?
 
 ### More Examples
 The "you're close!" hint using `abs` — distance ignoring the minus sign:
@@ -1988,13 +3272,32 @@ print("Thanks for playing!")
 - If the player types `y`, the game changes it to `yes` so another round starts.
 
 ### Build Checklist
-1. Open your game file, for example `game.py`.
-2. Type the full code above.
-3. Run it and play until you win.
+1. Open your game file `number_game.py` in VS Code.
+2. Type the full code above (or check your grown file matches it piece by
+   piece — you BUILT this across eight lessons!).
+3. Save (**Ctrl+S**), run (**▶**), and play until you win.
 4. Test a mistake: type `hello`. The game should say to type a number and keep
    going.
-5. Test play-again: after you win, type `yes`, `YES`, and `y` in different rounds.
+5. Test play-again: after you win, type `yes`, `YES`, and `y` in different
+   rounds.
 6. Type `no` when you want to stop. You should see "Thanks for playing!"
+
+### Read Your Own Program Like a Pro 🔬
+Before the showcase, do the professional's final ritual: scroll to the top of
+`number_game.py` and read EVERY line out loud, saying what it does — like
+giving a tour of a house you built. Imports → welcome function → outer loop →
+fresh secrets → inner loop → guard → judge → counter → celebration → again?
+If any line makes you hesitate, that's the lesson to glance back at. When you
+can tour the whole file without stopping... you don't just have a game. You
+UNDERSTAND a game.
+
+### 📸 Show Emrys — Graduation Run
+This one is special. Play one complete session (at least two rounds, one typo
+test, one win under 10) and paste the WHOLE terminal transcript to Emrys —
+or screenshot it in pieces. Say: **"Emrys, this is my graduation run!"**
+Emrys will review it like an examiner: checking the welcome banner, the crash
+protection, the fresh rounds, the kind messages — and then say the words every
+builder waits for. 🎓
 
 ### Your Turn (Showcase)
 1. Play your finished game in front of the class or your family.

@@ -82,7 +82,7 @@ const buildRoadmapDays = (lessons) =>
         'Connect the step to the calculator project.',
         'Ask each learner to try a one-line practice before moving on.',
       ],
-      materials: ['Class 4 calculator lesson notes', 'Computer with Python + Thonny installed', 'calculator.py project file'],
+      materials: ['Class 4 calculator lesson notes', 'Computer with Python + VS Code installed', 'calculator.py project file'],
       code_explanation_focus: 'Explain each line like the class is seeing code for the first time: what it does, why it matters, what to notice.',
       end_of_day_checklist: [
         'Students can explain the idea in their own words',

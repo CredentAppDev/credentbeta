@@ -44,6 +44,29 @@ Rules for learning:
 - Run the code often.
 - Explain what you built out loud, like you are teaching a friend.
 
+### Your Workshop Is VS Code 🛠️
+
+All code in this course is typed, saved, and run in **Visual Studio Code
+(VS Code)** with the Python extension — the same editor professional
+programmers use every day. The rhythm for every piece of code is always:
+
+1. Open `calculator.py` in VS Code (or **File → New File** for practice files).
+2. Type the code in the editor.
+3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
+4. Run: press the **▶ Run** button at the top-right, and read the result in
+   the **TERMINAL** panel at the bottom.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
+your workbench.
+
+### Show Emrys Your Work 📸
+
+After EVERY "Try It" task, show Emrys the proof: **copy what the terminal
+printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
+celebrate what's right, and help fix anything that isn't. If something errored,
+paste the red error message too — errors are clues, and Emrys reads them like
+a detective. No skipping this step: real coders always show their output.
+
 ---
 
 ## Project Picture
@@ -197,61 +220,88 @@ and reinstall Python, making sure to tick "Add to PATH" on Windows.
 
 ---
 
-### Step 3: Install Thonny (Your Code Editor)
+### Step 3: Install VS Code (Your Code Workshop)
 
-Thonny is a free editor made for beginners. It shows error messages clearly
-and has a built-in Python runner so you do not need to use the terminal much.
+**Visual Studio Code (VS Code)** is the editor we use for the whole course. It
+is free, it is what millions of professional programmers use every day, and
+Emrys will always give you steps that match it.
 
 Go to:
 
 ```text
-https://thonny.org
+https://code.visualstudio.com
 ```
 
-Click the download button for your operating system (Mac or Windows). Open
-the downloaded file and follow the installer.
+Click the big download button for your computer (Windows or Mac). Open the
+downloaded file and follow the installer (just keep clicking Next / Continue).
 
-When Thonny opens for the first time you will see two areas:
+**Then add the Python extension** — this teaches VS Code to understand Python:
+
+1. Open VS Code.
+2. On the left edge, click the **Extensions** icon (it looks like four little
+   squares).
+3. In the search box type: `Python`
+4. The first result says **Python** by Microsoft. Click **Install**.
+
+When VS Code is open you will work in two areas:
 
 ```text
 +------------------------------------------+
-|  EDITOR (top)                            |
+|  EDITOR (the big middle area)            |
 |  This is where you type your code.       |
 |  Think of it as your recipe notepad.     |
 +------------------------------------------+
-|  SHELL (bottom)                          |
-|  This is where results appear.           |
-|  Think of it as the kitchen that cooks   |
-|  your recipe and shows what came out.    |
+|  TERMINAL (the bottom panel)             |
+|  This is where results appear when you   |
+|  run your program. Think of it as the    |
+|  kitchen that cooks your recipe and      |
+|  shows what came out.                    |
 +------------------------------------------+
 ```
+
+If you don't see the terminal, open it from the top menu: **Terminal → New
+Terminal**.
 
 ---
 
 ### Step 4: Write Your First Line
 
-Click in the editor area (top half). Type this:
+In VS Code, go to **File → New File**, and when it asks for a name type
+`hello.py` (the `.py` ending tells VS Code this is Python). Save it on your
+Desktop.
+
+Click in the editor and type this:
 
 ```python
 print("Hello! I am ready to code.")
 ```
 
-Press the green Run button at the top, or press F5 on your keyboard.
+Save with **Ctrl+S** (Windows) or **Cmd+S** (Mac). Then press the **▶ Run
+button** at the top-right of the editor.
 
-Look at the Shell area at the bottom. You should see:
+Look at the TERMINAL panel at the bottom. You should see:
 
 ```text
 Hello! I am ready to code.
 ```
 
-If you see that message, everything is working. You are ready to start
-Lesson 1.
+If you see that message, everything is working. **Copy that line from the
+terminal and paste it to Emrys — or send a screenshot 📸 — so Emrys can
+confirm your setup is perfect.** You are ready to start Lesson 1.
 
 ---
 
 ### Step 5: Create Your Project File
 
-In Thonny, go to File then New. A blank editor tab opens.
+In VS Code, go to **File → New File**. Name it:
+
+```text
+calculator.py
+```
+
+Save it somewhere easy to find, like your Desktop or a folder called
+my_projects. (Tip: in VS Code you can open that whole folder with **File →
+Open Folder** — then all your project files live in the left sidebar.)
 
 Type this:
 
@@ -259,14 +309,7 @@ Type this:
 print("My calculator is being built!")
 ```
 
-Go to File then Save As. Name the file:
-
-```text
-calculator.py
-```
-
-Save it somewhere easy to find, like your Desktop or a folder called
-my_projects.
+Save (**Ctrl+S**) and run (**▶**). The terminal should show your message.
 
 From now on, you will keep adding code to this same file as you go through
 the lessons. By Lesson 18, it will be a working calculator.
@@ -287,12 +330,13 @@ Before moving to Lesson 1, check each item:
 
 ```text
 [ ] Python installed  (python --version shows 3.6 or higher)
-[ ] Thonny installed and opens without errors
-[ ] Typed print("Hello!") and saw output in the Shell
+[ ] VS Code installed, with the Python extension, and opens without errors
+[ ] Typed print("Hello!") , ran it with the Run button, saw output in the TERMINAL
 [ ] Created calculator.py and saved it
+[ ] Pasted your first output (or a screenshot) to Emrys and got a thumbs-up
 ```
 
-If all four are done, you are ready. Move to Lesson 1.
+If all five are done, you are ready. Move to Lesson 1.
 
 ---
 
@@ -1543,7 +1587,7 @@ just call print_menu() and it does the whole job.
 
 ### Try It
 
-Type the `print_menu` function above into Thonny. Then call it:
+Type the `print_menu` function above into VS Code. Then call it:
 
 ```python
 print_menu()
@@ -2463,7 +2507,7 @@ The list lives inside the `while True` loop. The loop runs until
 ### Each Lesson In The Code
 
 ```text
-Lesson 0   -> Python and Thonny installed; calculator.py file created
+Lesson 0   -> Python and VS Code installed; calculator.py file created
 Lesson 1   -> print()
 Lesson 2   -> text vs numbers ("7" vs 7)
 Lesson 3   -> variables (first_number, result, history)
@@ -3410,7 +3454,8 @@ Everything in the GUI calculator comes from mixing those three things.
 
 ### Check That tkinter Is Installed
 
-Open Thonny and type this in the Shell (bottom area):
+In VS Code open the terminal (Terminal → New Terminal), type `python` and
+press Enter — you get a `>>>` prompt (Python's quick-chat mode). Type this:
 
 ```python
 import tkinter
@@ -3824,7 +3869,7 @@ Put everything together into one file: `gui_calculator.py`.
 
 ### The Complete Code
 
-Create a new file in Thonny. Name it `gui_calculator.py`. Copy this
+Create a new file in VS Code. Name it `gui_calculator.py`. Copy this
 entire code block exactly as written:
 
 ```python
@@ -4096,8 +4141,8 @@ window.mainloop()
 
 ### Run It
 
-Save the file as `gui_calculator.py`. In Thonny, press the green Run button
-or press F5.
+Save the file as `gui_calculator.py` (Ctrl+S). In VS Code, press the ▶ Run
+button at the top-right.
 
 A window opens with a full calculator. Try it:
 
@@ -4147,11 +4192,11 @@ The logic is exactly the same. Only the way it looks changed.
 
 ---
 
-## Lesson 26: Running the App Without Thonny
+## Lesson 26: Running the App Without VS Code
 
 ### Big Idea
 
-A real app should open with a double-click, not by pressing Run in Thonny.
+A real app should open with a double-click, not by pressing Run in VS Code.
 
 ### On Windows
 
@@ -4205,7 +4250,7 @@ Lesson 22 -> tk.Button, .grid() layout, command=
 Lesson 23 -> state variables, global, press_digit/operator/equals
 Lesson 24 -> colours, fonts, lambda for button commands
 Lesson 25 -> complete gui_calculator.py (full working window app)
-Lesson 26 -> running the app by double-click, no Thonny needed
+Lesson 26 -> running the app by double-click, no VS Code needed
 ```
 
 ---

@@ -147,15 +147,16 @@ const buildRoadmapDays = (course, lessons) =>
       activities: [
         'Review the previous lesson in one sentence (ask a student to say it).',
         `Explain "${lesson.title}" using the Kid Meaning before showing any code.`,
-        'Type and run The Code together; read the Line by Line out loud.',
-        'Walk through the More Examples — run at least one live.',
-        'Every learner does the Your Turn practice on their own machine.',
+        'Type and run The Code together in VS Code; read the Line by Line out loud.',
+        'Walk through the More Examples — run at least one live in VS Code.',
+        'Every learner does the Your Turn practice on their own machine in VS Code.',
+        'Each learner shows Emrys their result: paste the VS Code terminal output or send a screenshot for checking.',
         'Show one Common Mistake on purpose and let the class spot the fix.',
-        'Fast finishers attempt the Level Up challenge.',
+        'Fast finishers attempt the Level Up challenge (and show Emrys that too).',
       ],
       materials: [
         `${course.grade} lesson notes (this section)`,
-        'Computer with Python installed',
+        'Computer with Python + VS Code (with the Python extension) installed',
         `${course.project_file} project file`,
       ],
       code_explanation_focus:
