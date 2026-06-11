@@ -17,6 +17,7 @@ const { createLearningTables }     = require('./src/models/learningModel');
 const { createScreenSessionTables, purgeStaleSignals } = require('./src/models/screenSessionModel');
 const { createDesktopAuthTable }   = require('./src/controllers/desktopAuthController');
 const { createDevicePushTokensTable } = require('./src/models/devicePushTokenModel');
+const { createEspDevicesTable } = require('./src/models/espDeviceModel');
 const { createRemoteControlAuditTable } = require('./src/models/remoteControlAuditModel');
 const { createFeedbackTable }      = require('./src/models/feedbackModel');
 const { createInviteCodeTable }    = require('./src/models/inviteCodeModel');
@@ -85,6 +86,9 @@ const dbInfo = await pool.query('SELECT current_database() AS db, current_user A
 
     // 11b. Create device push tokens table
     await createDevicePushTokensTable();
+
+    // 11b-ii. Create Credent-owned ESP (Mino) device registry table
+    await createEspDevicesTable();
 
     // 11c. Create remote-control audit table
     await createRemoteControlAuditTable();

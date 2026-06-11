@@ -30,22 +30,11 @@ const LESSONS_PATH =
   process.env.CALCULATOR_LESSONS_PATH
   || path.resolve(__dirname, '../../python_calculator/Calculator_Project_Lessons.md');
 
-// Pull the body text under a "### Heading" within a lesson block (stops at the
-// next ### or ##). Strips code fences down to a short inline note so chunks stay
-// readable as teaching text rather than raw code dumps.
-const sectionText = (block, heading) => {
-  const re = new RegExp(`### ${heading}\\s*\\n([\\s\\S]*?)(?=\\n### |\\n## |$)`, 'i');
-  const m = block.match(re);
-  if (!m) return '';
-  return m[1]
-    .replace(/```[a-z]*\n([\s\S]*?)```/gi, (full, code) => {
-      const oneLine = code.trim().split('\n').join(' ');
-      return ` (code: ${oneLine}) `;
-    })
-    .replace(/\s+/g, ' ')
-    .trim();
-};
-
+// Each lesson's FULL markdown body becomes the chunk content — code fences
+// intact. The desktop Teach view renders chunks as markdown and lifts fenced
+// code into the presentation code panel, so teachers get the whole lesson
+// (Big Idea, Kid Meaning, the code, Line by Line, Your Turn, examples...),
+// not a flattened summary.
 const parseLessons = (md) => {
   // Split on lesson headers, keeping the header line with its block.
   const parts = md.split(/\n(?=## Lesson )/g).filter((p) => /^## Lesson /.test(p));
@@ -55,20 +44,15 @@ const parseLessons = (md) => {
     const numMatch = fullTitle.match(/Lesson\s+(\d+)/i);
     const lessonNum = numMatch ? parseInt(numMatch[1], 10) : 0;
 
-    const bigIdea = sectionText(block, 'Big Idea');
-    const kidMeaning = sectionText(block, 'Kid Meaning');
-    const calcConnection = sectionText(block, 'Calculator Connection');
-
-    const content = [
-      bigIdea && `Big idea: ${bigIdea}`,
-      kidMeaning && `In kid words: ${kidMeaning}`,
-      calcConnection && `How it connects to the calculator: ${calcConnection}`,
-    ].filter(Boolean).join(' ');
+    // Body = everything after the header line; trim trailing part separators
+    // ("---" + any "# PART ..." heading bleeding into this block).
+    let body = block.replace(/^## [^\n]+\n/, '');
+    body = body.replace(/\n---\s*(\n# PART[\s\S]*)?$/i, '').trim();
 
     return {
       lessonNum,
       title: fullTitle,
-      content: content || `${fullTitle}: see the Calculator project lesson notes.`,
+      content: body || `${fullTitle}: see the Calculator project lesson notes.`,
     };
   });
 };

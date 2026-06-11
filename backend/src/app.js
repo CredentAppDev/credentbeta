@@ -39,6 +39,7 @@ const devicePushRoutes = require('./routes/devicePushRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const betaRoutes = require('./routes/betaRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
+const espRoutes = require('./routes/espRoutes');
 
 const app = express();
 
@@ -176,6 +177,7 @@ app.use('/api/devices', devicePushRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/beta', betaRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/esp', espRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────
 // Verifies BOTH the web server and the database. A lightweight `SELECT 1`
