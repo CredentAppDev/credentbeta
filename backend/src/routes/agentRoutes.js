@@ -364,7 +364,13 @@ router.get('/students', async (req, res) => {
               COALESCE(st.class_name, '') AS class_name,
               st.passkey,
               st.is_active,
-              st.created_at
+              st.created_at,
+              -- Self-service profile complete? (student fills these themselves)
+              (st.date_of_birth IS NOT NULL
+                AND COALESCE(st.gender, '') <> ''
+                AND COALESCE(st.guardian_name, '') <> ''
+                AND COALESCE(st.guardian_phone, '') <> ''
+                AND COALESCE(st.address, '') <> '') AS profile_completed
        FROM students st
        LEFT JOIN schools sc ON sc.id = st.school_id
        WHERE st.is_active = true
@@ -757,7 +763,13 @@ router.get('/teachers', async (req, res) => {
               COALESCE(t.phone_number, '') AS phone_number,
               t.passkey,
               t.is_active,
-              t.created_at
+              t.created_at,
+              -- Self-service profile complete? (teacher fills these themselves)
+              (t.date_of_birth IS NOT NULL
+                AND COALESCE(t.gender, '') <> ''
+                AND COALESCE(t.qualification, '') <> ''
+                AND COALESCE(t.subjects, '') <> ''
+                AND COALESCE(t.phone_number, '') <> '') AS profile_completed
        FROM teachers t
        WHERE t.is_active = true
        ORDER BY t.created_at DESC`

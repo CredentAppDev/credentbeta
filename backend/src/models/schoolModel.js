@@ -624,9 +624,22 @@ const findStudentByDeviceToken = async (deviceToken) => {
   return result.rows[0];
 };
 
+// A student profile counts as "complete" once they've filled the key personal
+// fields themselves (the agent only creates the account + assigns class/group).
+// Computed in SQL so the agent list shows Complete/Incomplete without pulling
+// every personal field to the client.
+const STUDENT_COMPLETE_SQL = `(
+  date_of_birth IS NOT NULL
+  AND COALESCE(gender, '') <> ''
+  AND COALESCE(guardian_name, '') <> ''
+  AND COALESCE(guardian_phone, '') <> ''
+  AND COALESCE(address, '') <> ''
+)`;
+
 const getStudentsBySchool = async (schoolId) => {
   const result = await pool.query(
-    `SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url, is_active, created_at
+    `SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url, is_active, created_at,
+            ${STUDENT_COMPLETE_SQL} AS profile_completed
      FROM students
      WHERE school_id = $1
      ORDER BY full_name`,
@@ -638,7 +651,8 @@ const getStudentsBySchool = async (schoolId) => {
 const getStudentsBySchoolAndClass = async (schoolId, className, semester = null) => {
   const values = [schoolId, className];
   let query = `
-    SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url
+    SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url,
+           ${STUDENT_COMPLETE_SQL} AS profile_completed
     FROM students
     WHERE school_id = $1
       AND class_name = $2
@@ -825,9 +839,20 @@ const updateTeacherLastActive = async (teacherId) => {
   );
 };
 
+// A teacher profile is "complete" once they've filled their own key personal /
+// professional fields. Computed in SQL for the agent list.
+const TEACHER_COMPLETE_SQL = `(
+  date_of_birth IS NOT NULL
+  AND COALESCE(gender, '') <> ''
+  AND COALESCE(qualification, '') <> ''
+  AND COALESCE(subjects, '') <> ''
+  AND COALESCE(phone_number, '') <> ''
+)`;
+
 const getAllTeachers = async () => {
   const result = await pool.query(
-    `SELECT id, teacher_id, full_name, email, phone_number, profile_picture_url, is_available, is_active, created_at
+    `SELECT id, teacher_id, full_name, email, phone_number, profile_picture_url, is_available, is_active, created_at,
+            ${TEACHER_COMPLETE_SQL} AS profile_completed
      FROM teachers
      ORDER BY full_name`
   );
