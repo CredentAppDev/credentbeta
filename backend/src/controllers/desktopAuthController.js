@@ -7,12 +7,43 @@ const { findUserByPasskeyOnly } = require('../models/userModel');
 
 const generateCode = () => String(Math.floor(10000 + Math.random() * 90000));
 
-const generateAccessToken = (user) =>
-  jwt.sign(
+const generateAccessToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is missing in the server environment');
+  }
+
+  return jwt.sign(
     { id: user.id, email: user.email || '', role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
+};
+
+const isDatabaseError = (err) => {
+  const message = String(err?.message || '');
+  return /compute time quota|database|postgres|pg|connection|timeout|ECONN|ENOTFOUND|ETIMEDOUT/i.test(message);
+};
+
+const isAuthConfigError = (err) => {
+  const message = String(err?.message || '');
+  return /JWT_SECRET|secretOrPrivateKey/i.test(message);
+};
+
+const sendLoginError = (res, err) => {
+  if (isDatabaseError(err)) {
+    return res.status(503).json({
+      message: 'Database unavailable. Check Neon quota and DATABASE_URL in Render.',
+    });
+  }
+
+  if (isAuthConfigError(err)) {
+    return res.status(503).json({
+      message: 'Server auth config missing. Set JWT_SECRET in Render.',
+    });
+  }
+
+  return res.status(500).json({ message: 'Server error' });
+};
 
 const generateDeviceToken = () => crypto.randomBytes(32).toString('hex');
 
@@ -117,7 +148,7 @@ const initiate = async (req, res) => {
     });
   } catch (err) {
     console.error('Desktop initiate error:', err.message);
-    res.status(500).json({ message: 'Server error' });
+    sendLoginError(res, err);
   }
 };
 
@@ -175,7 +206,7 @@ const verify = async (req, res) => {
     });
   } catch (err) {
     console.error('Desktop verify error:', err.message);
-    res.status(500).json({ message: 'Server error' });
+    sendLoginError(res, err);
   }
 };
 
