@@ -364,7 +364,13 @@ router.get('/students', async (req, res) => {
               COALESCE(st.class_name, '') AS class_name,
               st.passkey,
               st.is_active,
-              st.created_at
+              st.created_at,
+              -- Self-service profile complete? (student fills these themselves)
+              (st.date_of_birth IS NOT NULL
+                AND COALESCE(st.gender, '') <> ''
+                AND COALESCE(st.guardian_name, '') <> ''
+                AND COALESCE(st.guardian_phone, '') <> ''
+                AND COALESCE(st.address, '') <> '') AS profile_completed
        FROM students st
        LEFT JOIN schools sc ON sc.id = st.school_id
        WHERE st.is_active = true
@@ -440,8 +446,18 @@ router.get('/students/:studentId', async (req, res) => {
               st.full_name,
               st.student_id,
               COALESCE(st.email, '') AS email,
+              COALESCE(st.phone_number, '') AS phone_number,
               COALESCE(st.grade, '') AS grade,
               COALESCE(st.class_name, '') AS class_name,
+              COALESCE(st.semester, '') AS semester,
+              to_char(st.date_of_birth, 'YYYY-MM-DD') AS date_of_birth,
+              COALESCE(st.gender, '') AS gender,
+              COALESCE(st.address, '') AS address,
+              COALESCE(st.bio, '') AS bio,
+              COALESCE(st.guardian_name, '') AS guardian_name,
+              COALESCE(st.guardian_phone, '') AS guardian_phone,
+              COALESCE(st.hobbies, '') AS hobbies,
+              st.profile_picture_url,
               st.passkey,
               st.school_id,
               sc.name AS school_name,
@@ -747,7 +763,13 @@ router.get('/teachers', async (req, res) => {
               COALESCE(t.phone_number, '') AS phone_number,
               t.passkey,
               t.is_active,
-              t.created_at
+              t.created_at,
+              -- Self-service profile complete? (teacher fills these themselves)
+              (t.date_of_birth IS NOT NULL
+                AND COALESCE(t.gender, '') <> ''
+                AND COALESCE(t.qualification, '') <> ''
+                AND COALESCE(t.subjects, '') <> ''
+                AND COALESCE(t.phone_number, '') <> '') AS profile_completed
        FROM teachers t
        WHERE t.is_active = true
        ORDER BY t.created_at DESC`
@@ -819,6 +841,16 @@ router.get('/teachers/:teacherId', async (req, res) => {
               t.teacher_id,
               COALESCE(t.email, '') AS email,
               COALESCE(t.phone_number, '') AS phone_number,
+              COALESCE(t.account_number, '') AS account_number,
+              COALESCE(t.certificate, '') AS certificate,
+              to_char(t.date_of_birth, 'YYYY-MM-DD') AS date_of_birth,
+              COALESCE(t.gender, '') AS gender,
+              COALESCE(t.address, '') AS address,
+              COALESCE(t.bio, '') AS bio,
+              COALESCE(t.qualification, '') AS qualification,
+              COALESCE(t.subjects, '') AS subjects,
+              t.years_of_experience,
+              t.profile_picture_url,
               t.passkey,
               t.created_at
        FROM teachers t

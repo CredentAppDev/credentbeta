@@ -17,7 +17,7 @@ Total time: ~45 minutes once your Oracle account is provisioned. Cost: $0.
 
 ## 1. Create the Neon Postgres database (5 min)
 
-Free, always-on, 0.5 GB storage. Plenty for the beta.
+Free plan with a monthly compute allowance and 0.5 GB storage. Plenty for the beta if DB-aware pings are not run every few minutes.
 
 1. Go to **https://neon.tech** → Sign in with GitHub
 2. Click **Create project**
@@ -329,7 +329,7 @@ const pool = require('./src/config/db');
 "
 ```
 
-**Uptime monitoring:** see `deploy/UPTIME_MONITORING.md` for free UptimeRobot setup (3 min, pings `/api/health` every 5 min, emails you on outage).
+**Uptime monitoring:** see `deploy/UPTIME_MONITORING.md` for free UptimeRobot setup. Use `/api/live` for 5-minute keep-warm pings; reserve `/api/health` for DB-aware checks.
 
 ---
 
@@ -338,7 +338,7 @@ const pool = require('./src/config/db');
 - **No code signing** — testers will see "unrecognized app" warnings. Acceptable for 10–50 person beta.
 - **No CI/CD** — every deploy is a manual `git pull` + `bash deploy/start.sh`. Fine for beta velocity.
 - **No automated backups of Neon** — Neon does point-in-time recovery automatically on the paid tier; for free tier, export periodically with `pg_dump`.
-- **No monitoring / alerting** — for beta, eyeball `pm2 logs` and check `/api/health` manually. UptimeRobot free tier can ping the health endpoint every 5 min if you want notifications.
+- **No monitoring / alerting** — for beta, eyeball `pm2 logs` and check `/api/health` manually. UptimeRobot free tier can ping `/api/live` every 5 min if you want process-down notifications without burning Neon compute.
 
 ---
 
