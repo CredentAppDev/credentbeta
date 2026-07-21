@@ -566,40 +566,60 @@ const updateStudentProfilePicture = async (studentDbId, profilePictureUrl) => {
   return result.rows[0];
 };
 
+// ── Profile updates are PATCHES, not overwrites ─────────────────────────────
+//
+// These used to be one fixed UPDATE that wrote EVERY column, with each value
+// defaulting through `data.x || null`. Any field a caller didn't send became
+// NULL — so a client posting a partial profile silently wiped the fields it
+// left out (guardian details, hobbies, address, bio, even class_name, which
+// then knocked the student off their own group's leaderboard). That is the
+// "profile sometimes gets cleared" report.
+//
+// Now only the fields actually PRESENT in `data` appear in the SET clause:
+//   • key absent   → column untouched
+//   • key === ''   → column cleared (the user really did empty the box)
+//   • key has text → column updated
+//
+// buildPatch returns null when there is nothing to write, so a no-op request
+// can't blank `updated_at` either.
+const buildPatch = (data, columns, transforms = {}) => {
+  const sets = [];
+  const values = [];
+  for (const col of columns) {
+    if (!Object.prototype.hasOwnProperty.call(data, col)) continue;
+    const raw = data[col];
+    if (raw === undefined) continue;              // treat as "not sent"
+    const value = transforms[col] ? transforms[col](raw) : (raw === '' ? null : raw);
+    values.push(value);
+    sets.push(`${col} = $${values.length}`);
+  }
+  return sets.length ? { sets, values } : null;
+};
+
+const STUDENT_PROFILE_COLUMNS = [
+  'full_name', 'phone_number', 'student_id', 'class_name', 'grade',
+  'date_of_birth', 'gender', 'address', 'bio',
+  'guardian_name', 'guardian_phone', 'hobbies',
+];
+
 const updateStudentProfile = async (studentDbId, data) => {
+  const patch = buildPatch(data, STUDENT_PROFILE_COLUMNS, {
+    class_name: (v) => canonicalClassName(v),
+  });
+  if (!patch) {
+    // Nothing to change — return the row as-is rather than touching it.
+    const current = await pool.query(
+      'SELECT * FROM students WHERE id = $1 AND is_active = true', [studentDbId]);
+    return current.rows[0];
+  }
+  patch.values.push(studentDbId);
   const result = await pool.query(
     `UPDATE students
-     SET full_name = $1,
-         phone_number = $2,
-         student_id = $3,
-         class_name = $4,
-         grade = $5,
-         date_of_birth = $6,
-         gender = $7,
-         address = $8,
-         bio = $9,
-         guardian_name = $10,
-         guardian_phone = $11,
-         hobbies = $12,
-         updated_at = NOW()
-     WHERE id = $13
-       AND is_active = true
-     RETURNING *`,
-    [
-      data.full_name,
-      data.phone_number || null,
-      data.student_id,
-      canonicalClassName(data.class_name),
-      data.grade || null,
-      data.date_of_birth || null,
-      data.gender || null,
-      data.address || null,
-      data.bio || null,
-      data.guardian_name || null,
-      data.guardian_phone || null,
-      data.hobbies || null,
-      studentDbId,
-    ]
+        SET ${patch.sets.join(', ')}, updated_at = NOW()
+      WHERE id = $${patch.values.length}
+        AND is_active = true
+      RETURNING *`,
+    patch.values
   );
   return result.rows[0];
 };
@@ -770,44 +790,35 @@ const updateTeacherProfilePicture = async (teacherDbId, profilePictureUrl) => {
   return result.rows[0];
 };
 
+const TEACHER_PROFILE_COLUMNS = [
+  'full_name', 'phone_number', 'teacher_id', 'account_number', 'certificate',
+  'date_of_birth', 'gender', 'address', 'bio',
+  'qualification', 'subjects', 'years_of_experience',
+];
+
+// Same patch semantics as the student version above — an omitted field is left
+// alone instead of being nulled out.
 const updateTeacherProfile = async (teacherDbId, data) => {
-  const teacherId = normalizeTeacherId(data.teacher_id);
-  const yearsExperience = Number.isFinite(Number(data.years_of_experience)) && String(data.years_of_experience).trim() !== ''
-    ? Math.max(0, Math.trunc(Number(data.years_of_experience)))
-    : null;
+  const patch = buildPatch(data, TEACHER_PROFILE_COLUMNS, {
+    teacher_id: (v) => normalizeTeacherId(v) || null,
+    years_of_experience: (v) =>
+      (Number.isFinite(Number(v)) && String(v).trim() !== ''
+        ? Math.max(0, Math.trunc(Number(v)))
+        : null),
+  });
+  if (!patch) {
+    const current = await pool.query(
+      'SELECT * FROM teachers WHERE id = $1 AND is_active = true', [teacherDbId]);
+    return current.rows[0];
+  }
+  patch.values.push(teacherDbId);
   const result = await pool.query(
     `UPDATE teachers
-     SET full_name = $1,
-         phone_number = $2,
-         teacher_id = $3,
-         account_number = $4,
-         certificate = $5,
-         date_of_birth = $6,
-         gender = $7,
-         address = $8,
-         bio = $9,
-         qualification = $10,
-         subjects = $11,
-         years_of_experience = $12,
-         updated_at = NOW()
-     WHERE id = $13
-       AND is_active = true
-     RETURNING *`,
-    [
-      data.full_name,
-      data.phone_number || null,
-      teacherId,
-      data.account_number || null,
-      data.certificate || null,
-      data.date_of_birth || null,
-      data.gender || null,
-      data.address || null,
-      data.bio || null,
-      data.qualification || null,
-      data.subjects || null,
-      yearsExperience,
-      teacherDbId,
-    ]
+        SET ${patch.sets.join(', ')}, updated_at = NOW()
+      WHERE id = $${patch.values.length}
+        AND is_active = true
+      RETURNING *`,
+    patch.values
   );
   return result.rows[0];
 };
