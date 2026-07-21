@@ -1,12 +1,17 @@
-# Pocket-Money Budget Tracker Lessons: JHS 2 Edition
+# Budget Tracker Lessons: JHS 2 Edition (Graphics Version)
 
-Build your own **Pocket-Money Budget Tracker** — a program that records money you
-get and money you spend, lists every entry, shows your total balance, and warns you
-if you're running low. A real, useful tool you'll actually want to use!
+Build your very own **Pocket-Money Budget Tracker** — but this time you can SEE
+your money! A real dashboard window shows your **balance in big green (or red!)
+letters**, a **live bar chart** where each spending category grows its own
+coloured bar as you log money, and a **savings goal progress bar** that fills up
+as you save. It gives you honest advice about your habits, and **saves your data
+to a file** so your records are still there the next time you open it.
 
-This project is for **JHS 2**, and it assumes you have **never coded before**. We
-start from absolutely zero and explain every line in simple words, so you truly
-understand it — not just copy it. By the end you'll have built a real, working app.
+This project is for **JHS 2** students. It uses Python with **tkinter**, the
+drawing kit that comes free inside Python — nothing to install. You start from
+absolutely zero — no experience needed. Every single line of code is explained in
+simple words so you truly understand it, not just copy it. By the end you will
+have a real money tool you can actually use for your own pocket money.
 
 ---
 
@@ -14,12 +19,15 @@ understand it — not just copy it. By the end you'll have built a real, working
 
 Each lesson has the same shape:
 
-- **Big Idea** — the one thing this lesson teaches.
-- **Kid Meaning** — the idea in very simple words.
+- **Big Idea** — the one core thing this lesson teaches.
+- **Kid Meaning** — the same idea explained with a real-life analogy.
 - **Tracker Connection** — how this fits our Budget Tracker.
-- **The Code** — the actual Python to type.
+- **The Code** — the actual Python to type (it draws something you can see!).
+- **What You'll See** — the picture or change that appears in the window.
 - **Line by Line** — every important line explained.
-- **Your Turn** — a small task YOU do to practise (the most important part!).
+- **Do It in VS Code 🛠️** — the exact steps to type, save, and run it.
+- **Your Turn** — a small task YOU do to practise (this is the most important part!).
+- **📸 Show Emrys** — send a screenshot of your window so Emrys can check it.
 - **Check Your Brain** — quick questions to make sure it stuck.
 - **More Examples** — extra runnable programs that stretch the idea further.
 - **Common Mistakes** — the real errors beginners hit, with the exact fix.
@@ -28,1871 +36,2732 @@ Each lesson has the same shape:
 ### Your Workshop Is VS Code 🛠️
 
 All code in this course is typed, saved, and run in **Visual Studio Code
-(VS Code)** with the Python extension — the same editor professional
-programmers use every day. The rhythm for every piece of code is always:
+(VS Code)** with the Python extension — the same editor professional programmers
+use every day. The rhythm for every piece of code is always:
 
 1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
 2. Type the code in the editor.
 3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
-4. Run: press the **▶ Run** button at the top-right, and read the result in
-   the **TERMINAL** panel at the bottom.
+4. Run: press the **▶ Run** button at the top-right.
+5. A **window pops up** showing your dashboard. Use it! (When you're done, click
+   the window's **X** to close it.)
 
-You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
-your workbench.
+Because our programs draw pictures, the exciting part is the **window**, not the
+terminal. But keep an eye on the terminal too — if something goes wrong, Python
+prints a red error message there, and errors are just clues.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is your
+workbench.
 
 ### Show Emrys Your Work 📸
 
-After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
-printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
-celebrate what's right, and help fix anything that isn't. If something errored,
-paste the red error message too — errors are clues, and Emrys reads them like
-a detective. No skipping this step: real coders always show their output.
+After EVERY "Your Turn" task, show Emrys the proof: **take a screenshot of the
+window your program drew** and send it to Emrys. Emrys will check it, celebrate
+what's right, and help fix anything that isn't. If something errored, paste the
+red error message from the terminal too — errors are clues, and Emrys reads them
+like a detective. No skipping this step: real coders always show their output.
 
-Teach one lesson at a time: idea, code, then type and run it. **Always do "Your
-Turn."** Understanding one lesson fully beats copying five.
+Teach one lesson at a time. Explain the idea first, then the code, then let
+students type it and run it themselves. **Always do "Your Turn" — that is where
+the learning happens.** Do not rush; it is better to truly understand one lesson
+than to copy five.
 
-**This course takes about 4 months** (about two lessons a week), in three parts:
+**This course takes about 4 months** (roughly two lessons a week). It has three
+parts:
 
-- **Part 1 — First Steps (Lessons 1–8):** what code is, printing, variables, input,
-  numbers, and f-strings, from zero.
-- **Part 2 — Choices, Loops & Data (Lessons 9–16):** decisions, loops, lists,
-  dictionaries, and functions.
-- **Part 3 — Building the Tracker (Lessons 17–24):** assemble the real tracker with
-  a menu, totals, and warnings, then polish.
+- **Part 1 — First Pictures (Lessons 1–8):** open a window, draw the dashboard,
+  handle money with decimals, and take amounts from the user.
+- **Part 2 — Tools and Decisions (Lessons 9–16):** warnings with `if`, bars drawn
+  with loops, lists of records, and dictionaries.
+- **Part 3 — Building the Tracker (Lessons 17–24):** the transaction list, the
+  live bar chart, the savings goal, saving to a file, and advice.
 
 Works on **Windows, Mac, and Linux**.
 
 ---
 
-# PART 1 — FIRST STEPS
+# PART 1 — FIRST PICTURES
 
----
-
-## Lesson 1: What Is Code? Saying Hello
+## Lesson 1: What Is Code? Drawing the Dashboard
 
 ### Big Idea
-Code is a list of instructions we give the computer, one line at a time.
+Code is a list of instructions we give the computer, one line at a time — and
+those instructions can draw a money dashboard.
 
 ### Kid Meaning
-A recipe tells a cook each step. Code tells the computer each step.
+A recipe tells a cook what to do step by step. Code tells the computer what to do
+step by step. The computer does EXACTLY what you say — nothing more, nothing less.
+Today we tell it: "Show me my money."
 
 ### Tracker Connection
-Our tracker "shows" your balance and menus — it all starts with `print`.
+Our whole tracker is a dashboard window. Before we can track anything, we need
+the dashboard.
 
 ### The Code
 ```python
-print("Welcome to your Money Tracker!")
-print("Let's keep your pocket money in order.")
+import tkinter as tk
+
+root = tk.Tk()
+root.title("My Money Budget Tracker")
+canvas = tk.Canvas(root, width=720, height=400, bg="#0e1b2a")
+canvas.pack()
+
+canvas.create_text(360, 50, text="MY MONEY BUDGET TRACKER", fill="#ffd54a",
+                   font=("Arial", 20, "bold"))
+canvas.create_text(360, 130, text="Balance: GHS 0.00", fill="#7CFC00",
+                   font=("Arial", 28, "bold"))
+canvas.create_text(360, 180, text="Let's start tracking!", fill="#8fa0d8",
+                   font=("Arial", 13))
+
+root.mainloop()
 ```
+
+### What You'll See
+A dark blue dashboard window with a gold title, a big **green balance of GHS
+0.00**, and a friendly line underneath. Your money app has a face!
 
 ### Line by Line
-- `print(...)` shows whatever is inside on the screen.
-- Text in quotes `" "` is shown exactly.
-- Each `print` is its own line.
+- `import tkinter as tk` — brings in Python's drawing kit and gives it the short
+  nickname `tk` so we type less. Think of it as opening your box of crayons.
+- `root = tk.Tk()` — makes the window itself. `root` is the name we use to talk
+  to that window.
+- `root.title(...)` — writes the title in the window's bar.
+- `canvas = tk.Canvas(root, width=720, height=400, bg="#0e1b2a")` — puts a dark
+  drawing sheet, 720 wide and 400 tall, inside the window. `canvas` is our paper.
+- `canvas.pack()` — actually places the canvas into the window (without this, the
+  paper stays hidden).
+- `create_text(360, 50, ...)` — writes words centred 360 across and 50 down.
+- `font=("Arial", 20, "bold")` — the font name, the size, and the style.
+- `#0e1b2a` — a colour code. The `#` means "a colour written in computer code."
+  You can also write plain names like `"navy"`.
+- `root.mainloop()` — the magic word that keeps the window open and waiting.
+  Without it, the window would blink and vanish.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `dashboard.py` → save it on your Desktop.
+2. Type the code above yourself (don't copy-paste — typing teaches your fingers).
+3. Save: **Ctrl+S** (make the white "unsaved" dot on the tab disappear).
+4. Press the **▶ Run** button. Your dashboard should pop up!
+5. Look at it. Then close it by clicking the **X**.
 
 ### Your Turn
-1. Print your own two-line welcome to a money app.
-2. Add a line with an emoji, like `print("Saving is smart 💰")`.
-3. Run it.
+1. Change the title to your own, like `"AMA'S MONEY APP"`.
+2. Change the balance to a different amount and colour.
+3. Add a line showing today's date as text.
+4. BEFORE you run: predict what will be different. Then run. Were you right?
+
+### 📸 Show Emrys
+Take a screenshot of your dashboard with YOUR title and **send it to Emrys**.
+Say: "Lesson 1 done!" Emrys will give you your first ✅ of the course.
 
 ### Check Your Brain
-- What does `print` do?
-- What do the quotes mark?
+- What does `import tkinter as tk` bring us?
+- Which line makes the window actually appear and stay open?
+- What do the two numbers in `create_text(360, 50, ...)` mean?
+- What do the three parts of `font=("Arial", 20, "bold")` control?
 
 ### More Examples
-Predict, then run — that habit pays off all course:
+A simpler money screen:
 
 ```python
-print("Money in. Money out.")
-print("Know where every cedi goes. 💰")
-```
-
-Order is everything — a receipt prints top to bottom:
-
-```python
-print("RECEIPT")
-print("Waakye ............ 12")
-print("Pure water ......... 1")
-print("TOTAL ............. 13")
-```
-
-`print()` alone gives breathing room:
-
-```python
-print("MONEY TRACKER")
-print()
-print("Your financial journey starts now.")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=250, bg="black")
+canvas.pack()
+canvas.create_text(200, 100, text="GHS 50.00", fill="lime",
+                   font=("Arial", 36, "bold"))
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **No quotes:** `print(Money)` → `NameError: name 'Money' is not defined`. Words need quotes: `print("Money")`.
-- **Unclosed bracket:** `print("Hi"` → `SyntaxError: '(' was never closed`.
-- **Capital P:** `Print(...)` → `NameError`. Python knows only lowercase `print`.
+- **Forgetting `root.mainloop()`:** the window flashes and disappears. **Fix:** add
+  it as the LAST line.
+- **Forgetting `canvas.pack()`:** the window opens but is empty. **Fix:** add
+  `canvas.pack()` after making the canvas.
+- **Capital letters wrong:** `Import` or `canvas.Create_text()` → an error. Python
+  is picky — copy the spelling exactly.
 
 ### Level Up 🚀
-Print your own 6-line bank statement mock-up: a header, three made-up entries with dots lining up the amounts (like the receipt above), and a total. Making text LINE UP neatly is a real skill — banks pay designers for exactly this.
+Add a horizontal divider line under the balance using
+`canvas.create_line(60, 210, 660, 210, fill="#2a4a6a", width=2)`.
 
 ---
 
-## Lesson 2: How to Run Python
+## Lesson 2: How to Run Python (and the Screen Map)
 
 ### Big Idea
-We write code in a `.py` file and run it.
+We type code in a file, save it, and then "run" it — and every drawing lands at
+a spot described by two numbers.
 
 ### Kid Meaning
-Writing is like penning a letter; running is reading it aloud.
+Writing code is like writing a letter. Running it is like reading the letter out
+loud — that is when the window pops up. And every shape needs an address on the
+screen: how far across, and how far down.
 
 ### Tracker Connection
-You'll run your tracker again and again as you build it.
+Our bar chart has five bars stacked neatly under each other. Getting them evenly
+spaced means understanding the screen map.
 
 ### The Code
 ```python
-print("If you can see this, Python works!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=600, height=400, bg="white")
+canvas.pack()
+
+canvas.create_rectangle(120, 100, 400, 130, fill="#ffd54a")
+canvas.create_text(60, 115, text="Food", anchor="e", fill="black")
+canvas.create_text(420, 115, text="GHS 40", anchor="w", fill="black")
+
+root.mainloop()
 ```
+
+### What You'll See
+A white window with a **gold bar**, the label "Food" to its left, and "GHS 40" to
+its right — your first bar chart row!
 
 ### Line by Line
-- Save with a `.py` name, e.g. `tracker.py`.
-- Run from the editor's Run button, or type `python tracker.py`.
+- `create_rectangle(120, 100, 400, 130, ...)` — the first two numbers `(120, 100)`
+  are the **top-left corner**, the next two `(400, 130)` are the **bottom-right
+  corner**. That makes a bar 280 long and 30 thick.
+- `anchor="e"` — anchors the text by its **east (right) edge**, so labels END at
+  x=60 and line up neatly.
+- `anchor="w"` — anchors by the **west (left) edge**, so amounts START at x=420.
 
-### Your Turn
-1. Save `practice.py` with one print line and run it.
-2. Show a friend.
+### The Screen Map 🗺️ — where do the numbers point?
+Every spot on the canvas has two numbers: **x** (how far ACROSS) and **y** (how
+far DOWN). Here is the big surprise that trips up almost everyone:
 
-### Check Your Brain
-- What ending must a Python file have?
-- What does "running" mean?
+- The corner **(0, 0) is the TOP-LEFT**, not the middle and not the bottom.
+- **x** gets bigger as you go **right** → (like normal).
+- **y** gets bigger as you go **DOWN** ↓ — this is BACKWARDS from maths class,
+  where up is the big direction! On the screen, **down is the big direction.**
 
-### More Examples
-Small files, complete programs:
+Picture the canvas like reading a book: you start at the top-left and your eyes
+travel right and then down. So:
 
-```python
-# file: motto.py
-print("Save first. Spend second. 💪")
+```text
+(0,0) ─────────► x gets bigger →
+  │  •(100,50)  ← a bit right, near the top
+  │
+  ▼            •(300,200) ← the middle of a 600×400 canvas
+y gets
+bigger        •(50,350) ← near the bottom-left
+  ↓
 ```
 
-`#` comments are your engineering notebook — the computer skips them, future-you thanks you:
+Remember this and your bars stack exactly where you expect. Forget it and your
+chart grows upside down — that's not a bug, it's just the screen map. (In our
+chart each new bar uses a BIGGER y, so it sits LOWER than the one before.)
+
+### Slow Motion 🔬 — writing vs running
+There are TWO different moments, and mixing them up confuses every beginner:
+
+- **Writing** = typing the code into the editor. Nothing happens yet.
+- **Saving** = Ctrl+S. Your words are safely on the disk. STILL nothing happens.
+- **Running** = pressing **▶**. NOW Python reads your file and the window pops up.
+
+The biggest trap: changing the code and running WITHOUT saving — the computer runs
+the OLD version and you wonder why nothing changed. Burn this rhythm into your
+fingers: **type → Ctrl+S → ▶ → look at the window.** Every time. Forever.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `bar_map.py` → save on your Desktop.
+2. Type the code above.
+3. **Ctrl+S**, then press **▶ Run**.
+4. Change the bar's end to `create_rectangle(120, 100, 250, 130, ...)`. Predict
+   what happens BEFORE you run. (It gets shorter — less money!)
+
+### Your Turn
+1. Draw a SECOND bar below the first (add 45 to both y numbers).
+2. Give it a different colour and label.
+3. Draw a dot at `(0, 0)` — where does it land? (Try
+   `create_oval(0, 0, 20, 20, fill="red")`.)
+
+### 📸 Show Emrys
+Screenshot your window with two labelled bars. Tell Emrys which number you changed
+to move the second bar down.
+
+### Check Your Brain
+- Where is the point `(0, 0)` on the canvas?
+- Which direction does **y** get bigger — up or down?
+- What do `anchor="e"` and `anchor="w"` do?
+- Why must you SAVE before you run?
+
+### More Examples
+Three bars of different lengths:
 
 ```python
-# Budget Tracker project - day 1
-# Author: Yaa, JHS 2
-print("Setup complete.")   # confirms the file runs
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=500, height=250, bg="white")
+canvas.pack()
+canvas.create_rectangle(60, 40, 300, 70, fill="#ffd54a")
+canvas.create_rectangle(60, 100, 200, 130, fill="#7db4ff")
+canvas.create_rectangle(60, 160, 420, 190, fill="#ff8fd8")
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **`.txt` instead of `.py`:** the Run button needs `.py` to know it's Python.
-- **Run before save:** old output, new confusion. Ctrl+S → Run, in that order, always.
-- **Typing in the output panel:** code only counts in the editor pane.
+- **Thinking up is bigger:** using a big y to go "up" sends the bar DOWN. **Fix:**
+  smaller y = higher.
+- **Corners backwards:** if the second corner is smaller than the first, the bar
+  can vanish. **Fix:** first pair = top-left, second pair = bottom-right.
 
 ### Level Up 🚀
-Create `money_quotes.py` with three wise money sayings (one can be your grandmother's!). Run it, swap the order of quotes, run again. The edit→save→run loop you're practising is the exact daily rhythm of professional software work.
+Draw five bars in a loop-free way (just typing them) — then note how repetitive it
+is. Lesson 12 will fix that with a loop!
 
 ---
 
 ## Lesson 3: Variables — Boxes That Remember
 
 ### Big Idea
-A variable is a named box that stores a value for later.
+A variable is a named box that remembers a value so we can use it again.
 
 ### Kid Meaning
-A box with a name sticker; say the name and the computer uses what's inside.
+A box with a label. You write `balance = 50` and now the box called `balance`
+holds 50. Whenever you say `balance`, the computer looks in the box.
 
 ### Tracker Connection
-The tracker remembers your BALANCE in a variable.
+Our tracker must remember income, spending, the balance, and the savings goal.
+Variables are how the computer remembers.
 
 ### The Code
 ```python
-balance = 0
-owner = "Yaa"
-print(owner)
-print(balance)
+import tkinter as tk
+
+WIDTH = 720
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=340, bg="#0e1b2a")
+canvas.pack()
+
+income = 120.00
+spent = 45.50
+balance = income - spent
+goal = 100.00
+
+canvas.create_text(WIDTH/2, 50, text="MY MONEY", fill="#ffd54a",
+                   font=("Arial", 20, "bold"))
+canvas.create_text(WIDTH/2, 120, text=balance, fill="#7CFC00",
+                   font=("Arial", 30, "bold"))
+canvas.create_text(WIDTH/2, 180, text=income, fill="white",
+                   font=("Arial", 14))
+canvas.create_text(WIDTH/2, 215, text=spent, fill="#ff6b6b",
+                   font=("Arial", 14))
+canvas.create_text(WIDTH/2, 265, text=goal, fill="#8fa0d8",
+                   font=("Arial", 14))
+
+root.mainloop()
 ```
 
+### What You'll See
+The dashboard showing **74.5** as the balance, with income, spending, and the goal
+underneath — all worked out from boxes. (We'll make it show "GHS 74.50" properly
+in Lesson 7!)
+
 ### Line by Line
-- `balance = 0` — a box holding the number 0.
-- `owner = "Yaa"` — a box holding a word (words need quotes).
-- `print(balance)` shows what's inside (0).
+- `income = 120.00` — a box holding money. The `.00` makes it a **decimal number**
+  (Python calls these **floats**), which is what money needs.
+- `spent = 45.50` — you can't write half a cedi with a whole number, so floats
+  matter here.
+- `balance = income - spent` — a box worked out FROM other boxes. Change either
+  one and the balance follows automatically.
+- `text=balance` — instead of typing a number, we hand `create_text` the box, and
+  it shows whatever is inside.
+- `goal = 100.00` — how much we're trying to save.
+
+### Do It in VS Code 🛠️
+1. New file `money_vars.py`. Type the code.
+2. Save and run — see 74.5.
+3. Change `spent = 45.50` to `spent = 200.00`. Save, run. The balance went
+   NEGATIVE — you overspent!
+4. Change `income` and watch the balance recalculate itself.
 
 ### Your Turn
-1. Make a `balance` variable set to 50 and print it.
-2. Make an `owner` variable with your name and print it.
-3. Change `balance` to 80 and print it.
+1. Add a `saved_last_month = 30.00` box and show it.
+2. Set numbers so the balance is exactly 0.
+3. Predict the balance when income is 80 and spent is 25.5. (54.5.)
+
+### 📸 Show Emrys
+Send a screenshot with YOUR numbers, including one where the balance goes
+negative. Tell Emrys which variables you changed.
 
 ### Check Your Brain
 - What is a variable?
-- Why does `"Yaa"` have quotes but `0` does not?
+- What is a **float**, and why does money need one?
+- Why is `balance` worked out instead of typed?
+- What happens to `balance` when you change `spent`?
 
 ### More Examples
-A tracker's full opening state:
+Floats in the terminal:
 
 ```python
-owner = "Yaa"
-balance = 0
-currency = "cedis"
-weekly_goal = 20
-print(owner)
-print(balance)
-print(weekly_goal)
-```
-
-Refilling — balances change constantly:
-
-```python
-balance = 50
-print(balance)    # 50
-balance = 35
-print(balance)    # 35 - new value replaced the old
-```
-
-Copying a box — snapshots for comparing later:
-
-```python
-balance = 80
-balance_last_week = balance
-print(balance_last_week)    # 80
+income = 120.00
+spent = 45.50
+print(income - spent)     # 74.5
 ```
 
 ### Common Mistakes
-- **Use before create:** `print(balance)` with no `balance = ...` above → `NameError: name 'balance' is not defined`.
-- **Spelling drift:** `weekly_goal` then `weeklygoal` → `NameError`. One spelling, everywhere.
-- **Quoted amounts:** `balance = "50"` is text; `"50" - 20` crashes with `TypeError`. Money is numbers — no quotes.
+- **Using a box before filling it:** using `balance` before it's worked out →
+  `NameError`. **Fix:** create the box first, above where you use it.
+- **Whole numbers for money:** `spent = 45` can't hold 45 cedis 50 pesewas. **Fix:**
+  use floats like `45.50`.
 
 ### Level Up 🚀
-Model your REAL pocket money: variables for what you currently have, your weekly income, and one thing you're saving toward (name + price). Print a 4-line savings snapshot. You've just done what financial apps call "onboarding" — capturing the user's starting picture.
+Add a `left_to_goal = goal - balance` box and display it, so you can see how much
+more you need to save.
 
 ---
 
 ## Lesson 4: Numbers and Money Maths
 
 ### Big Idea
-The computer does maths fast — adding income and subtracting spending.
+Python does maths, and money maths needs decimals shown to exactly 2 places.
 
 ### Kid Meaning
-The computer is a super calculator, perfect for money.
+Money is always written with two digits after the dot: GHS 7.50, not GHS 7.5.
+Python has a neat way to force that.
 
 ### Tracker Connection
-Getting money adds to the balance; spending subtracts from it.
+Every amount on our dashboard must look like real money, and every bar's length
+comes from a division.
 
 ### The Code
+```python
+import tkinter as tk
+
+WIDTH = 720
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=340, bg="#0e1b2a")
+canvas.pack()
+
+spent = 45.5
+income = 120.0
+percent = spent / income * 100
+
+canvas.create_text(WIDTH/2, 60, text=f"Spent: GHS {spent:.2f}", fill="#ff6b6b",
+                   font=("Arial", 22, "bold"))
+canvas.create_text(WIDTH/2, 105, text=f"That is {percent:.0f}% of your income",
+                   fill="white", font=("Arial", 14))
+
+# A bar showing that percentage
+canvas.create_rectangle(120, 170, 520, 205, outline="#2a4a6a")
+canvas.create_rectangle(120, 170, 120 + 400 * percent / 100, 205,
+                        fill="#ff6b6b", outline="")
+canvas.create_text(535, 187, text=f"{percent:.0f}%", fill="white", anchor="w",
+                   font=("Arial", 12))
+
+root.mainloop()
+```
+
+### What You'll See
+"Spent: GHS 45.50" (note the **two decimal places**, even though we typed 45.5),
+"That is 38% of your income", and a red bar filled 38% of the way.
+
+### Line by Line
+- `f"GHS {spent:.2f}"` — the `:.2f` means "show this number with **2** digits after
+  the dot." So `45.5` displays as `45.50` — proper money.
+- `f"{percent:.0f}%"` — `:.0f` means **0** digits after the dot, so `37.9166` shows
+  as a clean `38`.
+- `percent = spent / income * 100` — divide, then multiply by 100. Python works
+  through `/` and `*` from left to right.
+- `120 + 400 * percent / 100` — the bar's right edge. The track is 400 long, so 38%
+  of 400 is about 152, and `120 + 152 = 272`.
+- Two rectangles: the **outline** is the empty track, the **filled** one is drawn on
+  top.
+
+### Do It in VS Code 🛠️
+1. New file `money_maths.py`. Type the code.
+2. Save, run — see the 38% bar.
+3. Change `spent = 120.0` and run. A full bar and 100% — you spent everything!
+4. Change `:.2f` to `:.0f` on the money line and see it lose the pesewas.
+
+### Your Turn
+1. Add a second bar showing what percent you SAVED (income minus spent).
+2. Print `f"{7.5:.2f}"` in the terminal and check it shows `7.50`.
+3. Predict what `f"{100/3:.2f}"` shows. (33.33.)
+
+### 📸 Show Emrys
+Screenshot your percentage bar at two different spending levels. Tell Emrys what
+`:.2f` does.
+
+### Check Your Brain
+- What does `:.2f` do to a number?
+- What is the difference between `:.2f` and `:.0f`?
+- Why must money always show 2 decimal places?
+- What sets the bar's length?
+
+### More Examples
+Formatting money in the terminal:
+
+```python
+print(f"{7.5:.2f}")       # 7.50
+print(f"{1234.5:.2f}")    # 1234.50
+print(f"{0.999:.2f}")     # 1.00  (it rounds!)
+```
+
+### Common Mistakes
+- **Dividing by zero:** `spent / 0` → `ZeroDivisionError`. **Fix:** check income
+  isn't 0 first (we do this in Lesson 23!).
+- **Ugly money:** showing `45.5` instead of `45.50` looks unprofessional. **Fix:**
+  always use `:.2f` for money.
+
+### Level Up 🚀
+Write a `money(amount)` function that returns `f"GHS {amount:.2f}"` so you never
+have to type the format again.
+
+---
+
+## Lesson 5: Counting — Updating the Balance
+
+### Big Idea
+Adding to and subtracting from a variable, then redrawing, is how a balance moves.
+
+### Kid Meaning
+`balance = balance + 10` means "take what's in the box, add ten, put it back."
+Then wipe the old number and draw the new one.
+
+### Tracker Connection
+Every income and every expense does exactly this. It's the heartbeat of the app.
+
+### The Code
+```python
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=460, height=280, bg="#0e1b2a")
+canvas.pack()
+
+balance = 0.0
+
+def show():
+    canvas.delete("bal")
+    color = "#7CFC00" if balance >= 0 else "#ff6b6b"
+    canvas.create_text(230, 110, text=f"GHS {balance:.2f}", fill=color,
+                       font=("Arial", 32, "bold"), tags="bal")
+
+def earn():
+    global balance
+    balance = balance + 10
+    show()
+
+def spend():
+    global balance
+    balance = balance - 4.5
+    show()
+
+show()
+buttons = tk.Frame(root)
+buttons.pack(pady=10)
+tk.Button(buttons, text="Earn GHS 10", command=earn).pack(side="left", padx=5)
+tk.Button(buttons, text="Spend GHS 4.50", command=spend).pack(side="left", padx=5)
+
+root.mainloop()
+```
+
+### What You'll See
+"GHS 0.00" in green. **Earn** pushes it up by 10; **Spend** pulls it down by 4.50.
+Spend enough and it turns **red** — you're in debt!
+
+### Line by Line
+- `balance = 0.0` — the box lives OUTSIDE the functions so it survives between
+  clicks.
+- `global balance` — tells Python "use the OUTSIDE box, don't make a new one
+  inside." Without this, nothing would change.
+- `balance = balance + 10` — the counting step. Read it right-to-left: work out
+  `balance + 10`, then store the answer back.
+- `balance = balance - 4.5` — the mirror image for spending.
+- `color = "#7CFC00" if balance >= 0 else "#ff6b6b"` — a one-line choice: green
+  when you're in the black, red when you're overdrawn.
+- `canvas.delete("bal")` — erase only the item tagged `"bal"` before redrawing.
+
+### Do It in VS Code 🛠️
+1. New file `balance.py`. Type the code.
+2. Save, run. Click Earn twice, then Spend five times — watch it go red.
+3. Remove `global balance` from `earn`, run, and click. Nothing changes! Now
+   you've SEEN why `global` matters. Put it back.
+
+### Your Turn
+1. Change the amounts to your real pocket money.
+2. Add a third button that spends GHS 20.
+3. Predict the balance after Earn, Earn, Spend. (15.50.)
+
+### 📸 Show Emrys
+Screenshot a green balance AND a red one. Tell Emrys what makes the colour change.
+
+### Check Your Brain
+- What does `balance = balance + 10` do?
+- Why must `balance` live outside the functions?
+- What does `global balance` allow?
+- What decides the colour?
+
+### More Examples
+Counting in the terminal:
+
 ```python
 balance = 0
-balance = balance + 50     # got 50
-print(balance)
-balance = balance - 20     # spent 20
-print(balance)
-```
-
-### Line by Line
-- `balance + 50` — add income.
-- `balance - 20` — subtract spending.
-- The `# ...` part is a **comment** — a note for humans; Python ignores it.
-
-### Your Turn
-1. Start `balance = 100`. Add 30, print. Subtract 45, print.
-2. What balance do you end with?
-3. Add a comment to each line explaining it.
-
-### Check Your Brain
-- What does a `#` comment do?
-- If balance is 100, you add 30 and spend 45, what's left?
-
-### More Examples
-A whole week of money in five lines:
-
-```python
-balance = 20            # started the week with 20
-balance = balance + 10  # Monday: aunt visited!
-balance = balance - 5   # Tuesday: snack
-balance = balance - 3   # Thursday: pure water + biscuit
-print(balance)          # how did the week end?
-```
-
-Multiplication for repeated costs:
-
-```python
-daily_snack = 4
-school_days = 5
-print(daily_snack * school_days)   # weekly snack cost - eye-opening!
-```
-
-Division for fair shares and savings plans:
-
-```python
-target = 60
-weeks = 4
-print(target / weeks)   # save this much per week to hit the goal
+balance = balance + 10
+balance = balance - 4.5
+print(balance)   # 5.5
 ```
 
 ### Common Mistakes
-- **`x` for times:** `4 x 5` → `SyntaxError`. Multiplication is `*`.
-- **Quoted maths:** `print("100 - 45")` shows the sum, not the answer.
-- **Losing track of sign:** spending is SUBTRACTED — writing `balance + 20` for a spend silently inflates your wealth. (Nice dream, bad accounting.)
+- **Forgetting `global`:** `UnboundLocalError`, or nothing changes. **Fix:** add
+  `global` for every outside box you change.
+- **Numbers stacking up:** forgetting `canvas.delete("bal")` draws the new number
+  on top of the old. **Fix:** delete by tag first.
 
 ### Level Up 🚀
-The "small leaks" calculator: a 2-cedi daily snack seems tiny — calculate what it costs over a week, a month (`* 30`), and a school year (`* 200`). Print all three with comments. This little program teaches more real finance than some adults ever learn. 📊
+Add a small "history" counter showing how many times you've clicked each button.
 
 ---
 
-## Lesson 5: Updating the Balance
+## Lesson 6: Taking an Amount from the User
 
 ### Big Idea
-Update a variable using its own value: `balance = balance + amount`.
+An Entry box lets the user type an amount, and a Button sends it to our code.
 
 ### Kid Meaning
-"Take what's in the box, change it, put it back."
+A real money app doesn't have fixed buttons for every amount — you type what you
+spent. The Entry box is where you type it.
 
 ### Tracker Connection
-Every entry updates the running balance.
+This is how every real transaction gets into our tracker.
 
 ### The Code
 ```python
-balance = 0
-amount = 25
-balance = balance + amount
-print(balance)
-amount = 10
-balance = balance - amount
-print(balance)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=460, height=280, bg="#0e1b2a")
+canvas.pack()
+
+balance = 0.0
+
+def show():
+    canvas.delete("bal")
+    color = "#7CFC00" if balance >= 0 else "#ff6b6b"
+    canvas.create_text(230, 110, text=f"GHS {balance:.2f}", fill=color,
+                       font=("Arial", 30, "bold"), tags="bal")
+
+def add_money():
+    global balance
+    amount = float(entry.get())
+    balance = balance + amount
+    entry.delete(0, tk.END)
+    show()
+
+show()
+entry = tk.Entry(root, font=("Arial", 14), width=10, justify="center")
+entry.pack(pady=6)
+entry.bind("<Return>", lambda event: add_money())
+tk.Button(root, text="Add to balance", command=add_money).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type `25.50`, press **Add to balance** (or **Enter**), and the balance jumps by
+exactly that amount. Type another number and it adds again.
 
 ### Line by Line
-- `amount` holds the size of a transaction.
-- `balance = balance + amount` adds it; `- amount` subtracts it.
-- The box always keeps the latest total.
+- `amount = float(entry.get())` — `entry.get()` gives the typed WORDS (like
+  `"25.50"`). `float(...)` turns those words into a real decimal NUMBER we can do
+  maths with. Without `float`, Python would try to glue text together instead of
+  adding!
+- `float` not `int` — because money has decimals. `int("25.50")` would crash.
+- `entry.delete(0, tk.END)` — clears the box from start (0) to end, ready for the
+  next amount.
+- `entry.bind("<Return>", lambda event: add_money())` — the **Enter** key works
+  too, like a real app. (`lambda event:` politely accepts the event tkinter passes
+  and ignores it.)
+
+### Do It in VS Code 🛠️
+1. New file `amount_entry.py`. Type the code.
+2. Save, run. Type `25.50` and press Enter. Then `10` and Enter.
+3. Now type `hello` and press Enter. **Crash!** Read the red `ValueError` in the
+   terminal — we fix this properly in Lesson 9.
 
 ### Your Turn
-1. Start `balance = 0`. Add an `amount` of 40, then subtract an `amount` of 15.
-2. Print after each step.
+1. Add a "Subtract" button that takes the amount away instead.
+2. Show the last amount entered under the balance.
+3. Predict the balance after adding 10, then 5.5. (15.50.)
+
+### 📸 Show Emrys
+Screenshot your balance after adding a typed amount. Tell Emrys what number you
+typed.
 
 ### Check Your Brain
-- What does `balance = balance + amount` do?
-- Why use an `amount` variable instead of a fixed number?
+- What does `entry.get()` give you — a number or words?
+- What does `float()` do?
+- Why `float` instead of `int` for money?
+- What happens if the user types letters?
 
 ### More Examples
-The same `amount` box reused for different transactions — that's its job:
+Turning words into numbers:
 
 ```python
-balance = 100
-amount = 25
-balance = balance - amount    # bought a book
-print(balance)                # 75
-amount = 40
-balance = balance + amount    # birthday money!
-print(balance)                # 115
-```
-
-The `+=` and `-=` shortcuts — banking code everywhere uses these:
-
-```python
-balance = 50
-balance += 20    # same as balance = balance + 20
-balance -= 5     # same as balance = balance - 5
-print(balance)   # 65
-```
-
-A savings box growing beside the balance:
-
-```python
-balance = 100
-savings = 0
-move = 30
-balance -= move
-savings += move
-print(f"Balance {balance}, Savings {savings}")   # money MOVED, total is safe
+print(float("25.50") + 10)    # 35.5
+print(int("25") + 10)         # 35
+# print(int("25.50"))         # crashes! int can't take decimals
 ```
 
 ### Common Mistakes
-- **Updating the wrong direction:** `balance = amount - balance` is backwards maths — balance of 100, spend 30 gives... -70! Read your formula out loud.
-- **Forgetting to reassign:** `balance + amount` alone calculates and THROWS AWAY the result. The `balance =` part saves it.
-- **One box for two jobs:** using `balance` for both balance AND the transaction makes soup. Separate boxes for separate meanings.
+- **Forgetting `float`:** `balance + entry.get()` → `TypeError`, because you can't
+  add words to a number. **Fix:** wrap it in `float()`.
+- **Using `int` for money:** `int("4.50")` → `ValueError`. **Fix:** use `float`.
 
 ### Level Up 🚀
-Build the savings-transfer above, but add a check on yourself: print `balance + savings` before and after the move. If the total changed, money leaked — a bug! Accountants call this *reconciliation*; programmers call it an *invariant*. You just used both words' ideas in 8 lines.
+Add a second Entry for a description ("bought jollof") and show it next to the
+amount.
 
 ---
 
-## Lesson 6: Asking the User with input()
+## Lesson 7: f-strings — Showing Money Nicely
 
 ### Big Idea
-`input()` asks a question and waits for the user to type.
+An f-string builds a sentence with values dropped inside, formatted properly.
 
 ### Kid Meaning
-The computer asks, listens, keeps the answer in a box.
+Instead of gluing words and numbers together awkwardly, put an `f` before the
+quotes and drop any box inside `{ }`. Add `:.2f` and it looks like real money.
 
 ### Tracker Connection
-The tracker asks "How much?" and "What for?" using `input()`.
+Every label on our dashboard is an f-string with money formatting.
 
 ### The Code
 ```python
-note = input("What did you spend on? ")
-print("You wrote:")
-print(note)
+import tkinter as tk
+
+WIDTH = 720
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=340, bg="#0e1b2a")
+canvas.pack()
+
+name = "Ama"
+income = 120.0
+spent = 45.5
+balance = income - spent
+records = 7
+
+canvas.create_text(WIDTH/2, 45, text=f"{name}'s Money", fill="#ffd54a",
+                   font=("Arial", 20, "bold"))
+canvas.create_text(WIDTH/2, 105, text=f"Balance: GHS {balance:.2f}",
+                   fill="#7CFC00", font=("Arial", 26, "bold"))
+canvas.create_text(WIDTH/2, 155,
+                   text=f"In: GHS {income:.2f}    Out: GHS {spent:.2f}",
+                   fill="white", font=("Arial", 14))
+canvas.create_text(WIDTH/2, 195, text=f"({records} records)", fill="#8fa0d8",
+                   font=("Arial", 12))
+canvas.create_text(WIDTH/2, 250,
+                   text=f"You kept {balance / income * 100:.0f}% of your money",
+                   fill="#ffd54a", font=("Arial", 15))
+
+root.mainloop()
 ```
+
+### What You'll See
+A complete, professional dashboard: "Ama's Money", "Balance: GHS 74.50", the in/out
+line, the record count, and "You kept 62% of your money" — that last number
+**worked out by maths inside the f-string**.
 
 ### Line by Line
-- `input("...")` shows the question and waits.
-- The typed answer is stored in `note`.
+- `f"{name}'s Money"` — the `f` turns on the magic. Anything in `{ }` is a box
+  name, and Python drops its value in.
+- `f"GHS {balance:.2f}"` — the `:.2f` formats it as proper money with 2 decimals.
+- `f"{balance / income * 100:.0f}%"` — you can do **maths** inside the braces AND
+  format the result. Python works it out, rounds it, then drops it in.
+- `f"{name}'s Money"` — note the apostrophe is fine inside double quotes.
+
+### Do It in VS Code 🛠️
+1. New file `money_labels.py`. Type the code.
+2. Save, run. Read every line.
+3. Change `spent = 110.0` and run. The balance drops and the percentage falls too.
 
 ### Your Turn
-1. Ask the user their name and store it.
-2. Ask what they bought and store it.
-3. Print both.
+1. Change the name to yours.
+2. Add a line showing how much MORE you need to reach a GHS 100 goal.
+3. Predict what `f"{50/200*100:.0f}%"` shows. (25%.)
+
+### 📸 Show Emrys
+Screenshot your dashboard with your name and numbers. Tell Emrys which line does
+maths inside the braces.
 
 ### Check Your Brain
-- What does `input()` do after showing the question?
-- Where does the answer go?
+- What does the `f` before the quotes do?
+- What does `:.2f` add?
+- Can you do maths inside `{ }`?
+- Why does `:.0f` suit a percentage?
 
 ### More Examples
-Two-question entry — the shape of every form ever:
+f-strings in the terminal:
 
 ```python
-item = input("What did you buy? ")
-shop = input("From where? ")
-print("Noted: " + item + " from " + shop)
-```
-
-Reusing one answer:
-
-```python
-goal = input("What are you saving for? ")
-print("Goal set: " + goal)
-print("Every cedi gets you closer to " + goal + "!")
+price = 12.5
+count = 3
+print(f"{count} items cost GHS {price * count:.2f}")   # 3 items cost GHS 37.50
 ```
 
 ### Common Mistakes
-- **Unstored input:** `input("What for? ")` without `note =` — the answer evaporates.
-- **Cramped prompts:** end questions with a space inside the quotes for neat typing.
-- **Space-less joins:** `print("Bought" + item)` → `Boughtkofi broke`. Spaces inside quotes.
+- **Forgetting the `f`:** `"{balance}"` prints the braces literally. **Fix:** put
+  `f` right before the opening quote.
+- **Format in the wrong place:** `f"{balance}.2f"` shows the letters. **Fix:** the
+  format goes INSIDE the braces after a colon — `{balance:.2f}`.
 
 ### Level Up 🚀
-Build the "money diary interview": ask three questions — best purchase this month, one regret purchase, and current savings goal — then print them back as a mini reflection report. Financial apps charge money for this exact feature; yours is homemade. 📔
+Build a one-line "money report" f-string with balance, income, spending, and
+percentage all together.
 
 ---
 
-## Lesson 7: Numbers from input() — int() and f-strings
+## Lesson 8: Mini-Project — Simple Spending Log
 
 ### Big Idea
-`input()` gives TEXT; use `int()` to turn money amounts into real numbers. Use
-**f-strings** to show values in sentences.
+Put together windows, Entry, buttons, variables, and f-strings into one small
+finished program.
 
 ### Kid Meaning
-"50" typed is a drawing of fifty. `int()` makes it a real number we can add. An
-f-string drops a value into a sentence.
+This is your first real money app: type what you spent, and it keeps a running
+total on screen. You already know every piece — now we assemble them.
 
 ### Tracker Connection
-Amounts must be real numbers to add to the balance, and we show the balance with an
-f-string.
+This is the tracker in miniature, and a rehearsal for the whole thing.
 
 ### The Code
 ```python
-amount_text = input("How much? ")
-amount = int(amount_text)
-balance = 100 + amount
-print(f"Your new balance is {balance} cedis.")
+import tkinter as tk
+
+WIDTH, HEIGHT = 560, 400
+root = tk.Tk()
+root.title("Spending Log")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1b2a")
+canvas.pack()
+
+total = 0.0
+count = 0
+
+def show():
+    canvas.delete("all")
+    canvas.create_text(WIDTH/2, 50, text="SPENDING LOG", fill="#ffd54a",
+                       font=("Arial", 22, "bold"))
+    canvas.create_text(WIDTH/2, 130, text=f"Total spent: GHS {total:.2f}",
+                       fill="#ff6b6b", font=("Arial", 24, "bold"))
+    canvas.create_text(WIDTH/2, 185, text=f"{count} things bought",
+                       fill="white", font=("Arial", 14))
+    if count > 0:
+        canvas.create_text(WIDTH/2, 235,
+                           text=f"Average: GHS {total / count:.2f} each",
+                           fill="#8fa0d8", font=("Arial", 13))
+    canvas.create_text(WIDTH/2, 300, text="Type an amount and press Enter",
+                       fill="#8fa0d8", font=("Arial", 11))
+
+def log_spend():
+    global total, count
+    total = total + float(entry.get())
+    count = count + 1
+    entry.delete(0, tk.END)
+    show()
+
+show()
+entry = tk.Entry(root, font=("Arial", 15), width=10, justify="center")
+entry.pack(pady=8)
+entry.bind("<Return>", lambda event: log_spend())
+entry.focus()
+tk.Button(root, text="Log spending", font=("Arial", 12),
+          command=log_spend).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type amounts one after another and watch the total climb, the count rise, and an
+**average per item** appear once you've logged at least one thing.
 
 ### Line by Line
-- `amount_text` holds text like "50".
-- `int(amount_text)` turns "50" into the real number 50.
-- The `f` before the quotes makes an f-string; `{balance}` drops the number in.
+- `total` and `count` — two boxes outside the functions, both changed with
+  `global total, count` (several names on one `global` line).
+- `if count > 0:` — the **divide-by-zero guard**. Before anything is logged,
+  `total / count` would crash. Skipping that line avoids it. (Your first `if` —
+  full lesson next!)
+- `root.resizable(False, False)` — locks the window size so buttons can never be
+  pushed off the screen.
+- `entry.focus()` — puts the typing cursor in the box automatically.
+- `canvas.delete("all")` then redraw — the simple approach here; from Lesson 15 we
+  use tags to redraw just the parts that changed.
+
+### Do It in VS Code 🛠️
+1. New file `spending_log.py`. Type the whole program.
+2. Save, run. Log three amounts and check the average is right.
+3. Remove the `if count > 0:` line and run without logging anything — crash! Put
+   it back.
 
 ### Your Turn
-1. Ask for an amount, `int()` it, add it to a starting balance of 100, print with an
-   f-string.
-2. Try typing letters instead of a number and see the error (we'll handle that
-   later — errors teach us!).
-3. Why do we need `int()` here?
+1. Change the colours and the app name.
+2. Add a "Reset" button that sets total and count back to 0.
+3. Predict the average after logging 10 and 20. (GHS 15.00.)
+
+### 📸 Show Emrys
+Screenshot your log after three purchases showing the average. Tell Emrys:
+"Part 1 mini-project done!"
 
 ### Check Your Brain
-- What kind of thing does `input()` always give?
-- What does `int()` do? What does an f-string do?
+- Why do we need the `if count > 0:` guard?
+- How do you put two names on one `global` line?
+- What does `entry.focus()` do?
+- Why lock the window size?
 
 ### More Examples
-The trap, demonstrated — run this and stare at the first line:
+Several globals at once:
 
 ```python
-text_fifty = "50"
-real_fifty = 50
-print(text_fifty + text_fifty)   # 5050 - text GLUES! imagine that on your bank app
-print(real_fifty + real_fifty)   # 100 - real money maths
-```
-
-`int(input(...))` in one smooth move:
-
-```python
-amount = int(input("How much did you get? "))
-print(f"With 10 more you'd have {amount + 10}.")
-```
-
-Multiple values in one f-string — the tracker's voice:
-
-```python
-owner = "Yaa"
-balance = 130
-print(f"{owner}, your balance is {balance} cedis.")
-print(f"Half of it would be {balance / 2}.")
+def reset():
+    global total, count
+    total = 0.0
+    count = 0
 ```
 
 ### Common Mistakes
-- **Maths on raw input:** `amount = input(...)` then `amount + 10` → `TypeError: can only concatenate str (not "int") to str`. THE most common money-app bug. `int()` first.
-- **Missing `f`:** `print("Balance: {balance}")` shows the braces literally.
-- **int() on words:** type "fifty" and `int("fifty")` → `ValueError: invalid literal for int()`. Lesson coming on handling that gracefully — for now, digits only.
+- **`ZeroDivisionError`:** working out an average before anything is logged.
+  **Fix:** the guard.
+- **Only one name in `global`:** `global total` but then changing `count` too →
+  `UnboundLocalError`. **Fix:** list both.
 
 ### Level Up 🚀
-The allowance projector: ask weekly allowance with `int(input(...))`, then print a 3-line forecast — in 4 weeks, in 12 weeks (a term), in 52 weeks — each line an f-string with maths inside. Seeing a year of allowance as ONE number changes how people think about money. Try it on a parent. 😄
+Show the biggest single amount you've logged so far (hint: keep a `biggest` box
+and update it with an `if`).
 
 ---
 
-## Lesson 8: Mini-Project — One Transaction
+# PART 2 — TOOLS AND DECISIONS
+
+## Lesson 9: if — Catching Bad Input
 
 ### Big Idea
-Combine input, int(), maths, and f-strings into a tiny money program.
+`if` and `try/except` let the program handle mistakes instead of crashing.
 
 ### Kid Meaning
-Our first real money tool: record one transaction.
+People type "abc" or leave the box empty. A good app says "please type a number"
+politely instead of dying with a red error.
 
 ### Tracker Connection
-Practice for the full tracker.
+Real users make mistakes. Our tracker must survive them.
 
 ### The Code
 ```python
-balance = int(input("Starting balance? "))
-amount = int(input("Amount you got? "))
-balance = balance + amount
-print(f"Great! Your balance is now {balance} cedis. 💰")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=520, height=280, bg="#0e1b2a")
+canvas.pack()
+
+balance = 0.0
+
+def add_money():
+    global balance
+    text = entry.get().strip()
+    try:
+        amount = float(text)
+    except ValueError:
+        message("Please type a number, like 12.50", "#ff6b6b")
+        return
+    if amount <= 0:
+        message("Amount must be more than zero.", "#ff6b6b")
+        return
+    balance = balance + amount
+    entry.delete(0, tk.END)
+    message(f"Balance: GHS {balance:.2f}", "#7CFC00")
+
+def message(text, color):
+    canvas.delete("msg")
+    canvas.create_text(260, 130, text=text, fill=color, width=460,
+                       font=("Arial", 17, "bold"), tags="msg")
+
+message("Balance: GHS 0.00", "#7CFC00")
+entry = tk.Entry(root, font=("Arial", 14), width=10, justify="center")
+entry.pack(pady=8)
+entry.bind("<Return>", lambda event: add_money())
+tk.Button(root, text="Add", command=add_money).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type `20` → the balance grows. Type `hello` → a polite **red warning**, no crash.
+Type `-5` → another warning. Type nothing → a warning too.
 
 ### Line by Line
-- `int(input(...))` asks AND converts in one line.
-- Add the income to the balance.
-- Show the new balance with an f-string.
+- `try:` — "attempt this risky line."
+- `amount = float(text)` — the risky bit: it breaks if `text` isn't a number.
+- `except ValueError:` — "if that broke, do this instead" — show a kind message.
+  `ValueError` is the exact error `float()` raises on bad text.
+- `return` — leave the function early so a bad amount never reaches the balance.
+- `if amount <= 0:` — a SECOND check. `float("-5")` works fine, so `try/except`
+  won't catch it — we need our own rule. `<=` means "less than or equal to".
+- Two guards in a row is a common pattern: first check the TYPE, then the VALUE.
+
+### Do It in VS Code 🛠️
+1. New file `safe_input.py`. Type the code.
+2. Save, run. Try `20`, `hello`, `-5`, and an empty box.
+3. Remove the `try/except` and type letters — meet the raw crash. Put it back.
 
 ### Your Turn
-1. Build this and run it.
-2. Change it to SUBTRACT (a spend) instead of add.
-3. Add a `note` question and include it in the final message.
+1. Change both warning messages to your own wording.
+2. Add a third rule rejecting amounts over 10000.
+3. Predict what happens with `0`. (Rejected — it's not more than zero.)
+
+### 📸 Show Emrys
+Screenshot both warnings (bad text and negative). Tell Emrys which guard catches
+which mistake.
 
 ### Check Your Brain
-- Why wrap the inputs in `int(...)`?
-- What does `int(input(...))` do in one line?
-
-### More Examples
-The spend version — subtraction plus an honest report:
-
-```python
-balance = int(input("Starting balance? "))
-spend = int(input("How much did you spend? "))
-balance = balance - spend
-print(f"After spending {spend}, you have {balance} cedis left.")
-```
-
-A two-transaction session — income then spend:
-
-```python
-balance = int(input("Balance? "))
-balance = balance + int(input("Money received? "))
-balance = balance - int(input("Money spent? "))
-print(f"End of day: {balance} cedis.")
-```
-
-Add the note for a complete record:
-
-```python
-balance = 100
-amount = int(input("Amount? "))
-note = input("What for? ")
-balance = balance + amount
-print(f"Recorded '{note}' ({amount}). New balance: {balance}.")
-```
-
-### Common Mistakes
-- **One conversion missing:** converting the balance but not the amount → the maths line crashes. EVERY number input gets `int(...)`.
-- **Subtracting income:** copy-pasting the spend version and forgetting to flip `-` to `+`. Copy-paste is the #1 source of bugs in all of software — always reread pasted lines.
-- **Note wrapped in int():** `int(input("What for? "))` crashes on "lunch"! Only numbers get converted.
-
-### Level Up 🚀
-Add a "transaction type" question first — `kind = input("income or spend? ")` — and print a different confirmation message for each (just two prints for now; the `if` to branch properly arrives NEXT lesson). Feeling the need for `if` before you learn it is perfect timing.
-
----
-
-# PART 2 — CHOICES, LOOPS & DATA
-
----
-
-## Lesson 9: Making Decisions with if / else
-
-### Big Idea
-`if` runs code when a condition is True; `else` covers the other case.
-
-### Kid Meaning
-"IF you have enough money, buy it. ELSE, you can't afford it."
-
-### Tracker Connection
-The tracker checks if you can afford a spend, and warns if your balance is low.
-
-### The Code
-```python
-balance = 30
-price = 50
-if balance >= price:
-    print("You can afford it! ✅")
-else:
-    print("Not enough money. ❌")
-```
-
-### Line by Line
-- `balance >= price` — is balance at least the price? (`>=` means "greater or
-  equal").
-- The `if` block runs if true; the `else` block if false.
-- One of them always runs.
-
-### Your Turn
-1. Set `balance = 100`, `price = 40`, and test the message.
-2. Change to `balance = 20` and test again.
-3. What does `>=` mean?
-
-### Check Your Brain
-- When does the `else` run?
-- What does `>=` check?
-
-### More Examples
-The affordability check with real inputs:
-
-```python
-balance = int(input("Your balance? "))
-price = int(input("Price of the thing you want? "))
-if balance >= price:
-    print(f"✅ Affordable - you'd have {balance - price} left.")
-else:
-    print(f"❌ You're short by {price - balance} cedis.")
-```
-
-Notice BOTH branches calculate something useful — great apps inform, not just permit/deny.
-
-A savings-goal check:
-
-```python
-saved = 45
-goal = 60
-if saved >= goal:
-    print("🎉 GOAL REACHED!")
-else:
-    print(f"Keep going - {goal - saved} cedis to go!")
-```
-
-Multi-line branches — celebration takes several lines:
-
-```python
-if saved >= goal:
-    print("🎉 GOAL REACHED!")
-    print("Time to set a bigger one?")
-else:
-    print("Not yet - but every cedi counts.")
-```
-
-### Common Mistakes
-- **`=` vs `==`:** `if balance = price:` → `SyntaxError`. Compare with `==` (and `>=`, `<=` etc.).
-- **`>` when you mean `>=`:** with `balance > price`, having EXACTLY the price says you can't afford it — harsh! `>=` includes the boundary. Boundaries deserve a second look, always.
-- **Unindented branch lines:** the second celebration line at the left edge runs for everyone — even the broke. Indentation = membership.
-
-### Level Up 🚀
-Build "the honest shopkeeper": ask balance and price; if affordable, also warn when the purchase would leave less than 5 cedis ("Affordable, but it nearly empties your pocket — sure?"). That's an `if` INSIDE an `if` — nesting. You've just modelled *nuanced* advice, which is what separates a calculator from a counsellor.
-
----
-
-## Lesson 10: True / False and Comparisons
-
-### Big Idea
-Comparisons give True or False: `>`, `<`, `>=`, `<=`, `==`, `!=`.
-
-### Kid Meaning
-Each comparison is a yes/no question about numbers.
-
-### Tracker Connection
-"Is the balance below 10?" is a True/False the tracker checks to warn you.
-
-### The Code
-```python
-balance = 8
-print(balance < 10)
-print(balance == 0)
-print(balance >= 5)
-```
-
-### Line by Line
-- `balance < 10` → True (8 is less than 10).
-- `balance == 0` → False.
-- `balance >= 5` → True.
-
-### Your Turn
-1. With `balance = 15`, predict and print: `balance < 10`, `balance > 20`,
-   `balance == 15`.
-2. What does `!=` mean? Print `balance != 15`.
-
-### Check Your Brain
-- The two boolean values?
+- What does `try/except` protect against?
+- What does `return` do here?
+- Why doesn't `try/except` catch a negative number?
 - What does `<=` mean?
 
 ### More Examples
-All six comparison operators in one cheat sheet:
+Catching a different error:
 
 ```python
-balance = 15
-print(balance > 10)     # True   greater than
-print(balance < 10)     # False  less than
-print(balance >= 15)    # True   at least
-print(balance <= 14)    # False  at most
-print(balance == 15)    # True   exactly equal
-print(balance != 20)    # True   not equal
-```
-
-Combine money facts with `and` / `or`:
-
-```python
-balance = 25
-goal = 60
-print(balance > 0 and balance < goal)    # True: solvent but not there yet
-print(balance < 0 or balance >= goal)    # False: neither broke nor done
-```
-
-Name your facts — readable code is professional code:
-
-```python
-is_broke = balance <= 0
-can_buy_lunch = balance >= 12
-print(is_broke, can_buy_lunch)
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Can't divide by zero!")
 ```
 
 ### Common Mistakes
-- **`=<` and `=>`:** they don't exist! It's `<=` and `>=` — the arrow comes first. (Memory trick: say "less than or equal" — the words are in symbol order.)
-- **Quoted booleans:** `"True"` is a word. The values are bare: `True`, `False`.
-- **Chained confusion:** `10 < balance < 20` actually WORKS in Python ("between") — but `balance > 10 and balance < 20` says the same thing more explicitly. Know both, prefer clear.
+- **No `return` after the warning:** the bad value carries on and corrupts the
+  balance. **Fix:** `return` right after showing the error.
+- **Bare `except:`** hides real bugs. **Fix:** be specific — `except ValueError`.
 
 ### Level Up 🚀
-Predict-then-run with `balance = 0`: `balance > 0`, `balance >= 0`, `balance == 0`, `balance != 0`, `balance <= 0 and balance >= 0`. Zero is the trickiest boundary in all of finance code (is zero broke? is it "non-negative"?) — and you just mapped it completely.
+Make the Entry box flash red for a moment on a bad entry using
+`entry.config(bg="#ffcccc")` and `root.after` to change it back.
 
 ---
 
-## Lesson 11: Repeating with while Loops
+## Lesson 10: if / elif / else — Budget Categories
 
 ### Big Idea
-A `while` loop repeats while a condition stays True.
+`if / elif / else` sorts a value into one of several buckets.
 
 ### Kid Meaning
-"WHILE the user hasn't chosen Quit, keep showing the menu."
+"IF you spent a lot, warn me. ELSE IF a medium amount, note it. ELSE, it's fine."
+Python checks top to bottom and does the FIRST true one.
 
 ### Tracker Connection
-The tracker shows its menu over and over until you choose to quit.
+Our tracker gives different advice depending on how much of your money is left.
 
 ### The Code
 ```python
-choice = ""
-while choice != "quit":
-    choice = input("Type a command (or 'quit'): ").lower().strip()
-    print(f"You typed: {choice}")
-print("Goodbye!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=560, height=300, bg="#0e1b2a")
+canvas.pack()
+
+def rate(kept_percent):
+    canvas.delete("all")
+    if kept_percent >= 50:
+        verdict = "Excellent saver!"
+        color = "#7CFC00"
+    elif kept_percent >= 20:
+        verdict = "Good going - aim for 50%!"
+        color = "#ffd54a"
+    elif kept_percent >= 0:
+        verdict = "Watch your spending."
+        color = "#ff9966"
+    else:
+        verdict = "You overspent! Time to slow down."
+        color = "#ff6b6b"
+    canvas.create_text(280, 100, text=f"You kept {kept_percent:.0f}%",
+                       fill="white", font=("Arial", 20))
+    canvas.create_text(280, 170, text=verdict, fill=color, width=500,
+                       font=("Arial", 20, "bold"))
+
+rate(35)
+
+root.mainloop()
 ```
+
+### What You'll See
+"You kept 35%" and the gold verdict **"Good going - aim for 50%!"**. Change the
+number in `rate(35)` and you get a different verdict and colour.
 
 ### Line by Line
-- `choice = ""` — start empty so the loop begins.
-- `while choice != "quit":` — keep going until they type "quit". `!=` means "not
-  equal".
-- We tidy the input so "Quit" works too.
+- `if kept_percent >= 50:` — first check. `>=` means "greater than or equal to".
+  If true, do this and SKIP the rest.
+- `elif kept_percent >= 20:` — "else if" — only checked if the first was false.
+- `else:` — the leftover case: a negative percentage means you overspent.
+- **Order matters!** We check the BIGGEST first. If `>= 20` came first, someone who
+  kept 80% would stop there and wrongly get the middle message.
+- We store `verdict` and `color` in boxes, then draw ONCE at the bottom — tidier
+  than repeating the drawing code in all four branches.
+
+### Do It in VS Code 🛠️
+1. New file `verdicts.py`. Type the code.
+2. Save, run — the gold verdict.
+3. Try `rate(80)`, `rate(10)`, `rate(-15)` — all four branches.
+4. Flip the order (put `>= 20` first) and try 80 again. See the bug! Put it back.
 
 ### Your Turn
-1. Build this and type a few things, then "quit".
-2. Change the quit word to "exit".
-3. Why set `choice = ""` before the loop?
+1. Write your own four verdict messages.
+2. Add a fifth band for keeping over 75%.
+3. Predict the verdict for 20 exactly. (Good going — `>=` includes 20.)
+
+### 📸 Show Emrys
+Screenshot two different verdicts. Tell Emrys the percentages that trigger them.
 
 ### Check Your Brain
-- What does `!=` mean?
-- Why must the loop's condition eventually become false?
+- What is the difference between `if` and `elif`?
+- When does `else` run?
+- Why must the biggest number be checked FIRST?
+- Does `>= 20` include exactly 20?
 
 ### More Examples
-This menu-loop shape IS your tracker's skeleton — practise it bare:
+The classic grader:
 
 ```python
-command = ""
-while command != "quit":
-    command = input("Command (hello/quit): ").lower().strip()
-    if command == "hello":
-        print("Hello yourself! 👋")
-print("Tracker closed.")
-```
-
-A savings loop — repeat WHILE below target:
-
-```python
-saved = 0
-while saved < 50:
-    saved = saved + 10
-    print(f"Saved so far: {saved}")
-print("Target hit! 🎯")
-```
-
-A countdown to payday:
-
-```python
-days = 5
-while days > 0:
-    print(f"{days} days until allowance...")
-    days = days - 1
-print("PAYDAY! 💰")
+score = 85
+if score >= 90:
+    grade = "A"
+elif score >= 70:
+    grade = "B"
+else:
+    grade = "C"
+print(grade)
 ```
 
 ### Common Mistakes
-- **Pre-filled stop word:** `choice = "quit"` before the loop → never runs once. Start empty: `""`.
-- **The immortal loop:** nothing inside changes the condition → forever. Stop button / Ctrl+C, fix, relaunch. Everyone's done it; now you have too.
-- **Untidied quit:** typing "QUIT " with a space won't match `"quit"` without `.lower().strip()`. Tidy every command.
+- **Wrong order:** small checks first swallow the big cases. **Fix:** biggest first.
+- **Many `if`s instead of `elif`:** several branches run and the last wins. **Fix:**
+  use `elif`/`else`.
 
 ### Level Up 🚀
-Add a counter to the menu loop and on quit, print "You used the tracker N times this session." — then a cheeky `if` for heavy users: more than 5 commands gets "Wow, you really love budgeting! 📊". Session statistics is genuinely how apps measure engagement.
+Give each verdict its own emoji and draw a matching coloured bar underneath.
 
 ---
 
-## Lesson 12: Lists — Many Values in One Box
+## Lesson 11: True and False — Booleans
 
 ### Big Idea
-A **list** holds many values in one box, in `[ ]`, separated by commas.
+Every check is either True or False — those two values are called Booleans.
 
 ### Kid Meaning
-One box holding a whole row of things — like a shopping list on one page.
+A light switch is on or off. A check is True or False. `balance >= 0` is a
+question Python answers with True or False.
 
 ### Tracker Connection
-The tracker keeps every transaction in a list, so it can show your history.
+"Am I in debt?" and "Have I reached my goal?" are True/False facts that drive the
+colours on our dashboard.
 
 ### The Code
 ```python
-amounts = [50, -20, 30, -10]
-print(amounts)
-print(amounts[0])
-print(len(amounts))
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=560, height=320, bg="#0e1b2a")
+canvas.pack()
+
+def check(balance, goal):
+    canvas.delete("all")
+    in_credit = (balance >= 0)
+    reached_goal = (balance >= goal)
+    canvas.create_text(280, 60, text=f"Balance: GHS {balance:.2f}",
+                       fill="white", font=("Arial", 18))
+    canvas.create_text(280, 110, text=f"in_credit = {in_credit}",
+                       fill="#7CFC00", font=("Arial", 15))
+    canvas.create_text(280, 145, text=f"reached_goal = {reached_goal}",
+                       fill="#ffd54a", font=("Arial", 15))
+    if reached_goal:
+        canvas.create_text(280, 220, text="GOAL REACHED!", fill="#7CFC00",
+                           font=("Arial", 24, "bold"))
+    elif in_credit:
+        canvas.create_text(280, 220, text="Still saving...", fill="#ffd54a",
+                           font=("Arial", 20))
+    else:
+        canvas.create_text(280, 220, text="You are in debt!", fill="#ff6b6b",
+                           font=("Arial", 20, "bold"))
+
+check(120.0, 100.0)
+
+root.mainloop()
 ```
+
+### What You'll See
+"Balance: GHS 120.00", then literally `in_credit = True` and `reached_goal = True`
+on screen, plus a green **"GOAL REACHED!"**.
 
 ### Line by Line
-- `[50, -20, 30, -10]` — a list; positive = money in, negative = money out.
-- `amounts[0]` — the FIRST item (Python counts from 0).
-- `len(amounts)` — how many items (4).
+- `in_credit = (balance >= 0)` — Python answers the question and stores True or
+  False in the box.
+- `if reached_goal:` — since it's ALREADY True or False, we use it directly. No
+  need for `if reached_goal == True`.
+- The f-strings print the Boolean values so you can watch them flip.
+- **Order matters again:** reaching the goal is the strongest news, so it's checked
+  first.
+
+### Do It in VS Code 🛠️
+1. New file `flags.py`. Type the code.
+2. Save, run — both True.
+3. Try `check(50.0, 100.0)` (in credit, no goal) and `check(-20.0, 100.0)` (debt).
+4. Add `print(in_credit)` and watch the terminal too.
 
 ### Your Turn
-1. Make a list of 3 amounts you imagine spending or getting. Print the first.
-2. Print how many items with `len()`.
-3. Why does `amounts[0]` give the first item?
+1. Add `halfway = (balance >= goal / 2)` and show it.
+2. Add a message for being halfway but not there yet.
+3. Predict both values for balance 0 and goal 100. (True, False.)
+
+### 📸 Show Emrys
+Screenshot all three outcomes (goal reached, saving, debt). Tell Emrys the numbers
+you used.
 
 ### Check Your Brain
-- How do you write a list?
-- What number is the first item?
+- What two values can a Boolean be?
+- What does `in_credit = (balance >= 0)` store?
+- Why can we write `if reached_goal:` without `== True`?
+- Why check the goal before checking credit?
 
 ### More Examples
-Index practice — the skill that makes lists click:
+Booleans in the terminal:
 
 ```python
-amounts = [50, -20, 30, -10]
-print(amounts[1])      # -20 (the SECOND item!)
-print(amounts[3])      # -10
-print(amounts[-1])     # -10 too! -1 means "last from the back"
-```
-
-Lists of words work the same — notes alongside amounts:
-
-```python
-notes = ["gift", "snack", "chores", "pure water"]
-print(notes[0], amounts[0])    # gift 50 - matching pairs by position!
-```
-
-Changing one entry — lists are editable:
-
-```python
-amounts[1] = -25     # that snack actually cost more
-print(amounts)       # [50, -25, 30, -10]
+print(120 >= 100)    # True
+print(-20 >= 0)      # False
+print(not True)      # False
 ```
 
 ### Common Mistakes
-- **Off-the-end index:** `amounts[4]` on a 4-item list → `IndexError: list index out of range`. Four items live at 0,1,2,3.
-- **Missing commas:** `[50 -20]` is actually `[30]` — Python did the maths! Commas between every item, especially with negatives.
-- **`len` confusion:** `len(amounts)` is 4, but the LAST index is 3. `len - 1` = last index, forever and always.
+- **Quoting True:** `in_credit = "True"` is a WORD, and any non-empty word counts
+  as True — so the check always passes! **Fix:** no quotes.
+- **One equals sign:** `if in_credit = True` → error. **Fix:** `if in_credit:`.
 
 ### Level Up 🚀
-Recreate your last week of money as a list (positives and negatives, from memory). Print the first entry, the last (use `-1`), and the count. Next lesson this list starts growing on its own — and two lessons from now it computes your balance automatically.
+Combine two checks with `and`: warn when you're in credit **but** less than 20%
+of the way to your goal.
 
 ---
 
-## Lesson 13: Adding to a List with .append()
+## Lesson 12: for Loops — Drawing the Bar Chart
 
 ### Big Idea
-`.append()` adds a new item to the end of a list.
+A `for` loop repeats an action many times — perfect for drawing all the category
+bars.
 
 ### Kid Meaning
-Like writing one more line at the bottom of your shopping list.
+Instead of writing five almost-identical blocks, a loop says "do this 5 times,
+counting as you go." The counter changes each time so each bar lands lower down.
 
 ### Tracker Connection
-Each new transaction is `.append()`-ed to the history list.
+This is our live bar chart — the centrepiece of the whole dashboard.
 
 ### The Code
 ```python
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=700, height=340, bg="#0e1b2a")
+canvas.pack()
+
+CATEGORIES = ["Food", "Transport", "Fun", "School", "Other"]
+COLORS = ["#ffd54a", "#7db4ff", "#ff8fd8", "#7CFC00", "#c8a0ff"]
+amounts = [40.0, 15.0, 25.0, 10.0, 5.0]
+
+biggest = 40.0
+
+for i in range(5):
+    y = 60 + i * 50
+    bar_len = 400 * amounts[i] / biggest
+    canvas.create_text(110, y, text=CATEGORIES[i], fill="white", anchor="e",
+                       font=("Arial", 12))
+    canvas.create_rectangle(120, y - 16, 520, y + 16, outline="#2a4a6a")
+    canvas.create_rectangle(120, y - 16, 120 + bar_len, y + 16,
+                            fill=COLORS[i], outline="")
+    canvas.create_text(535, y, text=f"GHS {amounts[i]:.2f}", fill="white",
+                       anchor="w", font=("Arial", 11))
+
+root.mainloop()
+```
+
+### What You'll See
+A **proper bar chart**: five labelled rows, each with a coloured bar whose length
+matches its amount, and the exact figure beside it. Food is longest; Other is
+shortest.
+
+### Line by Line
+- `CATEGORIES`, `COLORS`, `amounts` — three **lists** that line up: position 0 of
+  each belongs together (Food, gold, 40.00). This is a very common coder pattern.
+- `for i in range(5):` — count `i` from 0 up to (not including) 5 → 0, 1, 2, 3, 4.
+- `y = 60 + i * 50` — each bar sits 50 pixels below the one before. The counter
+  turns into a position.
+- `bar_len = 400 * amounts[i] / biggest` — **scaling**. The longest bar fills the
+  whole 400-pixel track; everything else is drawn in proportion. Without scaling,
+  a GHS 5 bar and a GHS 5000 bar would look the same.
+- `CATEGORIES[i]`, `COLORS[i]`, `amounts[i]` — reading all three lists at the same
+  position. **Lists start at 0.**
+- `anchor="e"` for labels (they end together) and `anchor="w"` for amounts (they
+  start together) — that's what makes a chart look tidy.
+
+### Do It in VS Code 🛠️
+1. New file `bar_chart.py`. Type the code.
+2. Save, run — a real bar chart!
+3. Change `amounts` to your own spending and update `biggest` to your largest
+   number.
+4. Set every amount to the same value — all bars become full length. That's
+   scaling at work.
+
+### Your Turn
+1. Add a sixth category (remember: add to ALL THREE lists and change `range(5)`).
+2. Make the bars thicker.
+3. Predict the bar length for an amount that is exactly half of `biggest`. (200.)
+
+### 📸 Show Emrys
+Screenshot your bar chart with your own spending. Tell Emrys what `biggest` does.
+
+### Check Your Brain
+- What does a `for` loop do?
+- How do the three lists line up with each other?
+- What does scaling by `biggest` achieve?
+- Why use `anchor="e"` for labels and `anchor="w"` for amounts?
+
+### More Examples
+Parallel lists in the terminal:
+
+```python
+names = ["Food", "Fun"]
+costs = [40.0, 25.0]
+for i in range(2):
+    print(names[i], costs[i])
+```
+
+### Common Mistakes
+- **Lists out of step:** adding a category but not a colour → `IndexError`. **Fix:**
+  keep all three lists the same length.
+- **Forgetting to scale:** using the raw amount as the bar length makes big numbers
+  shoot off the screen. **Fix:** divide by `biggest` and multiply by the track.
+
+### Level Up 🚀
+Work out `biggest` automatically with a loop instead of typing it (that's exactly
+what Lesson 18 does!).
+
+---
+
+## Lesson 13: Lists — Storing Many Transactions
+
+### Big Idea
+A list holds many items in order, and `.append()` adds a new one to the end.
+
+### Kid Meaning
+A list is like a receipt roll. Every time you spend, you add a line. The roll
+grows as long as you need.
+
+### Tracker Connection
+Every income and expense becomes an item in one big list.
+
+### The Code
+```python
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=520, height=380, bg="#0e1b2a")
+canvas.pack()
+
 amounts = []
-amounts.append(50)
-amounts.append(-20)
-print(amounts)
-print(f"You have {len(amounts)} entries.")
+
+def add():
+    amounts.append(float(entry.get()))
+    entry.delete(0, tk.END)
+    show()
+
+def show():
+    canvas.delete("all")
+    canvas.create_text(260, 35, text=f"{len(amounts)} amounts logged",
+                       fill="#ffd54a", font=("Arial", 16, "bold"))
+    for i in range(len(amounts)):
+        canvas.create_text(260, 80 + i * 26,
+                           text=f"{i}:  GHS {amounts[i]:.2f}",
+                           fill="white", font=("Arial", 13))
+
+show()
+entry = tk.Entry(root, font=("Arial", 14), width=10, justify="center")
+entry.pack(pady=6)
+entry.bind("<Return>", lambda event: add())
+tk.Button(root, text="Add amount", command=add).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type amounts and press Enter — each one appears in a growing numbered list, with a
+running count at the top.
 
 ### Line by Line
-- `amounts = []` — start with an EMPTY list.
-- `.append(50)` — add 50 to the end.
-- `.append(-20)` — add -20 (a spend) to the end.
-- The list grows as we add.
+- `amounts = []` — an **empty list**, ready to be filled.
+- `amounts.append(...)` — adds one item to the END of the list. The list grows by
+  itself; you never say how big it should be.
+- `len(amounts)` — how many items are in the list right now.
+- `for i in range(len(amounts)):` — loop over every position, however many there
+  are. Using `len(...)` means it works for 1 item or 100.
+- `80 + i * 26` — each line sits 26 pixels below the last.
+- `amounts[i]` — the item at position `i`. **Lists start at 0**, which is why the
+  first line shows `0:`.
+
+### Do It in VS Code 🛠️
+1. New file `transaction_list.py`. Type the code.
+2. Save, run. Add five amounts and watch the list build.
+3. Add `print(amounts)` inside `add` and watch the real list in the terminal.
 
 ### Your Turn
-1. Start an empty list and append 3 amounts. Print the list.
-2. Print how many entries there are.
-3. What does `.append()` do?
+1. Show the numbers starting at 1 instead of 0 (hint: `i + 1`).
+2. Add a "Remove last" button using `amounts.pop()`.
+3. Predict `len(amounts)` after adding three amounts. (3.)
+
+### 📸 Show Emrys
+Screenshot your list with several amounts. Tell Emrys what `.append()` does.
 
 ### Check Your Brain
-- How do you start an empty list?
-- Where does `.append()` add the new item?
+- What does `[]` create?
+- What does `.append()` do?
+- What does `len()` tell you?
+- Why does the first item show as position 0?
 
 ### More Examples
-Append from input — the list grows as the user types:
+Lists in the terminal:
 
 ```python
-amounts = []
-amounts.append(int(input("First amount? ")))
-amounts.append(int(input("Second amount? ")))
-print(amounts)
-```
-
-Append inside a LOOP — now it grows forever until quit (your tracker's core!):
-
-```python
-amounts = []
-choice = ""
-while choice != "done":
-    choice = input("Amount (or 'done'): ").lower().strip()
-    if choice != "done":
-        amounts.append(int(choice))
-print(f"Collected {len(amounts)} amounts: {amounts}")
-```
-
-Other list tools worth meeting — remove and check:
-
-```python
-amounts = [50, -20, 30]
-amounts.remove(-20)      # delete that entry
-print(amounts)           # [50, 30]
-print(30 in amounts)     # True - 'in' works on lists
+prices = []
+prices.append(10.0)
+prices.append(4.5)
+print(prices)        # [10.0, 4.5]
+print(len(prices))   # 2
+print(prices[0])     # 10.0
 ```
 
 ### Common Mistakes
-- **`append` without the dot:** `append(amounts, 50)` → `NameError`. It's the list's own tool: `amounts.append(50)`.
-- **Appending the un-converted:** `amounts.append(input(...))` stores TEXT "50" — later totals glue instead of add! `int(...)` before appending.
-- **`=` instead of append:** `amounts = 50` REPLACES the whole list with a number — history obliterated. Append adds; `=` overwrites.
+- **Index out of range:** asking for `amounts[3]` in a 3-item list. **Fix:** the
+  last valid position is `len(amounts) - 1`.
+- **Forgetting the brackets:** `amounts.append` without `()` does nothing. **Fix:**
+  `amounts.append(value)`.
 
 ### Level Up 🚀
-Build the loop version above, then after "done", print three stats: the count, the biggest amount (`max(amounts)`), and the smallest (`min(amounts)`). Three built-in functions you just discovered yourself — Python is full of these helpers, and pros constantly look them up. Curiosity is the real skill.
+Show the list in reverse (newest first) using `range(len(amounts) - 1, -1, -1)`.
 
 ---
 
-## Lesson 14: Adding Up a List with a for Loop
+## Lesson 14: for Loops — Summing Everything Up
 
 ### Big Idea
-A `for` loop visits each item; we add them up to get a total.
+A loop can add up every item in a list to make a total.
 
 ### Kid Meaning
-Go down the list and keep a running total — that's your balance.
+Walk down the receipt roll, adding each line to a running total. At the end, you
+know what you spent.
 
 ### Tracker Connection
-This is exactly how the tracker works out your balance from all entries.
+Our income total, spending total, and each category total are all built this way.
 
 ### The Code
 ```python
-amounts = [50, -20, 30, -10]
-total = 0
-for amount in amounts:
-    total = total + amount
-print(f"Your balance is {total} cedis.")
-```
+import tkinter as tk
 
-### Line by Line
-- `total = 0` — start the running total.
-- `for amount in amounts:` — each time, `amount` is the next item.
-- `total = total + amount` — add it to the total (negatives subtract naturally).
-- After the loop, `total` is the balance.
+root = tk.Tk()
+canvas = tk.Canvas(root, width=520, height=320, bg="#0e1b2a")
+canvas.pack()
 
-### Your Turn
-1. Make a list of amounts and add them up with a `for` loop.
-2. Add one negative amount and see the total go down.
-3. Why does adding a negative number subtract?
+amounts = [12.5, 30.0, 4.75, 18.0]
 
-### Check Your Brain
-- What does a `for` loop do with a list?
-- What is `amount` each time around?
-
-### More Examples
-Watch the total build, lap by lap — add a print INSIDE:
-
-```python
-amounts = [50, -20, 30, -10]
-total = 0
-for amount in amounts:
-    total = total + amount
-    print(f"  after {amount}: total = {total}")
-print(f"Final balance: {total}")
-```
-
-Count only the spends — a for loop with an `if` inside:
-
-```python
-spend_count = 0
-for amount in amounts:
-    if amount < 0:
-        spend_count = spend_count + 1
-print(f"You spent money {spend_count} times.")
-```
-
-Find the biggest single spend:
-
-```python
-biggest_spend = 0
-for amount in amounts:
-    if amount < biggest_spend:
-        biggest_spend = amount
-print(f"Biggest spend: {biggest_spend}")
-```
-
-### Common Mistakes
-- **Total reset inside the loop:** `total = 0` indented into the for-loop wipes it every lap — final answer is just the last item. Starting values live BEFORE.
-- **Looping the wrong name:** `for amount in amount:` (list and loop variable same name) → chaos. Plural for the list (`amounts`), singular for the item (`amount`) — a pro naming habit.
-- **Expecting order to matter:** adding in any order gives the same total (maths!), but min/max/count patterns DO care about the `if` you write. Trace one lap by hand when unsure.
-
-### Level Up 🚀
-The week-in-review engine: from one amounts list, compute and print — final balance, number of incomes, number of spends, and the single biggest income. Four for-loops (or one clever combined one — try both!). You're now doing *data analysis*. That phrase belongs on your future CV.
-
----
-
-## Lesson 15: Dictionaries — Labelled Information
-
-### Big Idea
-A **dictionary** stores information with labels (keys), like `{"amount": 50,
-"note": "snack"}`.
-
-### Kid Meaning
-A list just holds values in a row. A dictionary labels each value, like a form:
-"Amount: 50, Note: snack." You look things up by their label.
-
-### Tracker Connection
-Each transaction is a dictionary so it remembers BOTH the amount AND what it was
-for.
-
-### The Code
-```python
-entry = {"amount": 50, "note": "birthday gift"}
-print(entry["amount"])
-print(entry["note"])
-```
-
-### Line by Line
-- `{ }` with `key: value` pairs is a **dictionary**.
-- `"amount"` and `"note"` are the **keys** (labels).
-- `entry["amount"]` — look up the value behind the "amount" label (50).
-
-### Your Turn
-1. Make an `entry` dictionary with an amount and a note of your own. Print both.
-2. Add a third key `"day"` with a day of the week, and print it.
-3. How is a dictionary different from a list?
-
-### Check Your Brain
-- What is a key in a dictionary?
-- How do you look up a value by its key?
-
-### More Examples
-A richer transaction — as many labels as you need:
-
-```python
-entry = {"amount": -15, "note": "lunch", "day": "Tuesday", "place": "canteen"}
-print(entry["day"])
-print(f"{entry['note']} at {entry['place']}: {entry['amount']}")
-```
-
-(Inside an f-string, use SINGLE quotes for keys — the f-string already owns the doubles.)
-
-Update and add labels after creation:
-
-```python
-entry["amount"] = -18          # price correction
-entry["regret"] = False       # worth it!
-print(entry)
-```
-
-A LIST of dictionaries — your tracker's true shape, one lesson early:
-
-```python
-history = [
-    {"amount": 50, "note": "gift"},
-    {"amount": -20, "note": "snack"},
-]
-print(history[0]["note"])     # "gift" - index the list, then key the dict!
-```
-
-### Common Mistakes
-- **Wrong key:** `entry["amout"]` (typo) → `KeyError: 'amout'`. Keys must match exactly — the error names the missing key, read it!
-- **Square vs curly:** lists `[ ]`, dictionaries `{ }` with `key: value`. Mixing them up is everyone's week-one dict mistake.
-- **Quote collision in f-strings:** `f"{entry["note"]}"` breaks — the doubles fight. Singles inside: `f"{entry['note']}"`.
-
-### Level Up 🚀
-Design your "dream transaction record": what would the PERFECT money entry remember? (amount, note, day, mood when buying?, needed-or-wanted?) Build it as a dict with 5+ keys and print a nicely formatted card from it. Data design — deciding what to remember — is the quiet superpower behind every great app.
-
----
-
-## Lesson 16: Functions for the Tracker
-
-### Big Idea
-A function bundles a job; it can take parameters and `return` a result.
-
-### Kid Meaning
-A machine with a button. `total_of(list)` adds up a list whenever we press it.
-
-### Tracker Connection
-A `balance_of(entries)` function can total all transactions and hand back the
-balance.
-
-### The Code
-```python
-def balance_of(entries):
-    total = 0
-    for entry in entries:
-        total = total + entry["amount"]
+def total_of(numbers):
+    total = 0.0
+    for n in numbers:
+        total = total + n
     return total
 
-history = [{"amount": 50, "note": "gift"}, {"amount": -20, "note": "snack"}]
-print(f"Balance: {balance_of(history)}")
+def biggest_of(numbers):
+    biggest = 0.0
+    for n in numbers:
+        if n > biggest:
+            biggest = n
+    return biggest
+
+canvas.create_text(260, 60, text=f"Items: {len(amounts)}", fill="white",
+                   font=("Arial", 16))
+canvas.create_text(260, 110, text=f"Total: GHS {total_of(amounts):.2f}",
+                   fill="#ffd54a", font=("Arial", 22, "bold"))
+canvas.create_text(260, 165, text=f"Biggest: GHS {biggest_of(amounts):.2f}",
+                   fill="#ff6b6b", font=("Arial", 16))
+canvas.create_text(260, 215,
+                   text=f"Average: GHS {total_of(amounts)/len(amounts):.2f}",
+                   fill="#8fa0d8", font=("Arial", 14))
+
+root.mainloop()
 ```
+
+### What You'll See
+"Items: 4", "Total: GHS 65.25", "Biggest: GHS 30.00", "Average: GHS 16.31" — all
+worked out by walking the list.
 
 ### Line by Line
-- `balance_of(entries)` takes a list of transaction dictionaries.
-- It loops, adding each entry's `["amount"]` to the total.
-- `return total` hands the balance back.
-- We print it with an f-string.
+- `def total_of(numbers):` — a machine that takes a list and ANSWERS with its
+  total.
+- `total = 0.0` — start the running total at zero BEFORE the loop. This is the key
+  step beginners forget.
+- `for n in numbers:` — loop straight over the items themselves (no counter
+  needed). `n` is each amount in turn.
+- `total = total + n` — add this item to the running total.
+- `return total` — hand the answer back AFTER the loop finishes. Note it lines up
+  with the `for`, not inside it — otherwise it would quit after one item!
+- `biggest_of` uses the same walk but keeps the LARGEST seen so far with an `if`.
+  This is exactly how our chart works out its scale.
+
+### Do It in VS Code 🛠️
+1. New file `totals.py`. Type the code.
+2. Save, run — check the maths by hand.
+3. Add another amount to the list and confirm every figure updates.
+4. Move `return total` INSIDE the loop (indent it) and run — it returns after one
+   item. Now you've seen why placement matters. Put it back.
 
 ### Your Turn
-1. Add another entry to `history` and see the balance change.
-2. Make a function `count_of(entries)` that returns how many entries there are
-   (hint: `return len(entries)`).
-3. Why is `balance_of` better than adding by hand each time?
+1. Write `smallest_of(numbers)` (hint: start it at the first item, not 0).
+2. Count how many amounts are over GHS 20 using a loop and an `if`.
+3. Predict `total_of([1.5, 2.5])`. (4.0.)
+
+### 📸 Show Emrys
+Screenshot your totals panel. Tell Emrys where `total = 0.0` must go and why.
 
 ### Check Your Brain
-- What does this function `return`?
-- What does `entry["amount"]` get?
+- Why must `total` start at 0 before the loop?
+- What is the difference between `for n in numbers:` and `for i in range(...)`?
+- Why does `return` go after the loop?
+- How does `biggest_of` find the largest?
 
 ### More Examples
-The `count_of` from Your Turn, plus a friend — small functions stack up fast:
+Summing in the terminal:
 
 ```python
-def count_of(entries):
-    return len(entries)
-
-def biggest_income(entries):
-    best = 0
-    for entry in entries:
-        if entry["amount"] > best:
-            best = entry["amount"]
-    return best
-
-print(f"{count_of(history)} entries, best income {biggest_income(history)}")
-```
-
-Returned values feed other code — chain your machines:
-
-```python
-balance = balance_of(history)
-if balance < 0:
-    print("⚠️ Overspent!")
-```
-
-Test like an engineer — known input, known answer:
-
-```python
-test_data = [{"amount": 10, "note": "a"}, {"amount": -3, "note": "b"}]
-print(balance_of(test_data))    # must print 7 - if not, the function lies!
+prices = [10.0, 4.5, 2.0]
+total = 0.0
+for p in prices:
+    total = total + p
+print(total)     # 16.5
 ```
 
 ### Common Mistakes
-- **`print` instead of `return`:** then `balance_of(history)` hands back `None`, and `if balance < 0:` crashes with `TypeError`. Calculators return; reporters print. `balance_of` is a calculator.
-- **`return` inside the loop:** indent `return total` into the for-loop and it exits after the FIRST entry — balance of one transaction! The return belongs after the loop, at function level.
-- **Forgetting the parameter:** `balance_of()` → `TypeError: missing 1 required positional argument`. The machine needs its list.
+- **Resetting inside the loop:** `total = 0.0` inside the `for` wipes it every
+  time. **Fix:** put it above the loop.
+- **`return` inside the loop:** quits after one item. **Fix:** line it up with the
+  `for`.
 
 ### Level Up 🚀
-Write `spend_total(entries)` returning ONLY the spends total (negatives), and `income_total(entries)` for incomes. Then verify the accountant's identity: `income_total(...) + spend_total(...) == balance_of(...)` — print it; it must be True. Three functions agreeing with each other is called *cross-validation*. When your own functions check each other, you're truly engineering.
+Python has a built-in shortcut: `sum(amounts)` and `max(amounts)`. Try them, but
+make sure you understand the loop version first!
+
+---
+
+## Lesson 15: Functions — Reusable Tracker Tools
+
+### Big Idea
+A function is a named machine: define it once, then run it whenever you like.
+
+### Kid Meaning
+A blender is a machine — you don't rebuild it each time, you press its button. A
+function is code you name once and reuse by calling it.
+
+### Tracker Connection
+We'll build tools like `draw_header()`, `draw_chart()`, and `refresh()` and call
+them after every transaction.
+
+### The Code
+```python
+import tkinter as tk
+
+WIDTH = 720
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=340, bg="#0e1b2a")
+canvas.pack()
+
+balance = 74.5
+income = 120.0
+spent = 45.5
+
+def draw_header():
+    canvas.delete("header")
+    canvas.create_text(WIDTH/2, 40, text="MY MONEY BUDGET TRACKER",
+                       fill="#ffd54a", font=("Arial", 20, "bold"),
+                       tags="header")
+    color = "#7CFC00" if balance >= 0 else "#ff6b6b"
+    canvas.create_text(WIDTH/2, 95, text=f"Balance: GHS {balance:.2f}",
+                       fill=color, font=("Arial", 26, "bold"), tags="header")
+    canvas.create_text(WIDTH/2, 135,
+                       text=f"In: GHS {income:.2f}    Out: GHS {spent:.2f}",
+                       fill="#8fa0d8", font=("Arial", 12), tags="header")
+
+def message(text, color):
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 200, text=text, fill=color, width=WIDTH - 80,
+                       font=("Arial", 14), tags="msg")
+
+draw_header()
+message("Welcome back! Add a transaction to begin.", "#ffd54a")
+
+root.mainloop()
+```
+
+### What You'll See
+A clean dashboard header — title, colour-coded balance, and the in/out line — plus
+a separate message underneath, each drawn by its own machine.
+
+### Line by Line
+- `def draw_header():` — defines the machine. Nothing happens yet — we're just
+  building it.
+- `tags="header"` / `tags="msg"` — **labels** so each machine erases only ITS OWN
+  drawing. Much better than `delete("all")`, which would wipe the chart too.
+- `canvas.delete("header")` at the START — clear the old header before drawing the
+  new one.
+- `color = "#7CFC00" if balance >= 0 else "#ff6b6b"` — a one-line choice, so the
+  balance goes red the moment you overspend.
+- `width=WIDTH - 80` inside `create_text` — makes long messages **wrap** onto
+  several lines instead of running off the edge.
+
+### Do It in VS Code 🛠️
+1. New file `tracker_tools.py`. Type the code.
+2. Save, run — see both pieces.
+3. Change `balance = -20.0` and run. The balance turns red, everything else stays.
+4. Call `message("New message!", "#7db4ff")` again at the bottom — only the message
+   changes.
+
+### Your Turn
+1. Add a `draw_footer()` machine showing today's date.
+2. Call `message` twice — which one wins? (The last.)
+3. Predict what `canvas.delete("header")` erases — the message too?
+
+### 📸 Show Emrys
+Screenshot your dashboard with a green balance AND a red one. Tell Emrys the names
+of your functions.
+
+### Check Your Brain
+- What does `def` do?
+- What is the difference between DEFINING and CALLING a function?
+- Why are `tags` better than `delete("all")` here?
+- What does `width=` do inside `create_text`?
+
+### More Examples
+A tiny function you call by name:
+
+```python
+def hello():
+    print("Hi!")
+
+hello()
+hello()
+```
+
+### Common Mistakes
+- **Defining but never calling:** the machine exists but nothing runs it. **Fix:**
+  call it — `draw_header()`.
+- **Wiping everything:** `delete("all")` erases the chart too. **Fix:** delete by
+  tag.
+
+### Level Up 🚀
+Write one `refresh()` machine that calls `draw_header()` and `message()` together,
+so one call updates the whole screen.
+
+---
+
+## Lesson 16: Dictionaries — One Transaction Record
+
+### Big Idea
+A dictionary stores related facts together under names — perfect for one
+transaction.
+
+### Kid Meaning
+A real dictionary: look up a word, get its meaning. Here we look up `"amount"` and
+get how much, `"category"` and get what it was for.
+
+### Tracker Connection
+Every transaction in our tracker is a dictionary with three facts: kind, category,
+and amount.
+
+### The Code
+```python
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=560, height=320, bg="#0e1b2a")
+canvas.pack()
+
+record = {"kind": "expense", "category": "Food", "amount": 12.50}
+
+canvas.create_text(280, 50, text="ONE TRANSACTION", fill="#ffd54a",
+                   font=("Arial", 17, "bold"))
+canvas.create_text(280, 110, text=f"Kind: {record['kind']}", fill="white",
+                   font=("Arial", 15))
+canvas.create_text(280, 150, text=f"Category: {record['category']}",
+                   fill="white", font=("Arial", 15))
+canvas.create_text(280, 190, text=f"Amount: GHS {record['amount']:.2f}",
+                   fill="#ff6b6b", font=("Arial", 18, "bold"))
+
+sign = "-" if record["kind"] == "expense" else "+"
+canvas.create_text(280, 250, text=f"{sign} GHS {record['amount']:.2f}",
+                   fill="#ff6b6b" if sign == "-" else "#7CFC00",
+                   font=("Arial", 22, "bold"))
+
+root.mainloop()
+```
+
+### What You'll See
+One transaction laid out clearly — its kind, category, and amount — plus a big
+red **"- GHS 12.50"** showing it takes money away.
+
+### Line by Line
+- `record = { ... }` — curly braces `{ }` make a **dictionary**. Inside are
+  `"key": value` pairs.
+- `"kind"`, `"category"`, `"amount"` — the **keys** (the labels).
+- `record["kind"]` — look up the key and get its value.
+- `record['kind']` inside the f-string uses **single** quotes, because the f-string
+  itself uses double quotes. You can't reuse the same quote type inside.
+- `record['amount']:.2f` — you can format a dictionary value just like any number.
+- `sign = "-" if record["kind"] == "expense" else "+"` — a one-line choice picking
+  the sign, which then drives the colour too.
+
+### Do It in VS Code 🛠️
+1. New file `one_record.py`. Type the code.
+2. Save, run — a red expense.
+3. Change `"kind"` to `"income"` and run. Green, with a `+`!
+4. Change the category and amount.
+
+### Your Turn
+1. Add a `"note"` key (like `"bought jollof"`) and display it.
+2. Make a second record for income and show them side by side.
+3. Predict the sign for `"kind": "income"`. (A `+`.)
+
+### 📸 Show Emrys
+Screenshot an expense record AND an income record. Tell Emrys the three keys you
+used.
+
+### Check Your Brain
+- What makes a dictionary different from a list?
+- What is a "key"?
+- Why single quotes inside the f-string?
+- What decides the sign and the colour?
+
+### More Examples
+Dictionaries in the terminal:
+
+```python
+t = {"kind": "expense", "amount": 12.5}
+print(t["amount"])       # 12.5
+t["note"] = "jollof"     # add a new key
+print(t)
+```
+
+### Common Mistakes
+- **Wrong key:** `record["Amount"]` (capital A) → `KeyError`. **Fix:** keys are
+  case-sensitive.
+- **Same quote type inside the f-string:** `f"{record["kind"]}"` → `SyntaxError`.
+  **Fix:** single quotes inside.
+
+### Level Up 🚀
+Write a `describe(record)` function that returns a full sentence like
+"Expense of GHS 12.50 on Food".
 
 ---
 
 # PART 3 — BUILDING THE TRACKER
 
----
-
-## Lesson 17: Recording One Transaction
+## Lesson 17: The Transaction List
 
 ### Big Idea
-Ask for an amount and note, store them as a dictionary, add to the history list.
+A **list of dictionaries** holds every transaction — the tracker's memory.
 
 ### Kid Meaning
-Capture one money event with its details and remember it.
+One receipt roll (the list) holding many labelled receipts (the dictionaries).
 
 ### Tracker Connection
-This is how the tracker records every entry.
+This is the single source of truth. Every total, bar, and piece of advice is
+worked out from this one list.
 
 ### The Code
 ```python
-history = []
-amount = int(input("Amount (use a minus for spending, e.g. -20): "))
-note = input("What for? ").strip()
-entry = {"amount": amount, "note": note}
-history.append(entry)
-print(f"Recorded: {note} ({amount})")
-print(history)
-```
+import tkinter as tk
 
-### Line by Line
-- `history = []` — empty list of entries.
-- `int(input(...))` — amount as a real number (negative for spending).
-- Build a dictionary with the amount and note.
-- `.append(entry)` adds it to the history.
+WIDTH, HEIGHT = 720, 480
+CATEGORIES = ["Food", "Transport", "Fun", "School", "Other"]
 
-### Your Turn
-1. Build this and record one entry.
-2. Record a spend (a negative amount).
-3. Why store amount AND note together in a dictionary?
+root = tk.Tk()
+root.title("My Money Budget Tracker")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1b2a")
+canvas.pack()
 
-### Check Your Brain
-- What two pieces does each entry store?
-- What does `.append(entry)` do?
+transactions = []
 
-### More Examples
-Record THREE entries and watch the history grow:
-
-```python
-history = []
-count = 0
-while count < 3:
-    amount = int(input("Amount (minus for spending): "))
-    note = input("What for? ").strip()
-    history.append({"amount": amount, "note": note})
-    count = count + 1
-print(f"Recorded {len(history)} entries:")
-print(history)
-```
-
-Confirm each entry back, beautifully — income vs spend wording:
-
-```python
-if amount >= 0:
-    print(f"💵 +{amount} for '{note}' - nice!")
-else:
-    print(f"🧾 {amount} on '{note}' - noted.")
-```
-
-Build the dict inline (no temporary variable) — common pro style:
-
-```python
-history.append({"amount": amount, "note": note})
-```
-
-### Common Mistakes
-- **History reset in the loop:** `history = []` INSIDE the while wipes everything each lap — eternal single entry! The empty list is created ONCE, before.
-- **Appending pieces separately:** `history.append(amount)` then `history.append(note)` makes a flat mixed list — amount and note lose each other. Append the DICT so they stay married.
-- **Minus confusion:** users forget the minus for spends. Echo it back ("-20 on snack") so they SEE what was recorded — feedback catches mistakes.
-
-### Level Up 🚀
-Add a third key while recording: `"day": input("Day? ")`. Then print a "today filter": loop history and show only entries where `entry["day"] == "monday"` (tidy the input!). Congratulations — you've implemented FILTERING, the feature behind every search box you've ever used.
-
----
-
-## Lesson 18: Recording Many with a Menu Loop
-
-### Big Idea
-Use a `while` loop and a menu so the user can add many entries until they quit.
-
-### Kid Meaning
-The tracker keeps offering choices until you're done.
-
-### Tracker Connection
-The main loop of the app.
-
-### The Code
-```python
-history = []
-choice = ""
-while choice != "quit":
-    choice = input("\n[add] entry, [quit]: ").lower().strip()
-    if choice == "add":
-        amount = int(input("Amount (minus for spending): "))
-        note = input("What for? ").strip()
-        history.append({"amount": amount, "note": note})
-        print("Added! ✅")
-    elif choice == "quit":
-        print("Closing tracker...")
-    else:
-        print("Type 'add' or 'quit'.")
-print(f"You recorded {len(history)} entries.")
-```
-
-### Line by Line
-- A menu loop runs until "quit".
-- `if choice == "add":` — record a new entry (amount + note → dictionary →
-  append).
-- `elif`/`else` handle quit and typos.
-- After the loop, show how many entries.
-
-### Your Turn
-1. Build this and add a few entries, then quit.
-2. Add a `[help]` command that explains the menu.
-3. Why use a dictionary for each entry inside the loop?
-
-### Check Your Brain
-- What ends the menu loop?
-- What does each `add` create and append?
-
-### More Examples
-The `[help]` command from Your Turn, written out:
-
-```python
-elif choice == "help":
-    print("add  - record money in (+) or out (-)")
-    print("quit - close the tracker")
-```
-
-Show the entry count live in the prompt — tiny touch, very app-like:
-
-```python
-choice = input(f"\n({len(history)} entries) [add] [quit]: ").lower().strip()
-```
-
-A confirmation with personality based on the amount:
-
-```python
-if amount >= 50:
-    print("💰 Big money! Recorded.")
-elif amount < 0:
-    print("🧾 Spend recorded - watch that balance!")
-else:
-    print("Added! ✅")
-```
-
-### Common Mistakes
-- **add-code outside the if:** if the amount/note questions aren't indented under `if choice == "add":`, EVERY command (even quit!) asks them. Indentation routes the traffic.
-- **else swallowing quit:** order the chain so `quit` has its own `elif` BEFORE the catch-all else — or "quit" prints "Type add or quit" while quitting. Confusing!
-- **Crash on lettered amounts:** type "ten" at the amount → `ValueError`. Park this thought: the guard arrives in your toolkit soon (you met `.isdigit()` thinking in earlier classes; JHS 2 polish coming).
-
-### Level Up 🚀
-Add an `undo` command: `history.pop()` removes the LAST entry (look it up — pop is append's opposite!). Guard it: if the list is empty, say "Nothing to undo." Every great app forgives mistakes — yours now does too.
-
----
-
-## Lesson 19: Showing the Balance
-
-### Big Idea
-Total all entries with a function and show the balance on demand.
-
-### Kid Meaning
-A "balance" command that adds up everything so far.
-
-### Tracker Connection
-Lets the user check their money any time.
-
-### The Code
-```python
-def balance_of(entries):
-    total = 0
-    for entry in entries:
-        total = total + entry["amount"]
+def total_income():
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "income":
+            total = total + t["amount"]
     return total
 
-# inside the menu loop, add:
-#   elif choice == "balance":
-#       print(f"Your balance is {balance_of(history)} cedis.")
-```
-
-### Line by Line
-- `balance_of` (Lesson 16) totals the entries.
-- We add a `balance` command to the menu that prints it.
-
-### Your Turn
-1. Add the `balance` command to your menu loop.
-2. Add a few entries, then check the balance.
-3. Does spending (negative amounts) lower the balance correctly?
-
-### Check Your Brain
-- What does `balance_of` return?
-- Where do you add the new menu command?
-
-### More Examples
-The balance command, fully wired into the menu:
-
-```python
-elif choice == "balance":
-    balance = balance_of(history)
-    print(f"💼 Current balance: {balance} cedis")
-    if balance < 0:
-        print("   (that's negative - time to earn!)")
-```
-
-A percentage-of-goal readout — balance with CONTEXT:
-
-```python
-goal = 100
-balance = balance_of(history)
-percent = balance / goal * 100
-print(f"Goal progress: {percent:.0f}% of {goal} cedis")
-```
-
-(`:.0f` rounds to a whole number — display polish.)
-
-A progress bar in pure text:
-
-```python
-bars = int(balance / goal * 10)
-print("[" + "█" * bars + "·" * (10 - bars) + "]")
-```
-
-### Common Mistakes
-- **Recomputing by hand:** adding amounts manually in the balance branch instead of calling `balance_of(history)` — the whole POINT of the function is one source of truth. Call it everywhere.
-- **Stale balance variable:** computing `balance` once before the loop and printing it forever — it never updates! Compute it fresh INSIDE the command (or after each add).
-- **Division by zero:** percent-of-goal with `goal = 0` → `ZeroDivisionError`. Guard: `if goal > 0:` first. Money code meets edge cases fast.
-
-### Level Up 🚀
-Combine all three examples into a deluxe `balance` command: amount + goal percentage + the text progress bar. Run it after a few entries. Your beginner tracker now displays data better than some real banking SMS services. 📊
-
----
-
-## Lesson 20: Listing the History
-
-### Big Idea
-Loop through the entries and print each one neatly, numbered.
-
-### Kid Meaning
-Show the full statement — every entry, line by line.
-
-### Tracker Connection
-The "list" command shows the user their history.
-
-### The Code
-```python
-def show_history(entries):
-    if len(entries) == 0:
-        print("No entries yet.")
-        return
-    number = 1
-    for entry in entries:
-        print(f"{number}. {entry['note']}: {entry['amount']}")
-        number = number + 1
-
-# in the menu: elif choice == "list": show_history(history)
-```
-
-### Line by Line
-- If the list is empty, say so and `return` early (stop the function).
-- Otherwise loop, printing a numbered line for each entry.
-- Note: inside an f-string we use single quotes `'note'` because the f-string uses
-  double quotes.
-
-### Your Turn
-1. Add the `list` command to your menu.
-2. Add entries, then list them.
-3. Why check for an empty list first?
-
-### Check Your Brain
-- What does `return` do when the list is empty?
-- Why number the entries?
-
-### More Examples
-A prettier statement with income/spend icons:
-
-```python
-def show_history(entries):
-    if len(entries) == 0:
-        print("No entries yet.")
-        return
-    number = 1
-    for entry in entries:
-        icon = "💵" if entry["amount"] >= 0 else "🧾"
-        print(f"{number}. {icon} {entry['note']}: {entry['amount']}")
-        number = number + 1
-```
-
-(That `icon = ... if ... else ...` one-liner is a *conditional expression* — a compact if/else that fits in one line. Both styles are fine.)
-
-Show a running balance beside each line — like a real bank statement:
-
-```python
-running = 0
-number = 1
-for entry in entries:
-    running = running + entry["amount"]
-    print(f"{number}. {entry['note']}: {entry['amount']}   (balance: {running})")
-    number = number + 1
-```
-
-The "early return" pattern you just used is everywhere in pro code — handle the empty/edge case first, `return`, and the main logic below stays clean and unindented.
-
-### Common Mistakes
-- **No empty check:** listing an empty history prints… nothing. Silence looks broken. Always say "No entries yet."
-- **Quote collision:** `f"{entry["note"]}"` breaks — single quotes inside f-strings: `entry['note']`.
-- **Number never increments:** forget `number = number + 1` and every line says "1." — a statement printed by someone who can't count!
-
-### Level Up 🚀
-Add a `last` command that shows only the final 3 entries — slice the list with `entries[-3:]` ("the last three"). Slicing is a famous Python superpower; this is your first taste. Big histories need short views — that's why your banking app has "recent transactions."
-
----
-
-## Lesson 21: A Low-Balance Warning
-
-### Big Idea
-After changes, warn the user if their balance is low or negative.
-
-### Kid Meaning
-Like a friendly nudge: "Careful — you're running low!"
-
-### Tracker Connection
-Helps the user manage money wisely.
-
-### The Code
-```python
-balance = balance_of(history)
-if balance < 0:
-    print("⚠️ You've overspent! Balance is negative.")
-elif balance < 10:
-    print("⚠️ Low balance — spend carefully.")
-else:
-    print(f"👍 Balance is healthy: {balance} cedis.")
-```
-
-### Line by Line
-- Get the current balance with `balance_of`.
-- `< 0` → overspent; `< 10` → low; otherwise healthy.
-- Order matters: most serious check first.
-
-### Your Turn
-1. Show this warning after each `add`.
-2. Change the "low" threshold to a number you choose.
-3. Why check `< 0` before `< 10`?
-
-### Check Your Brain
-- What are the three balance states here?
-- Why does the order of the checks matter?
-
-### More Examples
-Wrap the warning in a function — call it after every change:
-
-```python
-def check_balance(entries):
-    balance = balance_of(entries)
-    if balance < 0:
-        print("⚠️ You've overspent! Balance is negative.")
-    elif balance < 10:
-        print("⚠️ Low balance - spend carefully.")
-    else:
-        print(f"👍 Healthy: {balance} cedis.")
-```
-
-A spending-speed warning — compare the LAST entry to the balance:
-
-```python
-last = history[-1]["amount"]
-if last < 0 and abs(last) > balance_of(history) / 2:
-    print("🚨 That single spend was over half your money!")
-```
-
-(`abs(...)` strips the minus sign so we can compare sizes.)
-
-Make the threshold the USER's choice at startup:
-
-```python
-low_mark = int(input("Warn me when balance drops below: "))
-# later: elif balance < low_mark: ...
-```
-
-### Common Mistakes
-- **Order flipped:** check `< 10` before `< 0` and a -50 balance gets the mild "low balance" warning — underplaying a crisis! Most severe first.
-- **Warning only in the balance command:** the warning matters most right AFTER a spend — call `check_balance(history)` at the end of every add.
-- **Nagging on healthy balances:** printing warnings every single time gets ignored (alarm fatigue is real!). The healthy path can stay quiet or brief.
-
-### Level Up 🚀
-Add a "budget coach" line to the overspent case: compute how much they'd need to add to get back to zero, and suggest it — `f"Add {abs(balance)} cedis to break even."` Advice with a number beats advice with adjectives — in apps and in life.
-
----
-
-## Lesson 22: The Full Tracker
-
-### Big Idea
-Combine menu, add, balance, list, and warnings into one complete app.
-
-### Kid Meaning
-Your finished, useful money tracker — start to finish!
-
-### Tracker Connection
-This is your complete Pocket-Money Budget Tracker.
-
-### The Code
-```python
-def balance_of(entries):
-    total = 0
-    for entry in entries:
-        total = total + entry["amount"]
+def total_spent():
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "expense":
+            total = total + t["amount"]
     return total
 
-def show_history(entries):
-    if len(entries) == 0:
-        print("No entries yet.")
-        return
-    number = 1
-    for entry in entries:
-        print(f"{number}. {entry['note']}: {entry['amount']}")
-        number = number + 1
+def balance():
+    return total_income() - total_spent()
 
-print("=" * 30)
-print("   POCKET-MONEY TRACKER 💰")
-print("=" * 30)
+# A quick test
+transactions.append({"kind": "income", "category": "Other", "amount": 120.0})
+transactions.append({"kind": "expense", "category": "Food", "amount": 45.5})
 
-history = []
-choice = ""
-while choice != "quit":
-    choice = input("\n[add] [balance] [list] [quit]: ").lower().strip()
-    if choice == "add":
-        amount = int(input("Amount (minus for spending): "))
-        note = input("What for? ").strip()
-        history.append({"amount": amount, "note": note})
-        print("Added! ✅")
-        balance = balance_of(history)
-        if balance < 0:
-            print("⚠️ You've overspent!")
-        elif balance < 10:
-            print("⚠️ Low balance — spend carefully.")
-    elif choice == "balance":
-        print(f"Your balance is {balance_of(history)} cedis.")
-    elif choice == "list":
-        show_history(history)
-    elif choice == "quit":
-        print("Final balance:", balance_of(history))
-        print("Goodbye! 👋")
-    else:
-        print("Please type add, balance, list, or quit.")
+canvas.create_text(WIDTH/2, 60, text=f"In: GHS {total_income():.2f}",
+                   fill="#7CFC00", font=("Arial", 18))
+canvas.create_text(WIDTH/2, 110, text=f"Out: GHS {total_spent():.2f}",
+                   fill="#ff6b6b", font=("Arial", 18))
+canvas.create_text(WIDTH/2, 180, text=f"Balance: GHS {balance():.2f}",
+                   fill="#ffd54a", font=("Arial", 26, "bold"))
+
+root.mainloop()
 ```
+
+### What You'll See
+"In: GHS 120.00", "Out: GHS 45.50", "Balance: GHS 74.50" — every figure counted
+from the same list of records.
 
 ### Line by Line
-- Two functions: `balance_of` and `show_history`.
-- A titled welcome, then the menu loop.
-- `add` records an entry and shows a warning if low/overspent.
-- `balance` and `list` report; `quit` shows the final balance and ends.
+- `transactions = []` — the empty receipt roll.
+- `transactions.append({...})` — add one dictionary to the list. This is the list
+  and dictionary ideas working TOGETHER.
+- `for t in transactions:` — walk the list; `t` is one record dictionary each time.
+- `if t["kind"] == "income":` — only count the ones we want. This **filter inside
+  a loop** is the key pattern of the whole course.
+- `total = total + t["amount"]` — add just that record's amount.
+- `def balance(): return total_income() - total_spent()` — a machine built from two
+  other machines. Small parts, combined.
+- Notice `balance()` needs **brackets** to call it — `balance` alone is the machine
+  itself, not its answer.
+
+### Do It in VS Code 🛠️
+1. Create your real project file `budget_tracker.py`. Type the code.
+2. Save, run — check the three figures.
+3. Append two more transactions and confirm the totals update.
 
 ### Your Turn
-1. Build the full tracker and use it: add income and spends, list, check balance.
-2. Add a `help` command explaining each option.
-3. Trace what happens when you add a big spend that makes the balance negative.
+1. Add a `count_of(kind)` machine returning how many records of that kind exist.
+2. Append an expense big enough to make the balance negative.
+3. Predict `total_spent()` after adding an expense of 10. (55.50.)
+
+### 📸 Show Emrys
+Screenshot your three figures. Tell Emrys how the `if` inside the loop filters
+records.
 
 ### Check Your Brain
-- What does each menu command do?
-- Where is the low-balance warning shown?
+- What is a list of dictionaries?
+- What does `t` hold on each pass of the loop?
+- Why does `total_income` need the `if` inside the loop?
+- Why does `balance()` need brackets?
 
 ### More Examples
-The release checklist — your tracker must pass all seven:
+Filtering in a loop:
 
 ```python
-# Test 1: add income       -> confirmed + balance correct?
-# Test 2: add a spend      -> negative handled, warning if low?
-# Test 3: overspend        -> negative balance + overspent warning?
-# Test 4: balance command  -> matches your mental maths?
-# Test 5: list command     -> all entries, numbered, in order?
-# Test 6: nonsense command -> polite correction, no crash?
-# Test 7: quit             -> final balance + goodbye?
-```
-
-A startup greeting that loads the owner's name:
-
-```python
-owner = input("Who owns this tracker? ").strip().title()
-print(f"Welcome, {owner}! Let's manage your money.")
-```
-
-A session summary at quit — bookend the experience:
-
-```python
-elif choice == "quit":
-    print(f"📋 Session summary: {len(history)} entries.")
-    print(f"💼 Final balance: {balance_of(history)} cedis.")
-    print(f"Goodbye, {owner}! 👋")
+numbers = [1, 5, 12, 3]
+big = 0
+for n in numbers:
+    if n > 4:
+        big = big + 1
+print(big)     # 2
 ```
 
 ### Common Mistakes
-- **Functions below the loop:** `balance_of` defined after it's first called → `NameError`. Functions at the top — the file reads: tools first, then the program.
-- **The `while choice != "quit"` + else trap:** typing "QUIT" untidied doesn't quit AND falls to else. The `.lower().strip()` on the input line is load-bearing — never remove it.
-- **Testing once, trusting forever:** every change can break an old command. Re-run the checklist after EVERY new feature — that's why pros automate tests.
+- **Forgetting the brackets:** `balance` instead of `balance()` shows something
+  like `<function balance>`. **Fix:** add `()`.
+- **Counting everything:** leaving out the `if` mixes income into the spending
+  total. **Fix:** filter by `kind`.
 
 ### Level Up 🚀
-Your tracker is feature-complete — now run a real "user test": hand it to a family member with actual pocket-money history and watch them use it WITHOUT helping. Write down every place they hesitated. Those notes are pure gold — real products are built from exactly such observations.
+Write `spent_in(category)` that totals only expenses in one category — you'll need
+it next lesson for the chart!
 
 ---
 
-## Lesson 23: Making It Smarter — Totals In and Out
+## Lesson 18: Adding Income and Expenses
 
 ### Big Idea
-Show separately how much came IN and how much went OUT.
+Buttons plus an Entry plus a category picker record a real transaction.
 
 ### Kid Meaning
-Like a mini report: "You earned X, you spent Y."
+This is the "log it" moment: type the amount, choose what it was for, press the
+button.
 
 ### Tracker Connection
-Gives the user a clearer picture of their habits.
+Every record in the list gets there through this one function.
 
 ### The Code
 ```python
-def totals(entries):
-    money_in = 0
-    money_out = 0
-    for entry in entries:
-        if entry["amount"] >= 0:
-            money_in = money_in + entry["amount"]
-        else:
-            money_out = money_out + entry["amount"]
-    return money_in, money_out
+def spent_in(category):
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "expense" and t["category"] == category:
+            total = total + t["amount"]
+    return total
 
-got, spent = totals(history)
-print(f"In: {got}   Out: {spent}")
+def add(kind):
+    text = amount_entry.get().strip()
+    try:
+        amount = float(text)
+    except ValueError:
+        show_error("Please type a number, like 12.50")
+        return
+    if amount <= 0:
+        show_error("Amount must be more than zero.")
+        return
+    transactions.append({"kind": kind,
+                         "category": category_var.get(),
+                         "amount": amount})
+    amount_entry.delete(0, tk.END)
+    canvas.delete("error")
+    refresh()
+
+controls = tk.Frame(root)
+controls.pack(pady=6)
+tk.Label(controls, text="Amount:").pack(side="left", padx=3)
+amount_entry = tk.Entry(controls, font=("Arial", 13), width=9, justify="center")
+amount_entry.pack(side="left", padx=3)
+category_var = tk.StringVar(root)
+category_var.set(CATEGORIES[0])
+tk.OptionMenu(controls, category_var, *CATEGORIES).pack(side="left", padx=3)
+tk.Button(controls, text="Add Expense",
+          command=lambda: add("expense")).pack(side="left", padx=3)
+tk.Button(controls, text="Add Income",
+          command=lambda: add("income")).pack(side="left", padx=3)
 ```
+
+### What You'll See
+A control bar under the dashboard: an amount box, a **drop-down menu** of
+categories, and two buttons. Type, choose, click — and the record is logged.
 
 ### Line by Line
-- We separate positive amounts (in) from negative ones (out).
-- `return money_in, money_out` — a function can hand back TWO values at once!
-- `got, spent = totals(history)` — catch both returned values.
+- `t["kind"] == "expense" and t["category"] == category` — `and` means **both**
+  must be true. We want expenses AND in this category.
+- `add(kind)` — ONE machine handles both buttons; the `kind` parameter says which.
+- `command=lambda: add("expense")` — buttons call a function with no information,
+  so `lambda:` wraps it to pass the word `"expense"`.
+- `category_var = tk.StringVar(root)` — a special tkinter box that widgets can
+  watch. The drop-down writes the chosen category into it.
+- `category_var.get()` — read whichever category is currently selected.
+- `tk.OptionMenu(controls, category_var, *CATEGORIES)` — the drop-down. The `*`
+  **unpacks** the list, handing each category to the menu as its own option — the
+  same as typing `"Food", "Transport", "Fun", ...` by hand.
+- `tk.Label(...)` — plain text sitting beside a widget (not drawn on the canvas).
+- The two guards from Lesson 9 protect us before anything reaches the list.
+
+### Do It in VS Code 🛠️
+1. Add `spent_in`, `add`, and the control bar to `budget_tracker.py`. Add a
+   temporary `refresh()` and `show_error()` that just print for now.
+2. Save, run. Log a few expenses in different categories.
+3. Add `print(transactions)` inside `add` and watch the list grow in the terminal.
 
 ### Your Turn
-1. Add a `report` command that prints money in and money out.
-2. Show the spent total as a positive number (hint: multiply by -1).
-3. How can a function return two values?
+1. Add a "Savings" category (remember to add it to `CATEGORIES`).
+2. Try logging letters and a negative — check both guards fire.
+3. Predict what `category_var.get()` returns before you touch the menu. (`"Food"` —
+   the one we `.set()`.)
+
+### 📸 Show Emrys
+Screenshot your control bar with the drop-down open. Tell Emrys what `*CATEGORIES`
+does.
 
 ### Check Your Brain
-- How does the code tell income from spending?
-- What does `return money_in, money_out` do?
+- What does `and` mean in `spent_in`?
+- Why does one `add` function serve two buttons?
+- What is a `StringVar` for?
+- What does the `*` in `*CATEGORIES` do?
 
 ### More Examples
-The `report` command, fully dressed:
+Unpacking a list:
 
 ```python
-elif choice == "report":
-    got, spent = totals(history)
-    print("📊 MONEY REPORT")
-    print(f"   In:  +{got}")
-    print(f"   Out: {spent}   (that's {abs(spent)} spent)")
-    print(f"   Net: {got + spent}")
-```
-
-A savings rate — the one number financial advisors obsess over:
-
-```python
-got, spent = totals(history)
-if got > 0:
-    rate = (got + spent) / got * 100
-    print(f"You kept {rate:.0f}% of everything you received.")
-```
-
-Two-value returns work anywhere — here's min and max together:
-
-```python
-def extremes(entries):
-    amounts = []
-    for entry in entries:
-        amounts.append(entry["amount"])
-    return min(amounts), max(amounts)
-
-lowest, highest = extremes(history)
+words = ["a", "b", "c"]
+print(*words)      # a b c   (same as print("a", "b", "c"))
 ```
 
 ### Common Mistakes
-- **Catching into one box:** `result = totals(history)` works but gives a *pair* — `result[0]` and `result[1]`. The two-box catch `got, spent = ...` is clearer.
-- **Wrong unpack order:** `spent, got = totals(...)` swaps the meanings silently — your report lies politely. Match the return order.
-- **Zero-income division:** the savings-rate maths with `got = 0` → `ZeroDivisionError`. The `if got > 0:` guard isn't decoration.
+- **Brackets on the command:** `command=add("expense")` runs it instantly at
+  startup. **Fix:** wrap it — `command=lambda: add("expense")`.
+- **Forgetting `.set()`:** the drop-down starts blank. **Fix:**
+  `category_var.set(CATEGORIES[0])`.
 
 ### Level Up 🚀
-Add a "needs vs wants" analysis: when recording, ask `kind = input("need or want? ")` and store it in the dict. Then a `wants` command totals only the want-spending. Most adults have never measured their wants-spending — your JHS 2 program does. Let that sink in. 💡
+Add a "Remove last" button using `transactions.pop()` — but guard against popping
+from an empty list!
+
+---
+
+## Lesson 19: The Live Bar Chart
+
+### Big Idea
+Draw a bar per category, scaled to the biggest, and redraw it after every
+transaction.
+
+### Kid Meaning
+This is the moment your data becomes a picture. Log a big Food expense and watch
+the Food bar stretch out.
+
+### Tracker Connection
+The centrepiece of the whole dashboard.
+
+### The Code
+```python
+COLORS = {"Food": "#ffd54a", "Transport": "#7db4ff", "Fun": "#ff8fd8",
+          "School": "#7CFC00", "Other": "#c8a0ff"}
+
+def draw_chart():
+    canvas.delete("chart")
+    canvas.create_text(120, 160, text="Spending by category", fill="white",
+                       anchor="w", font=("Arial", 13, "bold"), tags="chart")
+    biggest = 0.0
+    for c in CATEGORIES:
+        if spent_in(c) > biggest:
+            biggest = spent_in(c)
+    if biggest == 0:
+        biggest = 1.0
+    for i in range(len(CATEGORIES)):
+        name = CATEGORIES[i]
+        amount = spent_in(name)
+        y = 200 + i * 44
+        bar_len = 400 * amount / biggest
+        canvas.create_text(110, y, text=name, fill="white", anchor="e",
+                           font=("Arial", 12), tags="chart")
+        canvas.create_rectangle(120, y - 15, 520, y + 15, outline="#2a4a6a",
+                                tags="chart")
+        canvas.create_rectangle(120, y - 15, 120 + bar_len, y + 15,
+                                fill=COLORS[name], outline="", tags="chart")
+        canvas.create_text(535, y, text=f"GHS {amount:.2f}", fill="white",
+                           anchor="w", font=("Arial", 11), tags="chart")
+```
+
+### What You'll See
+Five coloured bars that **grow live**. Log GHS 50 on Food and its bar fills the
+track; log GHS 25 on Fun and that bar is exactly half as long.
+
+### Line by Line
+- `COLORS = {...}` — a **dictionary** pairing each category name with its colour.
+  `COLORS[name]` looks up the right one — cleaner than a parallel list.
+- The first loop finds `biggest` — the largest category total, worked out
+  automatically (no typing it by hand like Lesson 12!).
+- `if biggest == 0: biggest = 1.0` — the **divide-by-zero guard**. With no spending
+  yet, every total is 0, and dividing by 0 would crash. Setting it to 1 makes all
+  bars harmlessly zero-length.
+- `bar_len = 400 * amount / biggest` — scaling: the biggest category fills the
+  whole 400-pixel track, everything else in proportion.
+- Everything shares `tags="chart"`, so one `delete("chart")` clears the whole chart
+  before redrawing.
+
+### Do It in VS Code 🛠️
+1. Add `COLORS` and `draw_chart` to `budget_tracker.py`, and call it from
+   `refresh()`.
+2. Save, run. Log expenses in different categories and watch the bars move.
+3. Remove the zero-guard and run with no transactions — crash! Put it back.
+
+### Your Turn
+1. Change the category colours to your own.
+2. Make the track longer (change both 400 and 520 to match).
+3. Predict the bar length for a category with exactly half the biggest total.
+   (200 pixels.)
+
+### 📸 Show Emrys
+Screenshot your chart after logging in three categories. Tell Emrys how `biggest`
+is worked out and why the guard is needed.
+
+### Check Your Brain
+- How does the program find `biggest`?
+- Why do we need `if biggest == 0`?
+- What does scaling achieve?
+- Why is a colour dictionary better than a parallel list here?
+
+### More Examples
+Finding the largest in a loop:
+
+```python
+values = [3, 9, 5]
+biggest = 0
+for v in values:
+    if v > biggest:
+        biggest = v
+print(biggest)     # 9
+```
+
+### Common Mistakes
+- **`ZeroDivisionError`:** drawing the chart before any spending. **Fix:** the
+  guard.
+- **Bars off the screen:** forgetting to scale. **Fix:** always divide by `biggest`.
+
+### Level Up 🚀
+Grey out any category with zero spending, or sort the bars so the biggest is on
+top.
+
+---
+
+## Lesson 20: The Savings Goal Bar
+
+### Big Idea
+A progress bar shows how close your balance is to a savings goal.
+
+### Kid Meaning
+Like a fundraising thermometer — it fills as you save, and it never goes past
+100% or below empty.
+
+### Tracker Connection
+This gives the tracker a purpose beyond recording: something to aim for.
+
+### The Code
+```python
+GOAL = 100.0
+
+def draw_goal():
+    canvas.delete("goal")
+    money = balance()
+    done = money / GOAL
+    if done < 0:
+        done = 0.0
+    if done > 1:
+        done = 1.0
+    canvas.create_text(120, 450, text=f"Savings goal: GHS {GOAL:.2f}",
+                       fill="white", anchor="w", font=("Arial", 12, "bold"),
+                       tags="goal")
+    canvas.create_rectangle(120, 470, 520, 495, outline="#2a4a6a", tags="goal")
+    canvas.create_rectangle(120, 470, 120 + 400 * done, 495, fill="#7CFC00",
+                            outline="", tags="goal")
+    canvas.create_text(535, 482, text=f"{done * 100:.0f}%", fill="white",
+                       anchor="w", font=("Arial", 11), tags="goal")
+```
+
+### What You'll See
+A green progress bar under the chart. Save GHS 50 toward a GHS 100 goal and it
+fills exactly halfway, showing **50%**.
+
+### Line by Line
+- `done = money / GOAL` — a fraction: 50 out of 100 is `0.5`.
+- `if done < 0: done = 0.0` — **clamping**. If you're in debt the fraction goes
+  negative, which would draw a bar stretching backwards off the screen.
+- `if done > 1: done = 1.0` — the other clamp. Save more than the goal and the bar
+  stops neatly at full instead of overflowing past the track.
+- These two lines are called **clamping a value into a range**, and it's used
+  everywhere in real graphics code.
+- `120 + 400 * done` — the bar's right edge on the 400-wide track.
+- `done * 100:.0f` — turn the fraction back into a whole percentage for the label.
+
+### Do It in VS Code 🛠️
+1. Add `GOAL` and `draw_goal` to `budget_tracker.py`, and call it from `refresh()`.
+2. Save, run. Add income and watch the bar fill.
+3. Overspend into debt — the bar sits empty instead of drawing backwards.
+4. Save more than GHS 100 — it stops at full.
+5. Remove the two clamps and try both extremes to see what they prevent.
+
+### Your Turn
+1. Change `GOAL` to your own savings target.
+2. Make the bar turn gold when the goal is reached (hint: an `if done >= 1`).
+3. Predict `done` when the balance is 25 and the goal is 100. (0.25.)
+
+### 📸 Show Emrys
+Screenshot your goal bar part-full and completely full. Tell Emrys what clamping
+prevents.
+
+### Check Your Brain
+- What does `done = money / GOAL` work out?
+- What does clamping mean?
+- What would happen without the `done < 0` clamp?
+- Why multiply by 100 for the label?
+
+### More Examples
+Clamping in the terminal:
+
+```python
+value = 1.7
+if value > 1:
+    value = 1.0
+print(value)     # 1.0
+```
+
+### Common Mistakes
+- **No clamping:** bars drawn backwards or way past the track. **Fix:** clamp to
+  0–1.
+- **Forgetting `* 100`:** the label shows `0.5%` instead of `50%`. **Fix:** multiply.
+
+### Level Up 🚀
+Add a second goal line marking 50% on the track so students can see the halfway
+point.
+
+---
+
+## Lesson 21: Refresh — Redrawing Everything Together
+
+### Big Idea
+One `refresh()` machine redraws the whole dashboard after any change.
+
+### Kid Meaning
+Instead of remembering to update five things by hand, you call one function and
+everything catches up.
+
+### Tracker Connection
+This keeps the dashboard honest: it always shows the truth about the list.
+
+### The Code
+```python
+def refresh():
+    draw_header()
+    draw_chart()
+    draw_goal()
+    draw_advice()
+```
+
+And `add` ends with a single call:
+
+```python
+    transactions.append({...})
+    amount_entry.delete(0, tk.END)
+    canvas.delete("error")
+    refresh()
+```
+
+### What You'll See
+Log one transaction and **everything** updates at once — the balance, the in/out
+line, the right bar, the goal bar, and the advice. No stale numbers anywhere.
+
+### Line by Line
+- `refresh()` calls the four drawing machines in order. Each one clears its own tag
+  and redraws, so nothing is left behind.
+- **The golden rule:** the drawing functions never CHANGE data, they only SHOW it.
+  `add` changes the data, then calls `refresh` to show it. Keeping those two jobs
+  separate is what stops big programs turning into spaghetti.
+- Because every figure is worked out fresh from `transactions` each time, the
+  screen can never disagree with the data.
+- One call instead of four means you can never forget one and end up with a stale
+  bar.
+
+### Do It in VS Code 🛠️
+1. Add `refresh` to `budget_tracker.py` and call it at the end of `add`.
+2. Also call `refresh()` once at the bottom, before `root.mainloop()`, so the
+   dashboard is drawn at startup.
+3. Save, run. Log a transaction and watch everything update together.
+4. Comment out `draw_chart()` inside `refresh` and log something — the chart goes
+   stale. That's what `refresh` prevents.
+
+### Your Turn
+1. Add a `draw_footer()` and include it in `refresh`.
+2. Count how many places call `refresh` (should be `add`, `load`, `clear`, and
+   startup).
+3. Predict what happens if `add` forgets to call `refresh`. (The data changes but
+   the screen doesn't!)
+
+### 📸 Show Emrys
+Screenshot your full dashboard after logging several transactions. Tell Emrys why
+one `refresh` beats four separate calls.
+
+### Check Your Brain
+- What does `refresh()` do?
+- Why should drawing functions never change data?
+- Why is the dashboard always correct?
+- What breaks if you forget to call it?
+
+### More Examples
+Separating jobs:
+
+```python
+def change_data():
+    global score
+    score = score + 1      # changes
+def show_data():
+    print(score)           # only shows
+```
+
+### Common Mistakes
+- **Changing data inside a draw function:** totals drift and bugs get very hard to
+  find. **Fix:** draw functions only read.
+- **Forgetting the startup call:** the window opens blank. **Fix:** call `refresh()`
+  before `mainloop()`.
+
+### Level Up 🚀
+Time how long `refresh` takes with 1000 transactions using the `time` module —
+real apps care about this!
+
+---
+
+## Lesson 22: Saving to a File
+
+### Big Idea
+Writing to a file lets your records survive after the program closes.
+
+### Kid Meaning
+Everything so far lives in the computer's short-term memory and vanishes when you
+close the window. A file is the notebook that remembers.
+
+### Tracker Connection
+This is what makes the tracker genuinely useful for your real pocket money.
+
+### The Code
+```python
+import os
+
+FILENAME = "budget.txt"
+
+def save_data():
+    with open(FILENAME, "w") as f:
+        for t in transactions:
+            f.write(f"{t['kind']},{t['category']},{t['amount']}\n")
+    show_error(f"Saved {len(transactions)} records to {FILENAME}")
+
+def load_data():
+    if not os.path.exists(FILENAME):
+        show_error("No saved file yet.")
+        return
+    transactions.clear()
+    with open(FILENAME) as f:
+        for line in f:
+            line = line.strip()
+            if line == "":
+                continue
+            parts = line.split(",")
+            transactions.append({"kind": parts[0],
+                                 "category": parts[1],
+                                 "amount": float(parts[2])})
+    refresh()
+    show_error(f"Loaded {len(transactions)} records.")
+```
+
+### What You'll See
+Click **Save**, close the program completely, run it again, click **Load** — and
+every transaction is back, with the chart exactly as you left it.
+
+### Line by Line
+- `with open(FILENAME, "w") as f:` — open the file for **w**riting. The `with`
+  block **closes the file automatically** when it ends, even if something goes
+  wrong. Always use `with`.
+- `"w"` **erases the file first**. Use `"a"` to append instead. (This is why we
+  write ALL transactions each time.)
+- `f.write(f"{t['kind']},{t['category']},{t['amount']}\n")` — one line per record,
+  values separated by commas. `\n` is the **newline** character that ends the line.
+  Without it everything would run together on one line.
+- `os.path.exists(FILENAME)` — check the file is there before reading. Without this
+  the first ever run would crash with `FileNotFoundError`.
+- `transactions.clear()` — empty the list before loading, so we don't double up.
+- `line.split(",")` — chop the line at each comma into a list of pieces:
+  `"expense,Food,12.5"` becomes `["expense", "Food", "12.5"]`.
+- `float(parts[2])` — the amount comes back as TEXT from the file, so we must turn
+  it into a number again. Files only ever store text!
+
+### Do It in VS Code 🛠️
+1. Add `import os`, `FILENAME`, `save_data`, `load_data`, and Save/Load buttons.
+2. Save, run. Log three transactions, click **Save**.
+3. Close the window completely. Look in your project folder — there's `budget.txt`.
+   **Open it in VS Code** and read your own data!
+4. Run the program again and click **Load**. Everything returns.
+
+### Your Turn
+1. Open `budget.txt` and add a line by hand, then Load it.
+2. Change `"w"` to `"a"` and save twice — see records duplicate. Change it back.
+3. Predict what `"expense,Food,12.5".split(",")` gives.
+
+### 📸 Show Emrys
+Screenshot your `budget.txt` contents AND the dashboard after loading it. Tell
+Emrys why `float()` is needed on the way back in.
+
+### Check Your Brain
+- What does `with open(...)` do that a plain `open` doesn't?
+- What is the difference between `"w"` and `"a"`?
+- What does `\n` do?
+- Why must you `float()` the amount after loading?
+
+### More Examples
+Writing and reading a tiny file:
+
+```python
+with open("test.txt", "w") as f:
+    f.write("hello\n")
+with open("test.txt") as f:
+    print(f.read())
+```
+
+### Common Mistakes
+- **`FileNotFoundError`:** loading before ever saving. **Fix:** check
+  `os.path.exists` first.
+- **Forgetting `float()`:** amounts become text and adding them glues them
+  together. **Fix:** convert on load.
+- **Forgetting `\n`:** every record ends up on one giant line. **Fix:** add it.
+
+### Level Up 🚀
+Make the program **load automatically** at startup, so your data is just there.
+
+---
+
+## Lesson 23: Savings Advice
+
+### Big Idea
+Turn the numbers into honest, useful advice about spending habits.
+
+### Kid Meaning
+Data is only useful if it tells you something. This is where your app stops
+recording and starts helping.
+
+### Tracker Connection
+The feature that makes it a coach, not just a calculator.
+
+### The Code
+```python
+def advice_text():
+    if len(transactions) == 0:
+        return "Add your first record to get started!"
+    money = balance()
+    if money < 0:
+        return "You have spent more than you earned. Time to slow down!"
+    if total_income() == 0:
+        return "No income recorded yet."
+    saved = money / total_income() * 100
+    if saved >= 50:
+        return f"Excellent! You kept {saved:.0f}% of your money."
+    elif saved >= 20:
+        return f"Good going - you kept {saved:.0f}%. Try for 50%!"
+    else:
+        return f"You only kept {saved:.0f}%. Watch your spending."
+
+def draw_advice():
+    canvas.delete("advice")
+    canvas.create_text(WIDTH/2, 530, text=advice_text(), fill="#ffd54a",
+                       width=WIDTH - 80, font=("Arial", 13), tags="advice")
+```
+
+### What You'll See
+A gold line at the bottom that changes as you log: encouraging when you save,
+blunt when you overspend.
+
+### Line by Line
+- `advice_text()` is an ANSWER-machine — it returns a sentence. `draw_advice()` is
+  a DO-machine — it draws whatever the first one says. Two clean jobs.
+- **Three guards before the maths**, each returning early:
+  1. `len(transactions) == 0` — nothing logged yet.
+  2. `money < 0` — in debt; a percentage would be meaningless.
+  3. `total_income() == 0` — spending with no income would **divide by zero**.
+- Only once all three are safe do we work out `saved`. This "check the impossible
+  cases first, then do the real work" shape is how professionals write functions.
+- The `if/elif/else` then bands the percentage, biggest first (Lesson 10's rule).
+
+### Do It in VS Code 🛠️
+1. Add both functions to `budget_tracker.py` and include `draw_advice()` in
+   `refresh()`.
+2. Save, run. Log only an expense (no income) — the third guard catches it.
+3. Log income and small spending — get the excellent message.
+4. Overspend — get the warning.
+5. Remove the `total_income() == 0` guard and log only an expense — crash! Restore
+   it.
+
+### Your Turn
+1. Rewrite all the advice in your own voice.
+2. Add a band for keeping over 75%.
+3. Predict the advice when income is 100 and spending is 30. (Kept 70% —
+   excellent.)
+
+### 📸 Show Emrys
+Screenshot three different pieces of advice. Tell Emrys which guard prevents a
+divide-by-zero crash.
+
+### Check Your Brain
+- Why does `advice_text` return instead of drawing?
+- What are the three guards protecting against?
+- Which guard stops a `ZeroDivisionError`?
+- Why check the biggest percentage band first?
+
+### More Examples
+Guard-first functions:
+
+```python
+def divide(a, b):
+    if b == 0:
+        return "Cannot divide by zero"
+    return a / b
+```
+
+### Common Mistakes
+- **Maths before the guards:** a crash on the very first click. **Fix:** guards go
+  first.
+- **Drawing inside `advice_text`:** mixes the two jobs. **Fix:** return the text,
+  draw elsewhere.
+
+### Level Up 🚀
+Name the category you spend most on in the advice: "Most of your money goes on
+Food."
 
 ---
 
 ## Lesson 24: Showcase and Reflection
 
 ### Big Idea
-You built a real, useful app — celebrate and share it.
+Assemble the complete Budget Tracker and show it off — you built a real money app!
 
 ### Kid Meaning
-From zero to a working money tracker with menus, lists, totals, and warnings. Be
-proud!
+Every piece you learned — windows, shapes, floats, Entry input, if/elif, booleans,
+loops, lists, dictionaries, functions, return, files, and charts — comes together
+into one tool you can genuinely use.
 
 ### Tracker Connection
-This is your finished Pocket-Money Budget Tracker.
+This is the finished product. Read it, run it, and be proud.
 
 ### The Code
 ```python
-# This is YOUR finished tracker. Read every line top to bottom and
-# make sure you can explain it. That's how you know you've learned it.
+import tkinter as tk
+import os
+
+WIDTH, HEIGHT = 720, 580
+CATEGORIES = ["Food", "Transport", "Fun", "School", "Other"]
+COLORS = {"Food": "#ffd54a", "Transport": "#7db4ff", "Fun": "#ff8fd8",
+          "School": "#7CFC00", "Other": "#c8a0ff"}
+GOAL = 100.0
+FILENAME = "budget.txt"
+
+root = tk.Tk()
+root.title("My Money Budget Tracker")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1b2a")
+canvas.pack()
+
+transactions = []
+
+def total_income():
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "income":
+            total = total + t["amount"]
+    return total
+
+def total_spent():
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "expense":
+            total = total + t["amount"]
+    return total
+
+def spent_in(category):
+    total = 0.0
+    for t in transactions:
+        if t["kind"] == "expense" and t["category"] == category:
+            total = total + t["amount"]
+    return total
+
+def balance():
+    return total_income() - total_spent()
+
+def draw_header():
+    canvas.delete("header")
+    canvas.create_text(WIDTH / 2, 35, text="MY MONEY BUDGET TRACKER",
+                       fill="#ffd54a", font=("Arial", 20, "bold"),
+                       tags="header")
+    money = balance()
+    color = "#7CFC00" if money >= 0 else "#ff6b6b"
+    canvas.create_text(WIDTH / 2, 80, text=f"Balance: GHS {money:.2f}",
+                       fill=color, font=("Arial", 26, "bold"), tags="header")
+    canvas.create_text(WIDTH / 2, 115,
+                       text=f"In: GHS {total_income():.2f}    "
+                            f"Out: GHS {total_spent():.2f}    "
+                            f"({len(transactions)} records)",
+                       fill="#8fa0d8", font=("Arial", 12), tags="header")
+
+def draw_chart():
+    canvas.delete("chart")
+    canvas.create_text(120, 160, text="Spending by category", fill="white",
+                       anchor="w", font=("Arial", 13, "bold"), tags="chart")
+    biggest = 0.0
+    for c in CATEGORIES:
+        if spent_in(c) > biggest:
+            biggest = spent_in(c)
+    if biggest == 0:
+        biggest = 1.0
+    for i in range(len(CATEGORIES)):
+        name = CATEGORIES[i]
+        amount = spent_in(name)
+        y = 200 + i * 44
+        bar_len = 400 * amount / biggest
+        canvas.create_text(110, y, text=name, fill="white", anchor="e",
+                           font=("Arial", 12), tags="chart")
+        canvas.create_rectangle(120, y - 15, 520, y + 15, outline="#2a4a6a",
+                                tags="chart")
+        canvas.create_rectangle(120, y - 15, 120 + bar_len, y + 15,
+                                fill=COLORS[name], outline="", tags="chart")
+        canvas.create_text(535, y, text=f"GHS {amount:.2f}", fill="white",
+                           anchor="w", font=("Arial", 11), tags="chart")
+
+def draw_goal():
+    canvas.delete("goal")
+    money = balance()
+    done = money / GOAL
+    if done < 0:
+        done = 0.0
+    if done > 1:
+        done = 1.0
+    canvas.create_text(120, 450, text=f"Savings goal: GHS {GOAL:.2f}",
+                       fill="white", anchor="w", font=("Arial", 12, "bold"),
+                       tags="goal")
+    canvas.create_rectangle(120, 470, 520, 495, outline="#2a4a6a", tags="goal")
+    canvas.create_rectangle(120, 470, 120 + 400 * done, 495, fill="#7CFC00",
+                            outline="", tags="goal")
+    canvas.create_text(535, 482, text=f"{done * 100:.0f}%", fill="white",
+                       anchor="w", font=("Arial", 11), tags="goal")
+
+def advice_text():
+    if len(transactions) == 0:
+        return "Add your first record to get started!"
+    money = balance()
+    if money < 0:
+        return "You have spent more than you earned. Time to slow down!"
+    if total_income() == 0:
+        return "No income recorded yet."
+    saved = money / total_income() * 100
+    if saved >= 50:
+        return f"Excellent! You kept {saved:.0f}% of your money."
+    elif saved >= 20:
+        return f"Good going - you kept {saved:.0f}%. Try for 50%!"
+    else:
+        return f"You only kept {saved:.0f}%. Watch your spending."
+
+def draw_advice():
+    canvas.delete("advice")
+    canvas.create_text(WIDTH / 2, 530, text=advice_text(), fill="#ffd54a",
+                       width=WIDTH - 80, font=("Arial", 13), tags="advice")
+
+def refresh():
+    draw_header()
+    draw_chart()
+    draw_goal()
+    draw_advice()
+
+def show_error(message):
+    canvas.delete("error")
+    canvas.create_text(WIDTH / 2, 145, text=message, fill="#ff6b6b",
+                       font=("Arial", 12), tags="error")
+
+def add(kind):
+    text = amount_entry.get().strip()
+    try:
+        amount = float(text)
+    except ValueError:
+        show_error("Please type a number, like 12.50")
+        return
+    if amount <= 0:
+        show_error("Amount must be more than zero.")
+        return
+    transactions.append({"kind": kind,
+                         "category": category_var.get(),
+                         "amount": amount})
+    amount_entry.delete(0, tk.END)
+    canvas.delete("error")
+    refresh()
+
+def save_data():
+    with open(FILENAME, "w") as f:
+        for t in transactions:
+            f.write(f"{t['kind']},{t['category']},{t['amount']}\n")
+    show_error(f"Saved {len(transactions)} records to {FILENAME}")
+
+def load_data():
+    if not os.path.exists(FILENAME):
+        show_error("No saved file yet.")
+        return
+    transactions.clear()
+    with open(FILENAME) as f:
+        for line in f:
+            line = line.strip()
+            if line == "":
+                continue
+            parts = line.split(",")
+            transactions.append({"kind": parts[0],
+                                 "category": parts[1],
+                                 "amount": float(parts[2])})
+    refresh()
+    show_error(f"Loaded {len(transactions)} records.")
+
+def clear_all():
+    transactions.clear()
+    canvas.delete("error")
+    refresh()
+
+controls = tk.Frame(root)
+controls.pack(pady=6)
+tk.Label(controls, text="Amount:").pack(side="left", padx=3)
+amount_entry = tk.Entry(controls, font=("Arial", 13), width=9,
+                        justify="center")
+amount_entry.pack(side="left", padx=3)
+category_var = tk.StringVar(root)
+category_var.set(CATEGORIES[0])
+tk.OptionMenu(controls, category_var, *CATEGORIES).pack(side="left", padx=3)
+tk.Button(controls, text="Add Expense",
+          command=lambda: add("expense")).pack(side="left", padx=3)
+tk.Button(controls, text="Add Income",
+          command=lambda: add("income")).pack(side="left", padx=3)
+
+tools = tk.Frame(root)
+tools.pack(pady=2)
+tk.Button(tools, text="Save", width=8, command=save_data).pack(side="left", padx=3)
+tk.Button(tools, text="Load", width=8, command=load_data).pack(side="left", padx=3)
+tk.Button(tools, text="Clear", width=8, command=clear_all).pack(side="left", padx=3)
+
+refresh()
+root.mainloop()
 ```
+
+### What You'll See
+The full dashboard: a colour-coded balance, in/out totals, a live five-category bar
+chart, a savings goal progress bar, honest advice, input validation, and Save /
+Load / Clear buttons — a money app you can actually use.
 
 ### Line by Line
-- Open your full tracker file and explain each line out loud.
-- Any fuzzy line → revisit the lesson that taught it.
+- Every function is one you built across the course. Read each name — you know
+  exactly what it does now.
+- The shape of the program: **data** (`transactions`), **questions about the data**
+  (`total_income`, `spent_in`, `balance`, `advice_text`), **drawing** (`draw_*`),
+  and **actions** (`add`, `save_data`, `load_data`). Real software is organised
+  exactly like this.
+- Notice no drawing function ever changes `transactions`. That discipline is why
+  the dashboard is always correct.
 
-### Your Turn (Showcase)
-1. Demonstrate your tracker to your class or family — record real pocket money!
-2. Explain THREE lines of your code to them.
-3. Pick ONE upgrade you'd add next (saving to a file, categories, a weekly limit)
-   and describe how it might work.
-4. Brilliant — you're now a beginner Python app-maker! 🎉
+### Do It in VS Code 🛠️
+1. Make sure your `budget_tracker.py` matches this complete version.
+2. Save, run. Log a week of your REAL pocket money and spending.
+3. Save it, close it, reopen and load — your real data, still there.
+
+### Your Turn — Reflection
+1. Which lesson was the hardest, and what finally made it click?
+2. Add ONE personal touch (your own categories, colours, goal, or advice).
+3. Write two sentences: what are you proudest of building?
+
+### 📸 Show Emrys
+Screenshot your dashboard with your REAL money data AND your `budget.txt`. Tell
+Emrys: "Course complete!" and share your one personal touch.
 
 ### Check Your Brain
-- What was your favourite part to build?
-- Explain what a variable, an `if`, a `for` loop, a list, a dictionary, and a
-  function with `return` each do.
-- What's one thing you understand now that you didn't 4 months ago?
+- Name three different concepts this tracker uses (there are many!).
+- Which functions ask questions about the data, and which ones draw?
+- How would you explain "a list of dictionaries" to a friend?
 
-### Look How Far You've Come 🏆
-Four months ago: zero code. Today you've built a real APP that uses:
-
-- **print & f-strings** — clean money displays (Lessons 1, 7)
-- **variables & money maths** — balances that update correctly (Lessons 3–5)
-- **input + int()** — real amounts from real typing (Lessons 6–8)
-- **if / elif / else** — affordability checks and smart warnings (Lessons 9, 21)
-- **while menu loops** — an app that runs until you quit (Lessons 11, 18)
-- **lists + append** — a growing transaction history (Lessons 12–13)
-- **for loops** — totals and reports computed from data (Lessons 14, 23)
-- **dictionaries** — labelled records like real databases use (Lesson 15)
-- **functions + return (even two values!)** — `balance_of`, `totals`, tested and trusted (Lessons 16, 23)
-
-This is not a toy. Banking apps are this, scaled up: records in, totals out, warnings when needed. You've built the seed of financial software — and learned money sense doing it.
-
-### More Examples (Showcase ideas)
-```python
-# 1. A branded startup screen
-print("YAA-PAY v1.0 💰 - your money, your rules")
-```
+### More Examples
+Ideas to keep growing your tracker:
 
 ```python
-# 2. Demo data so the audience sees a rich history instantly
-history = [
-    {"amount": 50, "note": "birthday gift"},
-    {"amount": -12, "note": "waakye"},
-    {"amount": 20, "note": "errand reward"},
-]
+# Add a date to every record
+import datetime
+today = datetime.date.today()
+print(today)          # e.g. 2026-07-20
 ```
 
-```python
-# 3. The closing line that lands
-print("Track it. Understand it. Grow it. 📈")
-```
+### Common Mistakes
+- **Copy-paste errors:** if it won't run, read the terminal's red line number and
+  check that exact line. **Fix:** compare it character by character.
+- **Indentation drift:** mixed spaces break Python. **Fix:** keep 4 spaces per
+  level everywhere.
 
-### Common Mistakes (on showcase day!)
-- **Editing during the demo:** code freeze! A working v1 beats a broken v2.
-- **Starting from empty:** an empty tracker demos badly — preload the demo data above so `list` and `report` shine immediately.
-- **Forgetting the story:** don't just show commands — tell the story ("I spent too much on snacks, and MY OWN APP warned me").
-
-### Level Up 🚀 (your next adventure)
-1. **Save to a file** — `open("history.txt", "w")` can make entries survive shutdown. The bridge from program to real product.
-2. **Categories + charts** — group spends by category and print emoji bar charts per category.
-3. **A weekly allowance auto-add** — and a projection: "at this rate you'll have X by December."
-
-You came in knowing nothing. You leave with a working app, an engineer's habits, and better money sense than most adults. Final level: unlocked. 🎓💰🚀
+### Level Up 🚀
+Add dates to every record and show a "this week vs last week" comparison, or a
+monthly report. You are officially an app developer! 💰

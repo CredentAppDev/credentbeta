@@ -40,10 +40,10 @@ const COURSES = {
     class_name: 'Class 4',
     project_file: 'number_game.py',
     description:
-      'A Class 4 beginner course that builds a complete Magic Number guessing game in Python — the computer picks a secret number and the player hunts it down with "too high / too low" clues. Starts from absolute zero: printing, variables, input, ifs, and loops, all taught through one fun game.',
+      'A Class 4 beginner course that builds a complete Magic Number guessing game in Python with GRAPHICS — a real window with a glowing thermometer that fills red when the guess is too high and blue when too low, and bursts into stars on a win. Starts from absolute zero: drawing on a tkinter Canvas, variables, maths, getting the player\'s number from an Entry box, ifs, loops, and random, all taught through one fun visual game kids can see.',
     learning_goals:
-      'Understand print, variables, numbers vs text, input(), int(), f-strings, if/elif/else, while loops, random numbers, and counting with variables — by building and improving a real guessing game.',
-    tags: ['python', 'number-game', 'coding', 'class4'],
+      'Understand tkinter windows and Canvas drawing (shapes, text, colour, motion), variables, numbers vs text, Entry input and buttons, int(), f-strings, if/elif/else, for loops, random numbers, functions with parameters, and try/except — by building and improving a real graphical guessing game.',
+    tags: ['python', 'number-game', 'coding', 'graphics', 'tkinter', 'class4'],
   },
   class5: {
     file: path.join(REPO_ROOT, 'class5_emoji_chatbot/Emoji_Chatbot_Lessons.md'),
@@ -53,10 +53,10 @@ const COURSES = {
     class_name: 'Class 5',
     project_file: 'chatbot.py',
     description:
-      'A Class 5 beginner course that builds a friendly Emoji Chatbot in Python — a program that chats with you, remembers your name, answers questions, and replies with emojis. Teaches text handling, decisions, loops, lists, and functions through one lovable project.',
+      'A Class 5 beginner course that builds a friendly Emoji Mood Chatbot in Python with GRAPHICS — a real window where a big emoji face smiles, droops, or scowls to match how you feel, and a speech bubble replies kindly. It remembers your name, answers questions about itself, and counts your messages. Teaches drawing on a tkinter Canvas, text handling, decisions, loops, lists, and functions through one lovable visual project.',
     learning_goals:
-      'Understand strings and methods like .lower(), in-checks, if/elif chains, while loops, lists, random.choice, and simple functions — by building a chatbot the class can actually talk to.',
-    tags: ['python', 'chatbot', 'coding', 'class5'],
+      'Understand tkinter windows and Canvas drawing (ovals, arcs for smiles and frowns, text, speech bubbles, tags), the screen coordinate map, variables, maths for placing shapes, Entry input and buttons, .lower()/.strip(), f-strings, in-checks, if/elif/else, booleans, for loops, lists, dictionaries, and functions with parameters and return — by building a chatbot the class can actually talk to and watch react.',
+    tags: ['python', 'chatbot', 'coding', 'graphics', 'tkinter', 'class5'],
   },
   class6: {
     file: path.join(REPO_ROOT, 'class6_quiz_game/Quiz_Game_Lessons.md'),
@@ -66,10 +66,10 @@ const COURSES = {
     class_name: 'Class 6',
     project_file: 'quiz_game.py',
     description:
-      'A Class 6 beginner course that builds a full Quiz Game Show in Python — questions, scoring, lives, a timer feel, and a winners board. Teaches lists, dictionaries, loops, functions, and files through one exciting game the whole class can play.',
+      'A Class 6 beginner course that builds a full Quiz Game Show in Python with GRAPHICS — a real window where four answer cards are CLICKED with the mouse, flashing green for right and red for wrong (while lighting up the true answer), with a live score, lives, a progress bar, and a dramatic rank reveal with stars. Teaches clickable canvas shapes, lists, dictionaries, loops, and functions through one exciting game the whole class can play.',
     learning_goals:
-      'Understand lists, dictionaries, for loops, functions with parameters and returns, score tracking, randomising questions, and saving high scores — by building a quiz show students run for each other.',
-    tags: ['python', 'quiz-game', 'coding', 'class6'],
+      'Understand tkinter windows and Canvas drawing, the screen coordinate map, clickable shapes with tag_bind and itemconfig, grid maths with % and //, variables, f-strings, if/elif/else, booleans and guard flags, for loops, lists, dictionaries and lists-of-dictionaries, functions with parameters and return, random.shuffle, and root.after timing — by building a click-to-play quiz show students run for each other.',
+    tags: ['python', 'quiz-game', 'coding', 'graphics', 'tkinter', 'class6'],
   },
   jhs1: {
     file: path.join(REPO_ROOT, 'jhs1_rock_paper_scissors/RPS_Lessons.md'),
@@ -79,10 +79,10 @@ const COURSES = {
     class_name: 'JHS 1',
     project_file: 'rps_arena.py',
     description:
-      'A JHS 1 beginner course that builds a Rock Paper Scissors Arena in Python — best-of rounds, score tracking, a computer opponent with personality, and win statistics. Teaches core programming with random choices, game logic, loops, and functions.',
+      'A JHS 1 beginner course that builds a Rock Paper Scissors Arena in Python with GRAPHICS AND ANIMATION — two giant hands face off in a real window, shake up and down through the "Rock... Paper... Scissors..." countdown, then snap open to reveal their moves. Includes best-of-3 match play, a live scoreboard, percentage statistics bars, and a star-shower victory. Teaches core programming with animation, random choices, game logic, loops, dictionaries, and functions.',
     learning_goals:
-      'Understand random.choice, comparing values, if/elif game rules, while game loops, functions, score dictionaries, and input validation — by building a polished arena game against the computer.',
-    tags: ['python', 'rock-paper-scissors', 'coding', 'jhs1'],
+      'Understand tkinter windows and Canvas drawing, the screen coordinate map, drawing hands from a finger-count loop, direction flipping with -1, buttons with lambda, animation via recursive root.after, boolean guard flags (busy/match_over), random.choice, if/elif game rules, functions with parameters and return, the BEATS dictionary as a rules table, score dictionaries, and percentage bar charts — by building a polished animated arena game against the computer.',
+    tags: ['python', 'rock-paper-scissors', 'coding', 'graphics', 'tkinter', 'animation', 'jhs1'],
   },
   jhs2: {
     file: path.join(REPO_ROOT, 'jhs2_budget_tracker/Budget_Tracker_Lessons.md'),
@@ -92,10 +92,10 @@ const COURSES = {
     class_name: 'JHS 2',
     project_file: 'budget_tracker.py',
     description:
-      'A JHS 2 beginner course that builds a real Money Budget Tracker in Python — record pocket money and spending, see totals, get savings advice, and keep the data in a file so it survives restarts. Practical coding that teaches real-life money sense.',
+      'A JHS 2 beginner course that builds a real Money Budget Tracker in Python with GRAPHICS — a dashboard window with a colour-coded balance (green in credit, red in debt), a LIVE BAR CHART where each spending category grows its own coloured bar, a savings-goal progress bar, and honest advice about your habits. Records pocket money and spending, validates input, and saves to a file so the data survives restarts. Practical coding that teaches real-life money sense and data visualisation.',
     learning_goals:
-      'Understand floats and money maths, lists of records, dictionaries, functions, file reading/writing, simple reports, and input validation — by building a budget tool students can genuinely use.',
-    tags: ['python', 'budget-tracker', 'coding', 'jhs2'],
+      'Understand tkinter windows and Canvas drawing, the screen coordinate map, floats and money formatting with :.2f, Entry input with float() and try/except validation, StringVar and OptionMenu, if/elif/else banding, booleans, for loops that total and filter records, lists of dictionaries, functions with parameters and return, scaled bar charts, clamping a value into a range, the draw-vs-change separation with a refresh(), and file reading/writing with split() — by building a budget tool students can genuinely use.',
+    tags: ['python', 'budget-tracker', 'coding', 'graphics', 'tkinter', 'charts', 'jhs2'],
   },
 };
 

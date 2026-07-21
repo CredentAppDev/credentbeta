@@ -1,13 +1,16 @@
-# Emoji Mood Chatbot Lessons: Class 5 Edition
+# Emoji Mood Chatbot Lessons: Class 5 Edition (Graphics Version)
 
-Build your own **Emoji Mood Chatbot** — a friendly computer buddy that asks how
-you feel, replies with the perfect emoji and a kind message, remembers your name,
-and keeps chatting until you say bye!
+Build your very own **Emoji Mood Chatbot** — but this time you can SEE it! A big
+friendly **emoji face** looks at you from the screen. You type how you feel, and
+the face **changes its expression** — it smiles when you're happy, droops when
+you're sad, and scowls when you're angry — while a **speech bubble** replies with
+a kind message. It even remembers your name and counts your messages.
 
-This project is for **Class 5**, and it assumes you have **never coded before**.
-We start from absolutely zero and explain every single line in simple words, so you
-truly understand it — not just copy it. By the end you will have built a real,
-working chatbot.
+This project is for **Class 5** (beginners, around 10–11 years old). It uses
+Python on a normal school computer with **tkinter**, the drawing kit that comes
+free inside Python — nothing to install. You start from absolutely zero — no
+experience needed. Every single line of code is explained in simple words so you
+truly understand it, not just copy it.
 
 ---
 
@@ -18,9 +21,12 @@ Each lesson has the same shape:
 - **Big Idea** — the one thing this lesson teaches.
 - **Kid Meaning** — the idea in very simple words.
 - **Chatbot Connection** — how this fits our Emoji Mood Chatbot.
-- **The Code** — the actual Python to type.
+- **The Code** — the actual Python to type (it draws something you can see!).
+- **What You'll See** — the picture or change that appears in the window.
 - **Line by Line** — every important line explained.
-- **Your Turn** — a small task YOU do to practise (the most important part!).
+- **Do It in VS Code 🛠️** — the exact steps to type, save, and run it.
+- **Your Turn** — a small task YOU do to practise (this is the most important part!).
+- **📸 Show Emrys** — send a screenshot of your window so Emrys can check it.
 - **Check Your Brain** — quick questions to make sure it stuck.
 - **More Examples** — extra runnable programs that stretch the idea further.
 - **Common Mistakes** — the real errors beginners hit, with the exact fix.
@@ -35,1949 +41,2544 @@ programmers use every day. The rhythm for every piece of code is always:
 1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
 2. Type the code in the editor.
 3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
-4. Run: press the **▶ Run** button at the top-right, and read the result in
-   the **TERMINAL** panel at the bottom.
+4. Run: press the **▶ Run** button at the top-right.
+5. A **window pops up** showing your emoji face. Look at it! (When you're done,
+   click the window's **X** to close it.)
+
+Because our programs draw pictures, the exciting part is the **window**, not the
+terminal. But keep an eye on the terminal too — if something goes wrong, Python
+prints a red error message there, and errors are just clues.
 
 You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
 your workbench.
 
 ### Show Emrys Your Work 📸
 
-After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
-printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
-celebrate what's right, and help fix anything that isn't. If something errored,
-paste the red error message too — errors are clues, and Emrys reads them like
-a detective. No skipping this step: real coders always show their output.
+After EVERY "Your Turn" task, show Emrys the proof: **take a screenshot of the
+window your program drew** and send it to Emrys. Emrys will check it, celebrate
+what's right, and help fix anything that isn't. If something errored, paste the
+red error message from the terminal too — errors are clues, and Emrys reads them
+like a detective. No skipping this step: real coders always show their output.
 
-Teach one lesson at a time: explain the idea, show the code, then let students type
-and run it. **Always do "Your Turn" — that is where the learning happens.** Do not
-rush; understanding one lesson fully is better than copying five.
+Teach one lesson at a time. Explain the idea first, then the code, then let
+students type it and run it themselves. **Always do "Your Turn" — that is where
+the learning happens.** Do not rush; it is better to truly understand one
+lesson than to copy five.
 
-**This course takes about 4 months** (about two lessons a week), in three parts:
+**This course takes about 4 months** (roughly two lessons a week). It has three
+parts:
 
-- **Part 1 — First Steps (Lessons 1–8):** what code is, printing, variables, input,
-  and f-strings. The basic building blocks, from zero.
-- **Part 2 — Making Choices (Lessons 9–16):** decisions with `if`, True/False,
-  loops, and functions.
-- **Part 3 — Building the Chatbot (Lessons 17–24):** put it together into the real
-  Emoji Mood Chatbot, then make it smarter and friendlier.
+- **Part 1 — First Pictures (Lessons 1–8):** open a window, draw the emoji face,
+  use variables and maths to place it, and let the player type to the bot.
+- **Part 2 — Making Choices & Expressions (Lessons 9–16):** teach the face to
+  change expression with `if`, loops, and functions.
+- **Part 3 — Building the Chatbot (Lessons 17–24):** put it all together into the
+  full talking Emoji Mood Chatbot that remembers, replies, and cares.
 
 Works on **Windows, Mac, and Linux**.
 
 ---
 
-# PART 1 — FIRST STEPS
+# PART 1 — FIRST PICTURES
 
----
-
-## Lesson 1: What Is Code? Saying Hello
+## Lesson 1: What Is Code? Drawing a Face
 
 ### Big Idea
-Code is a list of instructions we give the computer, one line at a time.
+Code is a list of instructions we give the computer, one line at a time — and
+those instructions can draw a face on the screen.
 
 ### Kid Meaning
 A recipe tells a cook what to do step by step. Code tells the computer what to do
 step by step. The computer does EXACTLY what you say — nothing more, nothing less.
+Today we tell it: "Draw me a face."
 
 ### Chatbot Connection
-Our chatbot will "say" things like "How do you feel?" — so first we learn how to
-make the computer say anything at all.
+Our whole chatbot IS a face that looks at you and changes expression. Before it
+can smile or frown, we must learn to draw the face at all.
 
 ### The Code
 ```python
-print("Hi! I am your computer.")
-print("Let's build a chatbot together.")
+import tkinter as tk
+
+root = tk.Tk()
+root.title("My Emoji Face")
+canvas = tk.Canvas(root, width=400, height=400, bg="#0e1230")
+canvas.pack()
+
+canvas.create_oval(120, 100, 280, 260, fill="#ffd54a")   # the head
+canvas.create_oval(155, 150, 175, 170, fill="black")     # left eye
+canvas.create_oval(225, 150, 245, 170, fill="black")     # right eye
+canvas.create_line(160, 210, 240, 210, width=5)          # a straight mouth
+
+root.mainloop()
 ```
+
+### What You'll See
+A dark blue window with a big **yellow round face**: two black eyes and a
+straight line for a mouth. It looks calm — we'll teach it to smile soon!
 
 ### Line by Line
-- `print(...)` — `print` is a command that means "show this on the screen."
-- The words inside the quotes `" "` are exactly what gets shown.
-- Each `print` line shows on its own new line.
+- `import tkinter as tk` — brings in Python's drawing kit and gives it the short
+  nickname `tk` so we type less. Think of it as opening your box of crayons.
+- `root = tk.Tk()` — makes the window itself. `root` is the name we'll use to
+  talk to that window.
+- `root.title("My Emoji Face")` — writes the title at the top of the window.
+- `canvas = tk.Canvas(root, width=400, height=400, bg="#0e1230")` — puts a dark
+  drawing sheet, 400 wide and 400 tall, inside the window. `canvas` is our paper.
+- `canvas.pack()` — actually places the canvas into the window (without this, the
+  paper stays hidden).
+- `create_oval(120, 100, 280, 260, fill="#ffd54a")` — draws the round head.
+- The two small ovals are the eyes; the `create_line` is the mouth.
+- `#ffd54a` — a colour code. The `#` at the start means "a colour written in
+  computer code" — this one is a warm yellow. You can also just write `"yellow"`.
+- `root.mainloop()` — the magic word that keeps the window open and waiting.
+  Without it, the window would blink and vanish.
+- `#` in the code — anything after a `#` (outside quotes) is a **comment**: a note
+  for humans. Python ignores it completely.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `face.py` → save it on your Desktop.
+2. Type the code above yourself (don't copy-paste — typing teaches your fingers).
+3. Save: **Ctrl+S** (make the white "unsaved" dot on the tab disappear).
+4. Press the **▶ Run** button. Your emoji face should pop up!
+5. Look at your face. Then close it by clicking the **X**.
 
 ### Your Turn
-1. Make the computer print your own name, like: `print("My name is Esi.")`
-2. Add two more `print` lines: your favourite food and your favourite colour.
-3. Run it. Did all three lines appear?
+1. Change the face colour to `"lime"` or `"pink"`.
+2. Make the eyes bigger (change their oval numbers).
+3. Change the background `bg` to a different colour.
+4. BEFORE you run: predict what will look different. Then run. Were you right?
+
+### 📸 Show Emrys
+Take a screenshot of your face in YOUR colours and **send it to Emrys**. Say:
+"Lesson 1 done!" Emrys will give you your first ✅ of the course.
 
 ### Check Your Brain
-- What does `print` do?
-- What do the quotes `" "` mark?
-- If you write three `print` lines, how many lines show?
+- What does `import tkinter as tk` bring us?
+- Which line makes the window actually appear and stay open?
+- What does `fill` change?
+- What does a `#` comment do?
 
 ### More Examples
-Make the computer talk like a friendly robot — predict each result BEFORE running:
+A face with a nose:
 
 ```python
-print("Beep boop! 🤖")
-print("I am learning to chat.")
-```
-
-The computer says things in the exact order you write them — order matters in a conversation:
-
-```python
-print("Knock knock!")
-print("Who's there?")
-print("A chatbot you are about to build!")
-```
-
-Emojis are just characters — they can live inside your quotes like any letter:
-
-```python
-print("Happy 😄")
-print("Sleepy 😴")
-print("Super cool 😎")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+canvas.create_oval(120, 100, 280, 260, fill="orange")
+canvas.create_oval(155, 150, 175, 170, fill="black")
+canvas.create_oval(225, 150, 245, 170, fill="black")
+canvas.create_line(200, 175, 200, 200, width=4)   # nose
+canvas.create_line(165, 220, 235, 220, width=5)   # mouth
+root.mainloop()
 ```
 
 ### Common Mistakes
-Everyone makes these — spotting them makes you a real coder:
-
-- **Forgetting the quotes:** `print(Hello)` → Python says `NameError: name 'Hello' is not defined`. It thinks Hello is a box name, not words. **Fix:** `print("Hello")`.
-- **Forgetting a bracket:** `print("Hello"` → `SyntaxError: '(' was never closed`. **Fix:** close it — `print("Hello")`.
-- **Capital P:** `Print("Hello")` → `NameError`. Python only knows lowercase `print`.
+- **Forgetting `root.mainloop()`:** the window flashes and disappears. **Fix:** add
+  it as the LAST line.
+- **Forgetting `canvas.pack()`:** the window opens but is empty. **Fix:** add
+  `canvas.pack()` after making the canvas.
+- **Capital letters wrong:** `Import` or `canvas.Create_oval()` → an error. Python
+  is picky — copy the spelling exactly.
 
 ### Level Up 🚀
-Print a 4-line conversation between two robots, like a tiny play:
-
-```python
-print("Robo1: Hello friend!")
-print("Robo2: Hello! How are you?")
-print("Robo1: Fully charged! 🔋")
-print("Robo2: Lucky you - I'm at 2 percent...")
-```
-
-Write your own version with different robot names and a funnier ending!
+Give your face hair, ears, or a hat using more ovals and lines. Make it YOURS!
 
 ---
 
-## Lesson 2: How to Run Python
+## Lesson 2: How to Run Python (and the Screen Map)
 
 ### Big Idea
-We type code in a file and then "run" it to see it work.
+We type code in a file, save it, and then "run" it — and every drawing lands at
+a spot described by two numbers.
 
 ### Kid Meaning
 Writing code is like writing a letter. Running it is like reading the letter out
-loud — that is when things actually happen.
+loud — that is when the window pops up. And every shape needs an address on the
+screen: how far across, and how far down.
 
 ### Chatbot Connection
-You will run your chatbot again and again as you build it, checking it each time.
+You'll run your chatbot again and again as you build it. And every eye, mouth,
+and speech bubble has to be placed at exactly the right spot.
 
 ### The Code
 ```python
-print("If you can see this, Python is working!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="white")
+canvas.pack()
+
+canvas.create_rectangle(100, 100, 300, 300, fill="skyblue")
+canvas.create_text(200, 200, text="I am at 200, 200", fill="black")
+
+root.mainloop()
 ```
+
+### What You'll See
+A white window with a **blue square**, and words in the middle telling you where
+they are.
 
 ### Line by Line
-- This is one instruction. When you run the file, Python reads it top to bottom.
-- Save your file with a name ending in `.py`, for example `chatbot.py`. The `.py`
-  tells the computer "this is Python."
+- `create_rectangle(100, 100, 300, 300, ...)` — the first two numbers
+  `(100, 100)` are the **top-left corner**, the next two `(300, 300)` are the
+  **bottom-right corner**.
+- `create_text(200, 200, ...)` — writes words centred at the spot 200 across and
+  200 down.
 
-### How to start (ask your teacher to help the first time)
-- **Windows**: open the file in the code editor, then press the Run button.
-- **Mac / Linux**: same idea — open and Run.
-- You can also type `python chatbot.py` in the terminal.
+### The Screen Map 🗺️ — where do the numbers point?
+Every spot on the canvas has two numbers: **x** (how far ACROSS) and **y** (how
+far DOWN). Here is the big surprise that trips up almost everyone:
+
+- The corner **(0, 0) is the TOP-LEFT**, not the middle and not the bottom.
+- **x** gets bigger as you go **right** → (like normal).
+- **y** gets bigger as you go **DOWN** ↓ — this is BACKWARDS from maths class,
+  where up is the big direction! On the screen, **down is the big direction.**
+
+Picture the canvas like reading a book: you start at the top-left and your eyes
+travel right and then down. So:
+
+```text
+(0,0) ─────────► x gets bigger →
+  │  •(100,50)  ← a bit right, near the top
+  │
+  ▼            •(200,200) ← the middle of a 400×400 canvas
+y gets
+bigger        •(50,350) ← near the bottom-left
+  ↓
+```
+
+Remember this and shapes go exactly where you expect. Forget it and your face
+ends up "upside down" from where you pictured it — that's not a bug, it's just
+the screen map. (This is why the eyes use a SMALLER y than the mouth: eyes sit
+HIGHER on the face.)
+
+### Slow Motion 🔬 — writing vs running
+There are TWO different moments, and mixing them up confuses every beginner:
+
+- **Writing** = typing the code into the editor. Nothing happens yet.
+- **Saving** = Ctrl+S. Your words are safely on the disk. STILL nothing happens.
+- **Running** = pressing **▶**. NOW Python reads your file and the window pops up.
+
+The biggest trap: changing the code and running WITHOUT saving — the computer
+runs the OLD version and you wonder why nothing changed. Burn this rhythm into
+your fingers: **type → Ctrl+S → ▶ → look at the window.** Every time. Forever.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `map.py` → save on your Desktop.
+2. Type the code above.
+3. **Ctrl+S**, then press **▶ Run**.
+4. Change the text position to `create_text(100, 50, ...)`. Predict where it
+   moves BEFORE you run. (Answer: up and to the left!)
 
 ### Your Turn
-1. Save a file called `practice.py`.
-2. Put one `print` line inside that says `"I ran my first program!"`.
-3. Run it. Show your teacher or a friend.
+1. Put text near the BOTTOM of the window. Which number do you make bigger?
+2. Put a small circle in the **top-right** corner.
+3. Draw a dot at `(0, 0)` — where does it land? (Try
+   `create_oval(0, 0, 20, 20, fill="red")`.)
+
+### 📸 Show Emrys
+Screenshot your window with a shape in the top-right AND one near the bottom.
+Tell Emrys which number you changed to move things down.
 
 ### Check Your Brain
-- What ending must a Python file name have?
-- What is the difference between "writing" code and "running" code?
+- Where is the point `(0, 0)` on the canvas?
+- Which direction does **y** get bigger — up or down?
+- To move a shape RIGHT, which number do you change?
+- Why must you SAVE before you run?
 
 ### More Examples
-Make and run tiny files — each one is a complete program:
+Three dots marching down the screen (watch y grow):
 
 ```python
-# file: hello_bot.py
-print("Bot: Hello! I live in a file.")
-```
-
-```python
-# file: jokes.py
-print("Why did the robot cross the road?")
-print("Because it was programmed to! 🤖")
-```
-
-Lines starting with `#` are **comments** — notes for humans that the computer skips. Coders use them to label their work:
-
-```python
-# My second program ever - by Esi
-print("This line shows.")   # the computer ignores this part too
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=200, height=350, bg="white")
+canvas.pack()
+canvas.create_oval(50, 50, 70, 70, fill="red")
+canvas.create_oval(50, 150, 70, 170, fill="green")
+canvas.create_oval(50, 250, 70, 270, fill="blue")
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **Saving without `.py`:** if the file is called `chatbot.txt`, the Run button may not work. **Fix:** save as `chatbot.py`.
-- **Forgetting to SAVE before running:** you change the code, run, and see the OLD result. **Fix:** save first (Ctrl+S), then run.
-- **Typing code in the output window:** nothing happens there! Type in the editor area, then press Run.
+- **Thinking up is bigger:** using a big y to go "up" sends the shape DOWN.
+  **Fix:** smaller y = higher.
+- **Corners backwards:** if the second corner is smaller than the first, the
+  shape can vanish. **Fix:** first pair = top-left, second pair = bottom-right.
 
 ### Level Up 🚀
-Create `my_bot_intro.py` that prints 4 lines: your bot's name, what it loves, what it fears (low battery?), and its dream. Run it for a friend. Every chatbot starts with its creator running a file — you're officially a bot-builder now.
+Draw a shape in each of the four corners of the canvas. Label each with
+`create_text` saying its coordinates.
 
 ---
 
 ## Lesson 3: Variables — Boxes That Remember
 
 ### Big Idea
-A variable is a labelled box that stores a value so we can use it later.
+A variable is a named box that remembers a value so we can use it again.
 
 ### Kid Meaning
-Imagine a box with a name sticker on it. You put something inside, and whenever
-you say the box's name, the computer looks inside and uses what's there.
+A box with a label. You write `cx = 200` and now the box called `cx` holds 200.
+Whenever you say `cx`, the computer looks in the box and uses what's inside.
 
 ### Chatbot Connection
-Our chatbot must remember YOUR name and YOUR mood. Those are stored in variables.
+Our bot must remember lots of things: where the face is, how big it is, the
+player's name, the mood. Variables are how the computer remembers.
 
 ### The Code
 ```python
-name = "Kofi"
-mood = "happy"
-print(name)
-print(mood)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="#0e1230")
+canvas.pack()
+
+cx = 200          # centre across
+cy = 180          # centre down
+r = 80            # how big the face is
+face_color = "#ffd54a"
+
+canvas.create_oval(cx - r, cy - r, cx + r, cy + r, fill=face_color)
+canvas.create_oval(cx - 30, cy - 25, cx - 15, cy - 10, fill="black")
+canvas.create_oval(cx + 15, cy - 25, cx + 30, cy - 10, fill="black")
+canvas.create_line(cx - 30, cy + 35, cx + 30, cy + 35, width=5)
+
+root.mainloop()
 ```
+
+### What You'll See
+The same emoji face — but now its position, size, and colour all come from the
+boxes `cx`, `cy`, `r`, and `face_color`.
 
 ### Line by Line
-- `name = "Kofi"` — make a box called `name` and put the word `Kofi` inside.
-- `mood = "happy"` — make a box called `mood` and put `happy` inside.
-- `print(name)` — show what is INSIDE the `name` box (Kofi), NOT the word "name".
-- Words need quotes (`"Kofi"`).
+- `cx = 200` — the face's left-right centre.
+- `cy = 180` — the face's up-down centre.
+- `r = 80` — the radius: how far the face reaches from its centre.
+- `face_color = "#ffd54a"` — a box holding a colour.
+- `create_oval(cx - r, cy - r, cx + r, cy + r, ...)` — instead of typing numbers,
+  we use the boxes. `cx - r` is the left edge, `cx + r` the right, and so on.
+  Change `r` and the WHOLE face grows or shrinks.
+- The eyes and mouth are also placed relative to `cx` and `cy`, so they move with
+  the face automatically.
+
+### Do It in VS Code 🛠️
+1. New file `face_vars.py`. Type the code.
+2. Save and run — see the face.
+3. Change `r = 80` to `r = 130`. Save, run. The whole face got BIGGER.
+4. Change `cx = 200` to `cx = 120`. Save, run. The face slid LEFT — and the eyes
+   and mouth followed!
 
 ### Your Turn
-1. Make a variable `favourite_food` and put your favourite food inside it.
-2. Make a variable `mood` set to "sleepy".
-3. Print both. Then change `mood` to "excited" and print it again — see how the box
-   can hold something new?
+1. Move the face to the bottom of the window (make `cy` bigger).
+2. Make a tiny face (`r = 40`) and then a huge one (`r = 150`).
+3. Change `face_color` to your favourite colour.
+4. Predict each change before you run it.
+
+### 📸 Show Emrys
+Send a screenshot of your face in a NEW position and size. Tell Emrys which
+variables you changed.
 
 ### Check Your Brain
-- What is a variable, in your own words?
-- Why does `"Kofi"` have quotes?
-- Does `print(mood)` show "mood" or what's inside it?
+- What is a variable?
+- Which variable moves the face up and down?
+- Why do the eyes move when you change `cx`?
+- Why is `r` better than typing the size four times?
 
 ### More Examples
-A chatbot's memory is just boxes — here's a bot remembering three things about a friend:
+One box feeding another:
 
 ```python
-friend = "Abena"
-mood = "excited"
-favourite_emoji = "🌟"
-print(friend)
-print(mood)
-print(favourite_emoji)
-```
-
-Boxes can be REFILLED — moods change, and the box keeps only the newest one:
-
-```python
-mood = "sleepy"
-print(mood)
-mood = "happy"
-print(mood)     # sleepy is gone - the box holds the latest thing
-```
-
-One box can copy from another:
-
-```python
-best_friend = "Esi"
-chat_partner = best_friend
-print(chat_partner)    # Esi - it copied what was inside
+cx = 200
+eye_gap = 30
+left_eye_x = cx - eye_gap
+right_eye_x = cx + eye_gap
+print(left_eye_x, right_eye_x)   # 170 230
 ```
 
 ### Common Mistakes
-- **Using a box before filling it:** `print(mood)` before any `mood = ...` line → `NameError: name 'mood' is not defined`. Fill first, use after.
-- **Spelling the name differently:** `favourite_food = "waakye"` then `print(favorite_food)` → `NameError`. The names must match EXACTLY.
-- **Quotes around the box name when printing:** `print("mood")` shows the word `mood`, not what's inside! No quotes when you mean the box: `print(mood)`.
+- **Using a box before filling it:** using `cx` before `cx = 200` → `NameError`.
+  **Fix:** create the box (give it a value) first, above where you use it.
+- **Spelling the name differently:** `face_color` vs `facecolor` are two different
+  boxes. **Fix:** keep names exactly the same everywhere.
 
 ### Level Up 🚀
-Build a "Bot ID Card": variables for `bot_name`, `bot_mood`, and `battery` (a number 0–100). Print all three. Then "charge" the bot — change `battery` to 100 on a new line and print it again. Your bot's state just changed at your command — that's exactly how real game characters work.
+Add a variable `eye_size` and use it for BOTH eyes, so changing one number
+resizes both eyes at once.
 
 ---
 
 ## Lesson 4: Numbers and Simple Maths
 
 ### Big Idea
-The computer can do maths for us, very fast and never wrong. Numbers don't need
-quotes.
+Python can do maths, and we use maths to place every part of the face perfectly.
 
 ### Kid Meaning
-The computer is a super calculator. We just tell it the sum.
+Python is a super-fast calculator. `+ - * /` mean add, subtract, multiply,
+divide. We use them to put the eyes exactly where they belong on the face.
 
 ### Chatbot Connection
-Later our chatbot counts how many feelings you shared — that is maths!
+The middle of our window is `WIDTH / 2`. The eyes sit either side of `cx`.
+Getting a face to look right is all arithmetic.
 
 ### The Code
 ```python
-a = 5
-b = 3
-print(a + b)
-print(a - b)
-print(a * b)
+import tkinter as tk
+
+WIDTH = 400
+HEIGHT = 400
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1230")
+canvas.pack()
+
+cx = WIDTH / 2            # always the middle, even if WIDTH changes
+cy = HEIGHT / 2
+r = 90
+eye_gap = r / 3           # eyes spread out with the face size
+eye_size = r / 8
+
+canvas.create_oval(cx - r, cy - r, cx + r, cy + r, fill="#ffd54a")
+canvas.create_oval(cx - eye_gap - eye_size, cy - 25,
+                   cx - eye_gap + eye_size, cy - 25 + 2 * eye_size, fill="black")
+canvas.create_oval(cx + eye_gap - eye_size, cy - 25,
+                   cx + eye_gap + eye_size, cy - 25 + 2 * eye_size, fill="black")
+canvas.create_line(cx - r / 2, cy + r / 2, cx + r / 2, cy + r / 2, width=5)
+
+root.mainloop()
 ```
+
+### What You'll See
+A perfectly centred face whose eyes and mouth are spaced using maths — so if you
+change `r`, everything scales together nicely.
 
 ### Line by Line
-- `a + b` — add (gives 8).
-- `a - b` — subtract (gives 2).
-- `a * b` — multiply. We use `*` (a star) for "times", not `x`.
-- Numbers like `5` need NO quotes (quotes are only for words).
+- `WIDTH = 400` and `HEIGHT = 400` — boxes holding the window size, used
+  everywhere so the maths always fits.
+- `cx = WIDTH / 2` — half of 400 is 200, the left-right middle.
+- `eye_gap = r / 3` — the eyes sit one-third of the radius from the centre. Change
+  `r` and the gap adjusts by itself!
+- `cx - r / 2` — half a radius left of centre: where the mouth starts.
+
+### Do It in VS Code 🛠️
+1. New file `face_maths.py`. Type the code.
+2. Save, run — a neatly centred face.
+3. Change `r = 90` to `r = 140`. Save, run. Notice the eyes and mouth grew and
+   spread out TOO, because their positions are built from `r`.
 
 ### Your Turn
-1. Make two number variables and print their sum.
-2. Try multiplying them.
-3. Predict the answer FIRST, then run it. Were you right?
+1. Make the mouth wider by changing `r / 2` to `r / 1.5`.
+2. Move the eyes further apart (`r / 2` instead of `r / 3`).
+3. Print some maths in the terminal to check: `print(10 + 5, 10 * 5, 10 / 5)`.
+
+### 📸 Show Emrys
+Screenshot your face at TWO different `r` values (small and big). Tell Emrys how
+the eyes changed.
 
 ### Check Your Brain
-- Which symbol means "times"?
-- Do numbers need quotes?
+- What do `*` and `/` mean?
+- What is `WIDTH / 2` when `WIDTH` is 400?
+- Why is it smart to build `eye_gap` from `r` instead of typing 30?
 
 ### More Examples
-Your bot can be a maths helper in two lines:
+The `%` sign gives the remainder (useful for patterns):
 
 ```python
-pencils = 6
-price = 2
-print(pencils * price)    # total cost of all pencils
-```
-
-Divide shares things fairly — note the `/` gives a decimal answer:
-
-```python
-biscuits = 10
-friends = 4
-print(biscuits / friends)   # 2.5 each
-```
-
-Python does times/divide BEFORE plus/minus, exactly like maths class — and brackets jump the queue:
-
-```python
-print(2 + 3 * 4)      # 14 (times first!)
-print((2 + 3) * 4)    # 20 (brackets first)
+print(17 % 5)   # shows 2, because 17 = 3*5 + 2
 ```
 
 ### Common Mistakes
-- **Using `x` for times:** `print(5 x 3)` → `SyntaxError`. Only `*` works.
-- **Quotes around the sum:** `print("5 + 3")` shows the words `5 + 3`, not `8`. Quotes mean "say exactly this".
-- **Quotes around numbers in boxes:** `battery = "50"` stores a WORD. Later `battery + 10` crashes with `TypeError`. Real numbers take no quotes: `battery = 50`.
+- **Whole vs decimal:** `400 / 2` gives `200.0` (a decimal). tkinter is fine with
+  that. Use `//` for a whole number: `400 // 2` gives `200`.
+- **Forgetting order:** Python does `*` and `/` before `+` and `-`, just like
+  school. Use brackets to be sure: `(r + 10) / 2`.
 
 ### Level Up 🚀
-Bot energy maths: your bot starts with `battery = 100`. Each chat message costs 7 energy. Print how much battery remains after 3 messages — in ONE print line using maths. (Check: should be 79!)
+Make the face automatically sit in the middle no matter the window size — try
+`WIDTH = 600` and check nothing breaks.
 
 ---
 
-## Lesson 5: Counting Up by Adding to a Variable
+## Lesson 5: Changing the Face by Changing a Variable
 
 ### Big Idea
-We can update a variable using its own value, like `count = count + 1`.
+If we redraw the face with a different value, its expression changes.
 
 ### Kid Meaning
-It looks strange, but it means: "take what's in the box, add one, put it back."
-Like adding one more sweet to your jar.
+The face isn't glued down. Wipe it, change one number, draw it again — and now
+its mouth is somewhere else. That's how our bot will react to you.
 
 ### Chatbot Connection
-This is how our chatbot counts feelings: `shared = shared + 1` each time.
+Every time you type a mood, the bot will wipe the old face and draw a new one.
+This lesson is that exact trick.
 
 ### The Code
 ```python
-shared = 0
-print(shared)
-shared = shared + 1
-print(shared)
-shared = shared + 1
-print(shared)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="#0e1230")
+canvas.pack()
+
+cx, cy, r = 200, 180, 90
+
+def draw_face(mouth_y):
+    canvas.delete("all")
+    canvas.create_oval(cx - r, cy - r, cx + r, cy + r, fill="#ffd54a")
+    canvas.create_oval(cx - 35, cy - 30, cx - 15, cy - 10, fill="black")
+    canvas.create_oval(cx + 15, cy - 30, cx + 35, cy - 10, fill="black")
+    canvas.create_line(cx - 35, mouth_y, cx + 35, mouth_y, width=5)
+
+draw_face(cy + 40)
+
+root.mainloop()
 ```
+
+### What You'll See
+The face with its mouth at the height you passed in. Change `draw_face(cy + 40)`
+to `draw_face(cy + 10)` and the mouth jumps higher up the face.
 
 ### Line by Line
-- `shared = 0` — start the counter at zero.
-- `shared = shared + 1` — new value is the old value plus one. Now it's 1.
-- Do it again and it becomes 2. The box keeps the latest number.
+- `def draw_face(mouth_y):` — a reusable machine (a function) that draws the whole
+  face. `mouth_y` is a value we hand it.
+- `canvas.delete("all")` — wipes the canvas clean first, so the old face doesn't
+  stay underneath.
+- `draw_face(cy + 40)` — calls the machine, telling it where to put the mouth.
+- Change the number you pass and the face changes. One machine, many faces!
+- `cx, cy, r = 200, 180, 90` — a shortcut for filling three boxes on one line.
+
+### Do It in VS Code 🛠️
+1. New file `change_face.py`. Type the code.
+2. Save, run. Note where the mouth is.
+3. Change the last call to `draw_face(cy + 10)`. Save, run — the mouth moved up.
+4. Try `draw_face(cy + 60)` — a low, droopy mouth.
 
 ### Your Turn
-1. Start a variable `score = 0`. Add 10, print. Add 10 again, print.
-2. Can you make it go up by 5 each time instead?
+1. Call `draw_face` with three different mouth heights (one at a time).
+2. Add a second thing that changes — pass in a colour too (peek at Lesson 15!).
+3. Predict where the mouth goes for `draw_face(cy)`.
+
+### 📸 Show Emrys
+Screenshot the face with a HIGH mouth and with a LOW mouth (two shots). Tell
+Emrys which number you changed.
 
 ### Check Your Brain
-- What does `count = count + 1` do?
-- If `score` is 20 and you run `score = score + 10`, what is it now?
+- Why do we call `canvas.delete("all")` before redrawing?
+- What does `draw_face(cy + 40)` hand to the machine?
+- What happens if you never call `draw_face` at all?
 
 ### More Examples
-Counters can go DOWN — like a bot's battery draining:
+Counting in the terminal (the same "change a value" idea, no drawing):
 
 ```python
-battery = 100
-print(f"Battery: {battery}")
-battery = battery - 30      # a long chat used 30!
-print(f"Battery: {battery}")
-```
-
-Counters can grow by different amounts each time:
-
-```python
-kindness_points = 0
-kindness_points = kindness_points + 5    # helped a friend
-kindness_points = kindness_points + 10   # shared lunch!
-print(kindness_points)                    # 15
-```
-
-Pro shortcut: `shared += 1` means exactly `shared = shared + 1` (and `battery -= 5` means lose 5):
-
-```python
-shared = 0
-shared += 1
-shared += 1
-print(shared)    # 2 - same thing, less typing
+count = 0
+count = count + 1
+count = count + 1
+print(count)   # shows 2
 ```
 
 ### Common Mistakes
-- **No starting value:** `shared = shared + 1` with no `shared = 0` first → `NameError: name 'shared' is not defined`. Counters must start somewhere.
-- **Writing it backwards:** `shared + 1 = shared` → `SyntaxError`. The box being filled goes LEFT of the `=`.
-- **Expecting memory between runs:** each run starts fresh from your starting line — counters don't survive closing the program (saving comes much later!).
+- **Faces stack up:** forgetting `canvas.delete("all")` draws a new face ON TOP of
+  the old one. **Fix:** wipe before redrawing.
+- **Defining but never calling:** the machine exists but nothing runs it. **Fix:**
+  call it — `draw_face(cy + 40)`.
 
 ### Level Up 🚀
-"Mood points" tracker: start `points = 0`. A happy chat adds 10, a joke adds 5, then DOUBLE everything (`points = points * 2`), then subtract 3 for a yawn. Predict the final number BEFORE you run it. Predicting what code does is called *tracing* — it's a real programmer superpower.
+Make the mouth a curved smile using `create_arc` instead of a straight line (full
+explanation in Lesson 10 — try it early!).
 
 ---
 
-## Lesson 6: Talking to the Player with input()
+## Lesson 6: Talking to the Bot with an Entry Box
 
 ### Big Idea
-`input()` lets the computer ask a question and wait for the person to type.
+An Entry box lets the player TYPE something, and a Button sends it to our code.
 
 ### Kid Meaning
-It's like the computer asking "What's your name?" and then listening for your
-answer, and keeping it in a box.
+A chatbot needs you to talk to it. The Entry box is where you type; the Button is
+the "send" key that hands your words to the program.
 
 ### Chatbot Connection
-The whole chatbot is built on this — it asks "How do you feel?" and waits for you.
+This is HUGE: this is how you'll tell the bot how you feel. Everything the bot
+does starts with reading what you typed.
 
 ### The Code
 ```python
-name = input("What is your name? ")
-print("Nice to meet you!")
-print(name)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="#0e1230")
+canvas.pack()
+
+def send():
+    words = entry.get()
+    canvas.delete("all")
+    canvas.create_text(200, 150, text=words, fill="lime",
+                       font=("Arial", 20))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+A window with a typing box and a **Send** button. Type anything, press Send, and
+your words appear in big green letters. The box clears itself, ready for the next
+message.
 
 ### Line by Line
-- `input("What is your name? ")` — shows the question, then waits.
-- Whatever the player types is stored in the `name` box.
-- `print(name)` then shows what they typed.
+- `def send():` — the machine that runs when the button is pressed.
+- `words = entry.get()` — `entry.get()` reads whatever the player typed and
+  stores it in the box `words`.
+- `canvas.delete("all")` — wipes the canvas so old text doesn't pile up.
+- `entry.delete(0, tk.END)` — clears the typing box from start (0) to end, ready
+  for the next message.
+- `entry = tk.Entry(root, ...)` — makes the typing box. `justify="center"` centres
+  what you type.
+- `tk.Button(root, text="Send", command=send)` — makes a button. `command=send`
+  means "when clicked, run `send`." (No brackets after `send` — we're NAMING the
+  machine, not running it yet.)
+
+### Do It in VS Code 🛠️
+1. New file `talk.py`. Type the code.
+2. Save, run. Type "hello" and press **Send** — it appears big and green.
+3. Type something else and press Send again — it replaces the old one.
 
 ### Your Turn
-1. Ask the player their favourite animal and store it.
-2. Ask their pet's name and store it.
-3. Print both answers.
+1. Change the button text to `"Talk"`.
+2. Change the colour and font size of the shown words.
+3. Predict: what shows if you press Send with the box EMPTY?
+
+### 📸 Show Emrys
+Screenshot your window showing YOUR typed message. Tell Emrys what you typed.
 
 ### Check Your Brain
-- What does `input()` do after it shows the question?
-- Where does the typed answer go?
+- What does `entry.get()` give you?
+- What does `command=send` do?
+- Why do we call `entry.delete(0, tk.END)` at the end?
 
 ### More Examples
-A bot interview — several questions, several boxes:
+Show the message AND a shape:
 
 ```python
-colour = input("Favourite colour? ")
-print("Ooh, " + colour + " is lovely!")
-```
-
-```python
-food = input("Best food ever? ")
-drink = input("And the best drink? ")
-print("Dinner at your house: " + food + " with " + drink + "!")
-```
-
-Use one answer many times — the box keeps it:
-
-```python
-name = input("Your name? ")
-print(name + "! " + name + "! " + name + "!")
-print("The whole class is cheering for you!")
+def send():
+    words = entry.get()
+    canvas.delete("all")
+    canvas.create_text(200, 80, text=words, fill="white", font=("Arial", 18))
+    canvas.create_oval(150, 120, 250, 220, fill="#ffd54a")
+    entry.delete(0, tk.END)
 ```
 
 ### Common Mistakes
-- **Forgetting to store the answer:** `input("Your name? ")` alone — the answer vanishes! Always catch it: `name = input(...)`.
-- **No space at the end of the question:** `input("Name?")` squashes the typing against the question mark. End with a space: `input("Name? ")` — small touch, very professional.
-- **Joining without spaces:** `print("Hi" + name)` shows `HiEsi`. Put the space inside the quotes: `"Hi " + name`.
+- **Adding brackets:** `command=send()` runs it INSTANTLY (wrong). **Fix:** no
+  brackets — `command=send`.
+- **Text piles up:** forgetting `canvas.delete("all")` stacks new text on old.
+  **Fix:** clear before you redraw.
+- **Widget doesn't show:** every Entry and Button needs `.pack()`. **Fix:** add it.
 
 ### Level Up 🚀
-Build "Bot's First Questions": the bot asks three things — name, favourite emoji, and dream job — then introduces the person back like a game-show host: "Welcome ESI, the future PILOT who loves 🌟!" Tip: `.upper()` makes text SHOUT — try `name.upper()`.
+Make pressing the **Enter** key send the message too:
+`entry.bind("<Return>", lambda event: send())` — put it right after `entry.pack()`.
 
 ---
 
 ## Lesson 7: f-strings — Dropping Values Into Sentences
 
 ### Big Idea
-An **f-string** lets you put a variable's value right inside your words using `{ }`
-— the easy way to mix words and boxes.
+An f-string lets us build a sentence with values dropped inside it.
 
 ### Kid Meaning
-A magic sentence with blanks. You write `{name}` in the blank and the computer
-fills in the real name for you.
+Instead of gluing words together awkwardly, put an `f` before the quotes and drop
+any box inside `{ }`. Python fills in the value for you.
 
 ### Chatbot Connection
-This is how the chatbot says "Hello Esi!" using whatever name was typed.
+Our bot says things like "Nice to meet you, Ama!" — that's a sentence with the
+name dropped in. f-strings build every reply the bot makes.
 
 ### The Code
 ```python
-name = input("What is your name? ")
-print(f"Hello {name}! Lovely to meet you. 😊")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="#0e1230")
+canvas.pack()
+
+def greet():
+    person = entry.get()
+    canvas.delete("all")
+    canvas.create_text(200, 120, text=f"Nice to meet you, {person}!",
+                       fill="#ffd54a", font=("Arial", 18))
+    canvas.create_text(200, 170, text=f"Your name has {len(person)} letters.",
+                       fill="white", font=("Arial", 13))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Greet", command=greet).pack()
+
+root.mainloop()
 ```
 
+### What You'll See
+Type your name, press **Greet**, and the bot says "Nice to meet you, Ama!" plus
+how many letters are in your name.
+
 ### Line by Line
-- The little `f` right before the quotes makes it an f-string.
-- `{name}` is replaced by what's in the `name` box.
-- So if they typed "Esi", it prints `Hello Esi! Lovely to meet you. 😊`.
-- No need for tricky joining — f-strings are the friendly way.
+- `f"Nice to meet you, {person}!"` — the `f` before the quotes turns on the magic.
+  Anything inside `{ }` is a box name, and Python drops its value in.
+- `len(person)` — `len` counts how many letters are in the text.
+- You can put maths inside the braces too: `f"{2 + 3}"` shows `5`.
+
+### Do It in VS Code 🛠️
+1. New file `fstring.py`. Type the code.
+2. Save, run. Type your name and press Greet.
+3. Try a long name and a short one — watch the letter count change.
 
 ### Your Turn
-1. Ask the player's name and print a friendly f-string greeting using it.
-2. Ask a number too (their age), then print: `f"Wow, {age} is a great age!"` — yes,
-   you can drop numbers into f-strings as well.
-3. Add an emoji inside your f-string.
+1. Add a third line: `f"Hello {person}, welcome to Python!"`.
+2. Show the name in CAPITALS: `f"{person.upper()}"`.
+3. Predict what `len("Ama")` gives. (Answer: 3.)
+
+### 📸 Show Emrys
+Screenshot your greeting with your name and letter count. Tell Emrys your name's
+length.
 
 ### Check Your Brain
 - What does the `f` before the quotes do?
 - What goes inside the `{ }`?
+- What does `len(person)` count?
 
 ### More Examples
-One f-string can hold MANY blanks:
+f-strings in the terminal:
 
 ```python
-name = "Adwoa"
-mood = "happy"
-print(f"{name} feels {mood} today! 😄")
+name = "Ama"
+age = 10
+print(f"{name} is {age} years old.")     # Ama is 10 years old.
+print(f"Next year {name} will be {age + 1}.")
 ```
-
-Maths works right inside the `{ }`:
-
-```python
-age = int(input("How old are you? "))
-print(f"In 2 years you'll be {age + 2}!")
-print(f"Double your age is {age * 2}!")
-```
-
-See why text "7" and number 7 are different — run this and be amazed:
-
-```python
-text_seven = "7"
-real_seven = 7
-print(text_seven + text_seven)   # 77 - text GLUES together!
-print(real_seven + real_seven)   # 14 - numbers do real maths
-```
-
-That `int(...)` around input is what turns typed text into a real number — remember it whenever your bot needs maths.
 
 ### Common Mistakes
-- **Forgetting the `f`:** `print("Hello {name}")` literally shows `Hello {name}` with the braces! The `f` is the magic switch: `print(f"Hello {name}")`.
-- **Maths on raw input:** `age = input("Age? ")` then `{age + 2}` → `TypeError`. Convert first: `age = int(input("Age? "))`.
-- **Braces the wrong way:** `print(f"Hello (name)")` shows `(name)` — only curly braces `{ }` are blanks, not round brackets.
+- **Forgetting the `f`:** `"{person}"` prints the braces literally as `{person}`.
+  **Fix:** put `f` right before the opening quote.
+- **Wrong box name inside braces:** `{persn}` → `NameError`. **Fix:** spell it
+  exactly as you named it.
 
 ### Level Up 🚀
-The "Compliment Calculator": ask name and age, then print ONE f-string that uses both AND does maths — like `f"{name}, you've been awesome for roughly {age * 365} days!"`. Run it on yourself. That's a big number of awesome days. 😄
+Make the greeting show the name backwards too: `f"{person[::-1]}"` — a fun trick!
 
 ---
 
 ## Lesson 8: Tidying Text and a Mini Hello-Bot
 
 ### Big Idea
-`.lower()` makes text all small letters and `.strip()` removes extra spaces, so the
-computer understands messy typing. Then we build a small talking program.
+`.lower()` and `.strip()` clean up messy typing so our bot can understand it.
 
 ### Kid Meaning
-People type messily — "HAPPY", " happy ". We tidy it so the computer sees it the
-same way every time.
+People type "HAPPY", " happy ", and "Happy" — all the same word to us, but three
+DIFFERENT words to the computer. We tidy them into one neat form first.
 
 ### Chatbot Connection
-If the chatbot knows "happy" but the player types "Happy", tidying makes it still
-work. This mini-bot is practice for the real opening.
+Before the bot checks your mood, it tidies what you typed. Without this, typing
+"Happy" with a capital H would confuse it completely.
 
 ### The Code
 ```python
-print("=" * 25)
-print("   HELLO BOT")
-print("=" * 25)
-name = input("What is your name? ").strip()
-mood = input("In one word, how do you feel? ").lower().strip()
-print(f"Nice to meet you, {name}!")
-print(f"So you feel {mood} today. Thanks for telling me. 😊")
+import tkinter as tk
+
+WIDTH, HEIGHT = 420, 380
+root = tk.Tk()
+root.title("Hello Bot")
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1230")
+canvas.pack()
+
+def hello():
+    raw = entry.get()
+    tidy = raw.lower().strip()
+    canvas.delete("all")
+    canvas.create_oval(150, 40, 270, 160, fill="#ffd54a")
+    canvas.create_oval(178, 80, 194, 96, fill="black")
+    canvas.create_oval(226, 80, 242, 96, fill="black")
+    canvas.create_line(180, 125, 240, 125, width=5)
+    canvas.create_text(WIDTH/2, 210, text=f"You typed: '{raw}'",
+                       fill="#8fa0d8", font=("Arial", 12))
+    canvas.create_text(WIDTH/2, 240, text=f"I tidied it to: '{tidy}'",
+                       fill="lime", font=("Arial", 13))
+    canvas.create_text(WIDTH/2, 285, text=f"Hello, {tidy.title()}!",
+                       fill="#ffd54a", font=("Arial", 20, "bold"))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=8)
+tk.Button(root, text="Say hello", command=hello).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+A little emoji face greets you. Type `"  AMA  "` (with spaces and capitals) and it
+shows you exactly what you typed, the tidied version `ama`, and a neat greeting
+"Hello, Ama!"
 
 ### Line by Line
-- `"=" * 25` — prints `=` 25 times to draw a line (a number times text repeats it).
-- `.strip()` on the name removes spaces at the start/end.
-- `.lower().strip()` on the mood makes it small letters AND trims spaces.
-- Two friendly f-string replies use both boxes.
+- `raw = entry.get()` — exactly what the player typed, mess and all.
+- `raw.lower()` — turns every letter into small letters: `"HAPPY"` → `"happy"`.
+- `.strip()` — removes spare spaces at the START and END: `"  ama  "` → `"ama"`.
+- `raw.lower().strip()` — does BOTH, one after the other. This is called
+  **chaining** — the result of the first feeds into the second.
+- `tidy.title()` — makes the First Letter Capital, nice for showing a name.
+
+### Do It in VS Code 🛠️
+1. New file `hello_bot.py`. Type the code.
+2. Save, run. Type your name normally — nice greeting.
+3. Now type it with CAPITALS and extra spaces. See how `tidy` cleans it up while
+   `raw` shows the mess.
 
 ### Your Turn
-1. Build Hello Bot and run it. Type your name with CAPITALS and spaces — see it
-   come out tidy.
-2. Add one more question (favourite hobby) and reply using it.
-3. Let a friend try it.
+1. Type `"  KOFI  "` and check that the greeting still looks neat.
+2. Remove `.strip()` and type a name with spaces — see what breaks.
+3. Predict what `"  Happy  ".lower().strip()` gives. (Answer: `"happy"`.)
+
+### 📸 Show Emrys
+Screenshot your Hello-Bot showing the raw AND tidied versions. Tell Emrys what
+messy text you typed.
 
 ### Check Your Brain
-- What does `.lower()` do? What does `.strip()` do?
-- What does `"=" * 25` do?
+- What does `.lower()` do?
+- What does `.strip()` remove?
+- Why must we tidy text before checking a mood?
+- What does `.title()` do?
 
 ### More Examples
-Watch the tidying happen with your own eyes:
+See tidying in the terminal:
 
 ```python
-messy = "  HaPPy  "
-print(messy)
-print(messy.lower())            # "  happy  " - small letters, spaces remain
-print(messy.strip())            # "HaPPy" - spaces gone, capitals remain
-print(messy.lower().strip())    # "happy" - both fixed!
-```
-
-There's also `.upper()` for SHOUTING and `.title()` for Making Names Neat:
-
-```python
-name = "ama serwaa"
-print(name.upper())    # AMA SERWAA
-print(name.title())    # Ama Serwaa - perfect for greetings!
-```
-
-Border patterns for your bot's screens:
-
-```python
-print("~" * 25)
-print("=-" * 12)
-print("🤖" * 5)
+messy = "   SAD  "
+print(messy.lower())          # "   sad  "
+print(messy.lower().strip())  # "sad"
 ```
 
 ### Common Mistakes
-- **Forgetting the brackets:** `mood.lower` without `()` doesn't DO anything — it's like pointing at the soap without washing. Always `.lower()`.
-- **Expecting it to change the box:** `mood.lower()` makes a tidied COPY; the box still holds the messy one! Catch it: `mood = mood.lower()` (or tidy at input time like the lesson does).
-- **Tidying the wrong things:** don't `.lower()` a name you'll display — "esi" looks less special than "Esi". Tidy for MATCHING, `.title()` for SHOWING.
+- **Forgetting the brackets:** `raw.lower` (no `()`) doesn't run it. **Fix:**
+  `raw.lower()`.
+- **Tidying but not USING it:** calling `raw.lower()` without storing it changes
+  nothing. **Fix:** `tidy = raw.lower().strip()`.
 
 ### Level Up 🚀
-Upgrade Hello Bot into "Smart Hello Bot": tidy the name with `.strip().title()` so even "  aMA  " becomes "Ama", and tidy the mood with `.lower().strip()`. Test by typing as messily as possible — spaces everywhere, crazy capitals. If the bot still answers neatly, you've built something genuinely robust.
+Add `.replace("!", "")` to the chain so exclamation marks get removed too.
 
 ---
 
-# PART 2 — MAKING CHOICES
-
----
+# PART 2 — MAKING CHOICES & EXPRESSIONS
 
 ## Lesson 9: Making Decisions with if
 
 ### Big Idea
-`if` lets the computer choose what to do based on a condition (something True or
-False).
+`if` lets the program CHOOSE what to do based on what you typed.
 
 ### Kid Meaning
-"IF you feel happy, I'll smile." The computer checks, and only acts if it's true.
+"IF you say you're happy, smile." The computer checks — is it true? — and only
+then does the action.
 
 ### Chatbot Connection
-The chatbot picks a reply based on your mood — that's an `if`.
+This is the first spark of the bot's brain: IF the word "happy" is in your
+message, draw a smile.
 
 ### The Code
 ```python
-mood = "happy"
-if mood == "happy":
-    print("Yay! 😄 I'm happy too!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="#0e1230")
+canvas.pack()
+cx, cy, r = 200, 170, 90
+
+def send():
+    text = entry.get().lower().strip()
+    canvas.delete("all")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill="#ffd54a")
+    canvas.create_oval(cx-35, cy-30, cx-15, cy-10, fill="black")
+    canvas.create_oval(cx+15, cy-30, cx+35, cy-10, fill="black")
+    if "happy" in text:
+        canvas.create_arc(cx-50, cy-10, cx+50, cy+70, start=200, extent=140,
+                          style="arc", width=6)
+        canvas.create_text(200, 330, text="You seem happy!", fill="lime")
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type "I am happy" and press Send — the face gets a **smiling curve** and a green
+message. Type anything else and the face stays blank-mouthed (for now).
 
 ### Line by Line
-- `if mood == "happy":` — check IF `mood` is equal to "happy". We use `==` (two
-  equals) for "is equal to". (One `=` puts a value in a box; two `==` compares.)
-- The `:` colon starts the "what to do if true" block.
-- The indented (spaced-in) line runs ONLY if the condition is true. Indentation is
-  how Python knows which line belongs to the `if`.
+- `if "happy" in text:` — checks: does the word "happy" appear ANYWHERE inside
+  what they typed? `in` searches inside the text.
+- The `:` starts the "then do this" block, and the indented lines ONLY run when
+  the check is true.
+- `create_arc(...)` — draws a curve. `start=200, extent=140` sweeps across the
+  BOTTOM of an invisible box, which looks like a **smile** (a U shape).
+- `style="arc"` — draw only the curved line, not a filled pie slice.
+
+### Do It in VS Code 🛠️
+1. New file `first_mood.py`. Type the code.
+2. Save, run. Type "happy" → smile appears. Type "hello" → no smile.
+3. Try "I feel so happy today" — the `in` check still finds it!
 
 ### Your Turn
-1. Make `mood = "sad"` and write an `if` that prints a caring message if sad.
-2. Change mood to "happy" — does the sad message show? Why not?
+1. Change the check to `if "great" in text:` and test.
+2. Change the message and its colour.
+3. Predict: does "HAPPY" (capitals) work? (Yes — because we `.lower()` first!)
+
+### 📸 Show Emrys
+Screenshot the smiling face after typing a happy message. Tell Emrys the exact
+sentence you typed.
 
 ### Check Your Brain
-- Difference between `=` and `==`?
-- Why does the indentation (spaces) matter?
+- What does `if` do?
+- What does `in` check for?
+- When do the indented lines under `if` run?
+- Why does `.lower()` make the check work for "HAPPY"?
 
 ### More Examples
-An `if` can hold SEVERAL lines — everything indented belongs to it:
+Checking a different word:
 
 ```python
-mood = input("How do you feel? ").lower().strip()
-if mood == "happy":
-    print("😄 Fantastic!")
-    print("Happy days are the best days.")
-print("This line shows for EVERY mood - see, not indented.")
-```
-
-Checks work on numbers too — your bot can react to ages:
-
-```python
-age = int(input("How old are you? "))
-if age >= 10:
-    print("Double digits! Practically a grown-up. 😎")
-```
-
-A secret-word check — the seed of every password screen ever:
-
-```python
-word = input("Whisper the magic word: ").lower().strip()
-if word == "sunshine":
-    print("✨ The bot reveals its secret dance! 🕺")
+if "hello" in text:
+    canvas.create_text(200, 350, text="Hi there!", fill="white")
 ```
 
 ### Common Mistakes
-- **One `=` in the check:** `if mood = "happy":` → `SyntaxError`. One `=` fills a box, two `==` compares.
-- **Missing colon:** `if mood == "happy"` → `SyntaxError: expected ':'`. The colon is the doorway.
-- **Forgetting to tidy first:** the player types "Happy" but you check `== "happy"` — False! Capitals fool the computer. Tidy with `.lower().strip()` before comparing (Lesson 8's superpower).
+- **Forgetting the colon:** `if "happy" in text` (no `:`) → `SyntaxError`. **Fix:**
+  add the `:`.
+- **Not indenting:** the lines under `if` must be indented (4 spaces). **Fix:**
+  indent them so Python knows they belong to the `if`.
 
 ### Level Up 🚀
-"Emoji door": the bot asks "Which emoji opens the door?" — if the typed word is exactly `key`, print a 3-line celebration with 🎉🔓✨. Then test the WRONG word and watch the program end silently. Tomorrow's lesson gives the bot a voice for every answer — `elif` and `else`.
+Add a SECOND `if` for the word "sad" that draws a frown (hint: use
+`start=20, extent=140` and a lower box — full version next lesson).
 
 ---
 
 ## Lesson 10: if / elif / else — Many Moods
 
 ### Big Idea
-`elif` checks another condition; `else` is the catch-all when nothing else matched.
+`if / elif / else` handles several possibilities: this mood, or that one,
+otherwise a friendly default.
 
 ### Kid Meaning
-"IF happy... ELIF sad... ELIF angry... ELSE I'm not sure." Exactly one reply is
-chosen.
+"IF happy, smile. ELSE IF sad, droop. ELSE just be calm." Python checks them top
+to bottom and does the FIRST one that's true.
 
 ### Chatbot Connection
-This is the chatbot's brain: a different emoji reply for each mood.
+This is EXACTLY our bot's brain: each mood gets its own face, colour, and reply.
 
 ### The Code
 ```python
-mood = input("How do you feel? ").lower().strip()
-if mood == "happy":
-    print("😄 That's wonderful!")
-elif mood == "sad":
-    print("🤗 I'm here for you.")
-elif mood == "angry":
-    print("😤 Take a deep breath. You've got this.")
-else:
-    print("🙂 Thanks for sharing.")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=430, bg="#0e1230")
+canvas.pack()
+cx, cy, r = 200, 170, 90
+
+def draw(mood, color):
+    canvas.delete("all")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill=color)
+    canvas.create_oval(cx-35, cy-30, cx-15, cy-10, fill="black")
+    canvas.create_oval(cx+15, cy-30, cx+35, cy-10, fill="black")
+    if mood == "happy":
+        canvas.create_arc(cx-50, cy-10, cx+50, cy+70, start=200, extent=140,
+                          style="arc", width=6)
+    elif mood == "sad":
+        canvas.create_arc(cx-50, cy+30, cx+50, cy+100, start=20, extent=140,
+                          style="arc", width=6)
+    else:
+        canvas.create_line(cx-35, cy+45, cx+35, cy+45, width=6)
+    canvas.create_text(200, 330, text=f"Mood: {mood}", fill="white",
+                       font=("Arial", 16))
+
+def send():
+    text = entry.get().lower().strip()
+    if "happy" in text:
+        draw("happy", "#ffd54a")
+    elif "sad" in text:
+        draw("sad", "#7db4ff")
+    else:
+        draw("okay", "#c8d0ff")
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
 
+### What You'll See
+Type "happy" → a **yellow smiling** face. Type "sad" → a **blue drooping** face.
+Type anything else → a **pale calm** face. The mood name shows underneath.
+
 ### Line by Line
-- We tidy the mood first so matching is reliable.
-- Each `elif` checks another mood.
-- `else` handles any mood we didn't list — so the chatbot never stays silent.
-- Only ONE block runs.
+- `if "happy" in text:` — first check. If true, do this and SKIP the rest.
+- `elif "sad" in text:` — "else if" — only checked if the first was false.
+- `else:` — the leftover case, our friendly default.
+- Inside `draw`, another `if/elif/else` picks the **mouth shape**:
+  - **Smile:** `start=200, extent=140` sweeps the BOTTOM of the box → a U curve.
+  - **Frown:** `start=20, extent=140` sweeps the TOP → an ∩ curve.
+  - **Straight:** a plain line for calm.
+- `mood == "happy"` — `==` means "is exactly equal to" (two equals signs!).
+
+### Do It in VS Code 🛠️
+1. New file `moods.py`. Type the code.
+2. Save, run. Test all three: "happy", "sad", "hello".
+3. Swap the smile and frown numbers and see how wrong it looks — then put them
+   back. Now you understand arcs!
 
 ### Your Turn
-1. Build this and try "happy", "sad", "angry", "sleepy".
-2. Add TWO more moods of your own (e.g. "excited", "tired") with their own emojis.
-3. This is almost the whole chatbot brain — see how close we are!
+1. Add an `elif "angry" in text:` that draws a red face.
+2. Change the three colours to your own palette.
+3. Predict which face shows for "I am not sad" (it says sad — our bot is simple!).
+
+### 📸 Show Emrys
+Screenshot all three faces (three shots). Tell Emrys which words triggered each.
 
 ### Check Your Brain
-- What does `elif` mean?
+- What is the difference between `if` and `elif`?
 - When does `else` run?
+- Which numbers turn an arc into a smile instead of a frown?
+- What does `==` mean?
 
 ### More Examples
-The bot reacting to a NUMBER with elif — checks run top to bottom and stop at the first true one:
+An elif chain with grades:
 
 ```python
-energy = int(input("Bot energy level (0-100)? "))
-if energy >= 80:
-    print("🔋 Fully charged! Let's gooo!")
-elif energy >= 40:
-    print("😐 Doing okay, could use a snack.")
-elif energy >= 10:
-    print("🥱 Getting sleepy...")
+score = 85
+if score >= 90:
+    grade = "A"
+elif score >= 70:
+    grade = "B"
 else:
-    print("💤 Zzz... plug me in please.")
-```
-
-A snack-advisor bot:
-
-```python
-hungry = input("Are you hungry - yes or no? ").lower().strip()
-if hungry == "yes":
-    print("🍌 Banana time! Brain food!")
-elif hungry == "no":
-    print("👍 Great - let's keep coding!")
-else:
-    print("🤔 I'll take that as a maybe...")
+    grade = "C"
+print(grade)
 ```
 
 ### Common Mistakes
-- **`elif` with no `if` above it:** the chain must START with `if` → otherwise `SyntaxError`.
-- **`else` with a condition:** `else mood == "tired":` → `SyntaxError`. `else` takes nothing — it IS the "everything else".
-- **Wrong order in number checks:** if `energy >= 10` is checked FIRST, an energy of 95 prints the sleepy message! Strongest check goes first — the computer stops at the first true.
+- **Using many `if`s instead of `elif`:** separate `if`s can ALL run and draw
+  faces on top of each other. **Fix:** use `elif`/`else` so only one runs.
+- **`=` vs `==`:** `if mood = "happy"` is an error. **Fix:** use `==` to compare.
 
 ### Level Up 🚀
-Give your mood bot a personality: add FIVE moods, each with its own emoji AND a follow-up question (like "😄 Wonderful! What made today so good?"). A bot that asks back feels twice as alive — that's a real chatbot design secret.
+Add a "surprised" mood that draws a small round **O** mouth using `create_oval`.
 
 ---
 
-## Lesson 11: True and False (Booleans)
+## Lesson 11: True and False — Booleans
 
 ### Big Idea
-A condition is always either **True** or **False** — these are special values.
+Every check is either True or False — those two values are called Booleans.
 
 ### Kid Meaning
-Like a light switch: on or off. Yes or no. Nothing in between.
+A light switch is on or off. A check is True or False. `"happy" in text` is a
+question Python answers with True or False.
 
 ### Chatbot Connection
-"Did the player say bye?" is a yes/no fact the chatbot checks every turn.
+"Did they mention a happy word?" is a True/False fact. We can store it in a box
+and use it to decide the face.
 
 ### The Code
 ```python
-mood = "happy"
-print(mood == "happy")
-print(mood == "sad")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="#0e1230")
+canvas.pack()
+
+def send():
+    text = entry.get().lower().strip()
+    is_happy = ("happy" in text)
+    is_sad = ("sad" in text)
+    canvas.delete("all")
+    canvas.create_text(200, 80, text=f"is_happy = {is_happy}", fill="lime",
+                       font=("Arial", 16))
+    canvas.create_text(200, 120, text=f"is_sad = {is_sad}", fill="#7db4ff",
+                       font=("Arial", 16))
+    if is_happy:
+        canvas.create_text(200, 190, text="Smiling!", fill="#ffd54a",
+                           font=("Arial", 22))
+    elif is_sad:
+        canvas.create_text(200, 190, text="Aww...", fill="#7db4ff",
+                           font=("Arial", 22))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type "I am happy" and you literally SEE `is_happy = True` and `is_sad = False` on
+screen, plus the matching message.
 
 ### Line by Line
-- `mood == "happy"` — the computer works this out as `True`.
-- `mood == "sad"` — this is `False`.
-- `True` and `False` have no quotes — they are special, not words.
+- `is_happy = ("happy" in text)` — Python answers the question and stores True or
+  False in the box `is_happy`.
+- `if is_happy:` — since `is_happy` is ALREADY True or False, we can use it
+  directly. No need to write `if is_happy == True`.
+- The f-strings print the Boolean value so you can watch it change.
+
+### Do It in VS Code 🛠️
+1. New file `booleans.py`. Type the code.
+2. Save, run. Type "happy" → watch `True` appear. Type "sad" → the other flips.
+3. Type "happy and sad" — BOTH are True! Which message shows? (The first one — `if`
+   wins over `elif`.)
 
 ### Your Turn
-1. Print whether `"cat" == "cat"` (predict first).
-2. Print whether `"cat" == "dog"`.
-3. Make `said_bye = (mood == "bye")` and print it.
+1. Add a third Boolean `is_angry = ("angry" in text)` and show it.
+2. Type a message that makes all three False.
+3. Predict the two values for the message "so sad today".
+
+### 📸 Show Emrys
+Screenshot the screen showing True and False values. Tell Emrys what you typed.
 
 ### Check Your Brain
-- The only two boolean values?
-- Is `"hi" == "hi"` True or False?
+- What two values can a Boolean be?
+- What does `is_happy = ("happy" in text)` store?
+- Why can we write `if is_happy:` without `== True`?
 
 ### More Examples
-Booleans can live in boxes, like any value:
+Booleans in the terminal:
 
 ```python
-mood = "happy"
-is_happy = (mood == "happy")
-print(is_happy)            # True
-```
-
-Combine checks with `and` / `or` — just like English:
-
-```python
-mood = "happy"
-battery = 90
-print(mood == "happy" and battery > 50)   # True - BOTH true
-print(mood == "sad" or battery > 50)      # True - at least ONE true
-```
-
-`not` flips a boolean upside down:
-
-```python
-said_bye = False
-print(not said_bye)    # True - "they have NOT said bye"
+print(10 > 3)          # True
+print("a" in "cat")    # True
+print(2 < 1)           # False
 ```
 
 ### Common Mistakes
-- **Quotes around True:** `is_happy = "True"` makes a WORD, not a boolean. The real ones are bare with capitals: `True`, `False`.
-- **Lowercase true:** `true` → `NameError: name 'true' is not defined`.
-- **Capitals fool comparisons:** `"Hi" == "hi"` is `False`! Computers see capital H and small h as different letters — that's exactly why our chatbot tidies text with `.lower()` first.
+- **Quoting True:** `is_happy = "True"` makes a WORD, not a Boolean. **Fix:**
+  no quotes.
+- **One equals sign:** `if is_happy = True` → error. **Fix:** `if is_happy:`.
 
 ### Level Up 🚀
-Boolean detective: WITHOUT running, write True or False for each line — then run to mark your own test:
-
-```python
-print("bye" == "bye")
-print("Bye" == "bye")
-print(5 > 3 and 2 > 7)
-print(5 > 3 or 2 > 7)
-print(not ("cat" == "cat"))
-```
-
-Score 5/5 and you officially think like a computer. 🤖
+Combine two checks with `and`: `if is_happy and is_sad:` show "Mixed feelings!"
 
 ---
 
-## Lesson 12: Repeating with while Loops
+## Lesson 12: Repeating with a for Loop
 
 ### Big Idea
-A `while` loop repeats lines again and again, as long as a condition stays True.
+A `for` loop repeats an action many times — perfect for drawing lots of things.
 
 ### Kid Meaning
-"WHILE the music plays, keep dancing." When the music stops (false), you stop.
+Instead of writing 5 almost-identical lines, a loop says "do this 5 times,
+counting as you go." The counter changes each time so each item lands somewhere
+new.
 
 ### Chatbot Connection
-The chatbot keeps chatting WHILE you haven't said "bye".
+We'll use loops to draw a row of little mood faces, and later to CHECK a whole
+list of happy words one by one.
 
 ### The Code
 ```python
-count = 1
-while count <= 3:
-    print(f"Message number {count}")
-    count = count + 1
-print("Done chatting!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=440, height=200, bg="#0e1230")
+canvas.pack()
+
+colors = ["#ffd54a", "#7db4ff", "#ff6b6b", "#a0e8a0", "#e0a0ff"]
+
+for i in range(5):
+    x = 60 + i * 80
+    canvas.create_oval(x - 30, 60, x + 30, 120, fill=colors[i])
+    canvas.create_oval(x - 12, 78, x - 4, 86, fill="black")
+    canvas.create_oval(x + 4, 78, x + 12, 86, fill="black")
+    canvas.create_line(x - 14, 104, x + 14, 104, width=3)
+    canvas.create_text(x, 145, text=str(i), fill="white")
+
+root.mainloop()
 ```
+
+### What You'll See
+A neat **row of five little emoji faces**, each a different colour, numbered 0 to
+4 underneath — all drawn by ONE loop.
 
 ### Line by Line
-- `while count <= 3:` — keep looping while count is 3 or less (`<=` means "less
-  than or equal to").
-- The indented lines run each time around.
-- `count = count + 1` — VERY important: it moves the count up so the loop
-  eventually stops. Without it, the loop runs forever!
-- `print("Done chatting!")` is not indented, so it runs once after the loop.
+- `colors = [...]` — a **list**: several values in one box, in order.
+- `for i in range(5):` — count `i` from 0 up to (not including) 5 → 0, 1, 2, 3, 4.
+- `x = 60 + i * 80` — turns the counter into a position. Each face sits 80 pixels
+  further right than the last.
+- `colors[i]` — picks the colour at position `i` from the list. **Lists start at
+  0**, so `colors[0]` is the first one.
+- `str(i)` — turns the number into text so `create_text` can show it.
+
+### Do It in VS Code 🛠️
+1. New file `row.py`. Type the code.
+2. Save, run — five faces appear.
+3. Change `range(5)` to `range(3)` — only three faces.
 
 ### Your Turn
-1. Make a loop that prints "Hello" 5 times.
-2. Count down from 5 to 1 (start at 5, subtract 1 each time).
-3. Why must something change inside the loop?
+1. Space the faces further apart (change `80` to `100`) and widen the canvas.
+2. Add a sixth colour to the list and change `range(5)` to `range(6)`.
+3. Predict what `colors[0]` and `colors[2]` are.
+
+### 📸 Show Emrys
+Screenshot your row of faces. Tell Emrys how many you drew and the spacing used.
 
 ### Check Your Brain
-- What does a `while` loop do?
-- Why must the condition eventually become False?
+- What does a `for` loop do?
+- What numbers does `range(5)` produce?
+- Is `colors[0]` the first or second item?
+- Why does `str(i)` matter for `create_text`?
 
 ### More Examples
-A countdown to blast-off — loops go down too:
+Looping straight over a list (no counter needed):
 
 ```python
-count = 5
-while count > 0:
-    print(f"{count}...")
-    count = count - 1
-print("BLAST OFF! 🚀")
-```
-
-A bot charging its battery in steps:
-
-```python
-battery = 20
-while battery < 100:
-    print(f"Charging... {battery}%")
-    battery = battery + 20
-print("🔋 Fully charged!")
-```
-
-Loops can draw — `"⭐" * row` repeats the star `row` times:
-
-```python
-row = 1
-while row <= 4:
-    print("⭐" * row)
-    row = row + 1
+for c in ["glad", "great", "good"]:
+    print(c)
 ```
 
 ### Common Mistakes
-- **The forever loop:** forget `count = count + 1` and the condition never turns False — the program spins forever! **Fix:** every `while` needs a line that moves it toward stopping. (If it happens: press the STOP button or Ctrl+C. Every coder alive has done this at least once.)
-- **Moving the wrong way:** subtracting when the loop needs the number to GROW also loops forever. Check the direction.
-- **Indenting the after-line:** if `print("Done chatting!")` is indented, it prints EVERY lap instead of once at the end.
+- **Off-by-one:** `range(5)` gives 0–4, NOT 1–5. **Fix:** use `range(1, 6)` if you
+  want 1–5.
+- **List index too big:** `colors[5]` when the list has 5 items → `IndexError`
+  (the last one is `colors[4]`). **Fix:** count from 0.
 
 ### Level Up 🚀
-"Emoji rain": ask how many rows (`int(input(...))`), then loop printing `"💧" * row` from 1 up to that number — a growing rain triangle, sized by the player. You just combined input + loops + text-times — three lessons in four lines.
+Draw the faces in a vertical column instead of a row (change which number uses
+`i`).
 
 ---
 
-## Lesson 13: The Chat Loop — Keep Talking Until "bye"
+## Lesson 13: The Chat Loop — Keep Talking
 
 ### Big Idea
-We can ask the player something inside a loop, again and again, until they type a
-stop word.
+In a window app, we don't loop-and-wait for the player. Each **button click** is
+one turn of the conversation.
 
 ### Kid Meaning
-The chatbot keeps the conversation going until you choose to leave.
+In the terminal you'd write `while True: ask again`. But in a window that would
+FREEZE everything. Instead, every time you press Send, the bot takes one turn.
+You control the pace.
 
 ### Chatbot Connection
-This is the exact shape of a real chatbot conversation.
+"Keep chatting until you say bye" is just "let them press Send as many times as
+they like, and check for the word bye each time."
 
 ### The Code
 ```python
-message = ""
-while message != "bye":
-    message = input("Say something (or 'bye' to leave): ").lower().strip()
-    print(f"You said: {message}")
-print("👋 Bye for now!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="#0e1230")
+canvas.pack()
+
+turns = 0
+
+def send():
+    global turns
+    text = entry.get().lower().strip()
+    canvas.delete("all")
+    if text == "bye":
+        canvas.create_text(200, 140, text=f"Bye! We chatted {turns} times.",
+                           fill="#ffd54a", font=("Arial", 15))
+    else:
+        turns = turns + 1
+        canvas.create_text(200, 120, text=f"You said: {text}", fill="white",
+                           font=("Arial", 14))
+        canvas.create_text(200, 160, text=f"Turn number {turns}", fill="lime",
+                           font=("Arial", 14))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+entry.bind("<Return>", lambda event: send())
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Each Send counts a turn: "Turn number 1", "Turn number 2"… Type **bye** and the
+bot says goodbye with the total. The window never freezes — it just waits for
+your next message.
 
 ### Line by Line
-- `message = ""` — start with empty text so the loop can begin.
-- `while message != "bye":` — keep going while the message is NOT "bye". `!=` means
-  "is not equal to".
-- We tidy each message so "Bye" and "BYE" also work.
-- Type "bye" → condition becomes false → loop ends → farewell.
+- `turns = 0` — memory that survives between clicks (it lives OUTSIDE the
+  function).
+- `global turns` — lets the function change that outside box.
+- `if text == "bye":` — checks for the exact word "bye" to end the chat.
+- `entry.bind("<Return>", lambda event: send())` — makes the **Enter key** send
+  too, just like a real chat app. (`lambda event:` is just the little wrapper
+  tkinter needs — don't worry about it yet.)
+- The window sitting patiently between clicks IS the loop — `mainloop()` handles
+  it for us.
+
+### Do It in VS Code 🛠️
+1. New file `chat_turns.py`. Type the code.
+2. Save, run. Send several messages, watching the turn count climb.
+3. Press **Enter** instead of clicking — it works too!
+4. Type "bye" to finish.
 
 ### Your Turn
-1. Build this and chat, then type "bye".
-2. Change the stop word to "exit".
-3. Count how many messages were typed before leaving (use a counter variable!).
+1. Change the goodbye message to your own wording.
+2. Add an `elif text == "hi":` that gives a special greeting.
+3. Predict the turn count after sending 4 messages then "bye".
+
+### 📸 Show Emrys
+Screenshot your goodbye screen showing the total turns. Tell Emrys how many
+messages you sent.
 
 ### Check Your Brain
-- What does `!=` mean?
-- Why did we set `message = ""` before the loop?
+- Why don't we use a `while True` loop to keep chatting in a window?
+- Where must `turns` live so it remembers between clicks?
+- What does `entry.bind("<Return>", ...)` add?
 
 ### More Examples
-An echo bot with attitude — it repeats you but in CAPITALS:
+Two buttons sharing one counter:
 
 ```python
-words = ""
-while words != "bye":
-    words = input("You: ").lower().strip()
-    print(f"EchoBot: {words.upper()}!!!")
-print("EchoBot: 👋 BYEEEE!")
-```
-
-Count the messages — a counter riding inside the chat loop:
-
-```python
-message = ""
-chats = 0
-while message != "bye":
-    message = input("Say something: ").lower().strip()
-    chats = chats + 1
-print(f"We exchanged {chats} messages today!")
-```
-
-A quiz that repeats until correct — the same skeleton, different job:
-
-```python
-answer = ""
-while answer != "python":
-    answer = input("Which language are we learning? ").lower().strip()
-print("🎉 Correct! You may pass!")
+def up():
+    global n
+    n = n + 1
 ```
 
 ### Common Mistakes
-- **Starting box equals the stop word:** `message = "bye"` before the loop → condition is False immediately, loop NEVER runs. Start with `""`.
-- **input() outside the loop:** asking before the `while` means one question, then the same answer spins forever. The `input` goes INSIDE.
-- **Forgetting the tidy:** player types `BYE` but you compare to `"bye"` — the loop keeps going! `.lower().strip()` saves the day again.
+- **Putting the counter inside the function:** `def send(): turns = 0` resets it
+  every time. **Fix:** define it OUTSIDE and use `global`.
+- **A `while True` loop in a window app:** it freezes the window solid. **Fix:**
+  use button clicks (the event model).
 
 ### Level Up 🚀
-"The Polite Doorbot": it keeps asking "What's the password?" until the player types `mango`. BUT — count the tries, and make the bot's patience wear out in its replies: try 1 → "Hmm, nope!", try 2 → "Still no...", try 3+ → "😤 REALLY now?!" (use ifs on the counter inside the loop). Personality through code — that's chatbot craft.
+Add a "Reset chat" button that sets `turns` back to 0 and clears the canvas.
 
 ---
 
 ## Lesson 14: Functions — Reusable Reply Machines
 
 ### Big Idea
-A function is named code you can run again by calling its name.
+A function is a named machine: define it once, then run it whenever you like.
 
 ### Kid Meaning
-Like a kettle: you don't rebuild it each time — you just press the button. A
-function is code you can re-use by name.
+A blender is a machine — you don't rebuild it each time, you press its button. A
+function is code you name once and reuse by calling it.
 
 ### Chatbot Connection
-A `divider()` function can print a neat line anywhere, without retyping it.
+We'll build machines like `draw_face()` and `say()` and call them on every
+message — instead of copying the same drawing code over and over.
 
 ### The Code
 ```python
-def divider():
-    print("-" * 25)
+import tkinter as tk
 
-divider()
-print("Mood Buddy")
-divider()
+WIDTH = 400
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=420, bg="#0e1230")
+canvas.pack()
+cx, cy, r = 200, 160, 85
+
+def draw_face():
+    canvas.delete("face")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill="#ffd54a", tags="face")
+    canvas.create_oval(cx-32, cy-28, cx-14, cy-10, fill="black", tags="face")
+    canvas.create_oval(cx+14, cy-28, cx+32, cy-10, fill="black", tags="face")
+    canvas.create_arc(cx-45, cy-10, cx+45, cy+60, start=200, extent=140,
+                      style="arc", width=5, tags="face")
+
+def say(words):
+    canvas.delete("bubble")
+    canvas.create_rectangle(30, 290, WIDTH-30, 360, fill="#1b2350",
+                            outline="#3a4a90", width=2, tags="bubble")
+    canvas.create_text(WIDTH/2, 325, text=words, fill="white",
+                       width=WIDTH-70, font=("Arial", 13), tags="bubble")
+
+draw_face()
+say("Hi! I'm your Emoji Mood Bot.")
+
+root.mainloop()
 ```
+
+### What You'll See
+A smiling face with a proper **speech bubble** below it saying "Hi! I'm your Emoji
+Mood Bot."
 
 ### Line by Line
-- `def divider():` — `def` means "define a machine called divider".
-- The indented line is the machine's job.
-- `divider()` — press the button. We called it twice, so it ran twice.
+- `def draw_face():` — defines the machine. Nothing happens yet — we're just
+  building it.
+- `def say(words):` — a machine that draws the speech bubble with whatever words
+  we hand it.
+- `tags="face"` / `tags="bubble"` — **labels** on the shapes. `canvas.delete("face")`
+  erases ONLY the face, leaving the bubble alone. This is much better than
+  `delete("all")`, which would wipe everything.
+- `width=WIDTH-70` inside `create_text` — makes long sentences **wrap** onto
+  several lines instead of running off the edge.
+- `draw_face()` and `say(...)` — calling the machines actually runs them.
+
+### Do It in VS Code 🛠️
+1. New file `machines.py`. Type the code.
+2. Save, run — face plus speech bubble.
+3. Change the `say(...)` text and run again. Only the bubble changes!
 
 ### Your Turn
-1. Make a `welcome()` function that prints a two-line intro and call it.
-2. Make a `bye()` function and call it at the end of a program.
+1. Call `say` twice with different words — which one wins? (The last, because of
+   the `"bubble"` delete.)
+2. Add a `clear()` machine that deletes everything, and call it first.
+3. Predict what `canvas.delete("face")` erases — the bubble too?
+
+### 📸 Show Emrys
+Screenshot your face with its speech bubble. Tell Emrys the name of your two
+functions.
 
 ### Check Your Brain
-- What word defines a function?
-- What does it mean to "call" a function?
+- What does `def` do?
+- What is the difference between DEFINING a function and CALLING it?
+- Why are `tags` better than `delete("all")` here?
+- What does `width=` do inside `create_text`?
 
 ### More Examples
-A bot with several "moves" — each one a function in its toolbox:
+A tiny function you call by name:
 
 ```python
-def wave():
-    print("🤖 *waves hello*")
+def hello():
+    print("Hi there!")
 
-def dance():
-    print("🤖 *spins around* 🕺")
-    print("🤖 *does the robot* (obviously)")
-
-wave()
-dance()
-wave()
-```
-
-Functions can contain loops — tools combine:
-
-```python
-def triple_beep():
-    n = 1
-    while n <= 3:
-        print("Beep!")
-        n = n + 1
-
-triple_beep()
-```
-
-A divider with style options coming from a tiny change inside:
-
-```python
-def fancy_divider():
-    print("✨" + "=" * 23 + "✨")
-
-fancy_divider()
-print("   MOOD BUDDY MENU")
-fancy_divider()
+hello()   # runs it
+hello()   # runs it again
 ```
 
 ### Common Mistakes
-- **Defining but never calling:** you write `def dance():` and... nothing happens on Run. Defining builds the machine; `dance()` presses the button.
-- **Calling above the definition:** `dance()` BEFORE `def dance():` → `NameError`. Python reads top to bottom — define first, call after.
-- **No brackets when calling:** `dance` alone (no `()`) does nothing visible. The `()` is the button-press.
+- **Defining but never calling:** the machine exists but nothing runs it. **Fix:**
+  call it — `draw_face()`.
+- **Deleting everything by accident:** `delete("all")` wipes the bubble too.
+  **Fix:** delete by tag.
 
 ### Level Up 🚀
-Build a "Bot Performance": three functions — `intro()`, `joke()`, `bow()` — then call them in show order. Then re-order the calls WITHOUT touching the functions and watch the whole show rearrange. One-line changes redirecting a whole program: that's the power functions give you.
+Add a `draw_background()` machine that draws stars behind the face using a `for`
+loop (Lesson 12).
 
 ---
 
-## Lesson 15: Functions That Take Information (Parameters)
+## Lesson 15: Functions That Take Information — Parameters
 
 ### Big Idea
-Functions can accept inputs (called parameters) so they work with different values.
+Parameters let us hand information INTO a function so it can do different things.
 
 ### Kid Meaning
-A toaster works on whatever bread you give it. A function works on whatever value
-you hand it.
+A vending machine does different things depending on which button you press. A
+parameter is the "which button" — you give the function a value and it uses it.
 
 ### Chatbot Connection
-A `greet(name)` function can welcome ANY player by name, not just one.
+`draw_face(mood)` will take the mood and draw the RIGHT expression — one machine
+that can be happy, sad, or angry depending on what we pass it.
 
 ### The Code
 ```python
-def greet(name):
-    print(f"Hello {name}! Welcome to the chat.")
+import tkinter as tk
 
-greet("Akua")
-greet("Yaw")
+WIDTH = 400
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=380, bg="#0e1230")
+canvas.pack()
+cx, cy, r = 200, 160, 85
+
+def draw_face(mood):
+    canvas.delete("face")
+    colors = {"happy": "#ffd54a", "sad": "#7db4ff", "angry": "#ff6b6b"}
+    color = colors.get(mood, "#c8d0ff")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill=color, tags="face")
+    canvas.create_oval(cx-32, cy-28, cx-14, cy-10, fill="black", tags="face")
+    canvas.create_oval(cx+14, cy-28, cx+32, cy-10, fill="black", tags="face")
+    if mood == "happy":
+        canvas.create_arc(cx-45, cy-10, cx+45, cy+60, start=200, extent=140,
+                          style="arc", width=5, tags="face")
+    elif mood == "sad":
+        canvas.create_arc(cx-45, cy+25, cx+45, cy+95, start=20, extent=140,
+                          style="arc", width=5, tags="face")
+    else:
+        canvas.create_line(cx-30, cy+42, cx+30, cy+42, width=5, tags="face")
+    canvas.create_text(cx, 320, text=f"mood = {mood}", fill="white",
+                       tags="face")
+
+draw_face("happy")
+
+root.mainloop()
 ```
 
+### What You'll See
+A yellow smiling face. Change the last line to `draw_face("sad")` → a blue
+drooping face. `draw_face("angry")` → a red one. ONE machine, three faces.
+
 ### Line by Line
-- `def greet(name):` — this machine needs one thing: a `name`.
-- Inside, `name` stands for whatever we hand over.
-- `greet("Akua")` — run it with "Akua". Then again with "Yaw". Same machine,
-  different results.
+- `def draw_face(mood):` — `mood` is a parameter — an empty box waiting to be
+  filled when we call the function.
+- `colors = {...}` — a **dictionary**: it pairs each mood NAME with a colour. Like
+  a real dictionary: look up a word, get its meaning.
+- `colors.get(mood, "#c8d0ff")` — looks up the mood's colour. The second value is
+  the **fallback** used if the mood isn't in the dictionary — so unknown moods
+  don't crash.
+- `draw_face("happy")` — calls the machine, filling `mood` with `"happy"`.
+
+### Do It in VS Code 🛠️
+1. New file `face_param.py`. Type the code.
+2. Save, run — happy face.
+3. Change the call to `draw_face("sad")`, then `draw_face("angry")`, then
+   `draw_face("sleepy")` (watch the fallback colour appear!).
 
 ### Your Turn
-1. Make a function `cheer(name)` that prints "Well done, NAME!" using the name.
-2. Call it with two different names.
+1. Add a `"surprised"` colour to the dictionary and an `elif` for a round mouth.
+2. Add a second parameter `size` and use it instead of `r`.
+3. Predict the colour for `draw_face("excited")` (the fallback — it's not in the
+   dictionary).
+
+### 📸 Show Emrys
+Screenshot the happy, sad, AND angry faces (three shots). Tell Emrys the values
+you passed.
 
 ### Check Your Brain
 - What is a parameter?
-- Why is `greet(name)` better than writing a new print for every player?
+- How do values get INTO the parameter?
+- What is a dictionary, and what does `.get(mood, fallback)` do?
+- Why is one `draw_face` better than three separate functions?
 
 ### More Examples
-A function taking a NUMBER:
+A greet function with a parameter:
 
 ```python
-def battery_report(level):
-    print(f"🔋 Battery at {level}%")
-    print(f"   {level // 10} bars showing")
+def greet(name):
+    print(f"Hello, {name}!")
 
-battery_report(80)
-battery_report(25)
-```
-
-(`//` divides and DROPS the decimal — 25 // 10 gives 2 whole bars.)
-
-Two parameters at once — name AND mood:
-
-```python
-def mood_card(name, mood):
-    print("-" * 22)
-    print(f"  {name} feels {mood}")
-    print("-" * 22)
-
-mood_card("Akua", "happy")
-mood_card("Yaw", "sleepy")
-```
-
-A parameter driving a loop — the chant machine:
-
-```python
-def cheer(name, times):
-    count = 0
-    while count < times:
-        print(f"Go {name}!")
-        count = count + 1
-
-cheer("Class 5", 3)
+greet("Ama")
+greet("Kofi")
 ```
 
 ### Common Mistakes
-- **Calling with nothing:** `greet()` when it needs a name → `TypeError: greet() missing 1 required positional argument: 'name'`. The machine needs its ingredient!
-- **Swapped order:** `mood_card("happy", "Akua")` prints "happy feels Akua" — no error, just nonsense. First value → first parameter.
-- **Using the parameter outside:** `print(name)` at the bottom of the file → `NameError`. Parameters live only INSIDE their function, like ingredients that exist only in the kitchen.
+- **Wrong number of values:** `draw_face()` when it expects one → `TypeError`.
+  **Fix:** pass one, e.g. `draw_face("happy")`.
+- **Using `colors[mood]` instead of `.get`:** an unknown mood crashes with
+  `KeyError`. **Fix:** use `.get(mood, fallback)`.
 
 ### Level Up 🚀
-Write `emoji_line(emoji, count)` that prints the emoji repeated `count` times (hint: `emoji * count`). Then decorate your whole bot screen with calls like `emoji_line("🌟", 10)` and `emoji_line("🎈", 7)`. One tiny machine, infinite decorations.
+Make `draw_face(mood, size)` so you can draw a big happy face and a small sad one.
 
 ---
 
-## Lesson 16: Functions That Give an Answer Back (return)
+## Lesson 16: Functions That Give an Answer Back — return
 
 ### Big Idea
-A function can `return` a value — hand an answer back so we can use it.
+`return` lets a function hand a value BACK to whoever called it.
 
 ### Kid Meaning
-Like asking a friend a question and getting an answer you can then use, not just
-hear once.
+Some machines DO something (draw a face). Others ANSWER something (work out which
+mood you meant). `return` is how a machine gives you its answer.
 
 ### Chatbot Connection
-A `mood_reply(mood)` function can work out the right message and hand it back to be
-printed.
+`mood_of(text)` will read your message and RETURN the mood name. `reply_for(mood)`
+will RETURN the sentence to say. These two are the bot's real brain.
 
 ### The Code
 ```python
-def mood_reply(mood):
-    if mood == "happy":
-        return "😄 Yay!"
-    elif mood == "sad":
-        return "🤗 Sending a hug."
-    else:
-        return "🙂 Thanks for sharing."
+import tkinter as tk
 
-message = mood_reply("happy")
-print(message)
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="#0e1230")
+canvas.pack()
+
+def mood_of(text):
+    if "happy" in text:
+        return "happy"
+    elif "sad" in text:
+        return "sad"
+    elif "angry" in text:
+        return "angry"
+    return "okay"
+
+def reply_for(mood):
+    if mood == "happy":
+        return "That's wonderful to hear!"
+    elif mood == "sad":
+        return "I'm here for you."
+    elif mood == "angry":
+        return "Take a deep breath."
+    return "Tell me more!"
+
+def send():
+    text = entry.get().lower().strip()
+    mood = mood_of(text)
+    answer = reply_for(mood)
+    canvas.delete("all")
+    canvas.create_text(200, 110, text=f"I think you feel: {mood}",
+                       fill="lime", font=("Arial", 15))
+    canvas.create_text(200, 160, text=answer, fill="white",
+                       width=340, font=("Arial", 14))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Send", command=send).pack()
+
+root.mainloop()
 ```
 
+### What You'll See
+Type "I feel sad today" → the bot shows "I think you feel: sad" and replies "I'm
+here for you." The two machines worked together.
+
 ### Line by Line
-- `def mood_reply(mood):` — takes a mood as input (a parameter).
-- `return "..."` — hands a message back AND stops the function there.
-- `message = mood_reply("happy")` — catch the returned message in a box.
-- Then we `print(message)`.
+- `def mood_of(text):` — a machine that ANSWERS. It looks at the text and hands
+  back a mood name.
+- `return "happy"` — hands the word "happy" back AND stops the function
+  immediately. Nothing after it runs.
+- The last `return "okay"` — reached only if no mood matched, so it's our default.
+- `mood = mood_of(text)` — catches the answer in a box.
+- `answer = reply_for(mood)` — feeds the FIRST machine's answer into the SECOND.
+  That's how programs are built: small machines passing answers along.
+
+### Do It in VS Code 🛠️
+1. New file `brain.py`. Type the code.
+2. Save, run. Test "happy", "sad", "angry", and "pizza" (the default).
+3. Add `print(mood)` inside `send` and watch the answer in the terminal.
 
 ### Your Turn
-1. Add an "angry" reply to `mood_reply`.
-2. Call it with "sad" and print the result.
-3. What's the difference between a function that `print`s and one that `return`s?
+1. Add an `"excited"` mood to BOTH machines.
+2. Change all the replies to your own kind wording.
+3. Predict what `mood_of("nothing much")` returns. (Answer: `"okay"`.)
+
+### 📸 Show Emrys
+Screenshot two different moods with their replies. Tell Emrys which words you
+used.
 
 ### Check Your Brain
 - What does `return` do?
-- Why catch the result in a variable?
+- What happens to code written AFTER a `return` that runs?
+- Why does `mood_of` end with a plain `return "okay"`?
+- How does `reply_for` get its mood?
 
 ### More Examples
-A returned answer can be USED, not just printed — that's the superpower:
+Return a calculated value:
 
 ```python
-def double(number):
-    return number * 2
+def square(n):
+    return n * n
 
-result = double(5)
-print(result)              # 10
-print(double(result))      # 20 - feed it back in!
-```
-
-Return a built sentence:
-
-```python
-def make_greeting(name):
-    return f"Welcome back, {name}! We missed you. 💙"
-
-line = make_greeting("Esi")
-print(line)
-print(line)    # use it twice - it's saved in the box!
-```
-
-print vs return, side by side — feel the difference:
-
-```python
-def shouter(word):
-    print(word.upper())     # prints, but hands back nothing
-
-def returner(word):
-    return word.upper()     # hands the result back
-
-shouter("hi")                  # HI appears
-caught = returner("hi")        # nothing appears yet...
-print(caught + "!!!")          # HI!!! - we got to USE it first
+print(square(5))   # 25
 ```
 
 ### Common Mistakes
-- **Forgetting to catch the return:** `mood_reply("happy")` on its own line — the message is returned… into thin air! Catch it: `msg = mood_reply("happy")` or print it directly.
-- **Code after return:** anything below `return` inside the function NEVER runs — return exits immediately. Python may not even warn you.
-- **Returning vs printing confusion:** if your function prints AND you print its result, you may see `None` — that's Python saying "this function handed nothing back". Pick one job per function.
+- **Forgetting to catch the answer:** calling `mood_of(text)` without storing it
+  throws the answer away. **Fix:** `mood = mood_of(text)`.
+- **Using `print` instead of `return`:** printing shows it but hands back nothing.
+  **Fix:** use `return` when you need the value.
 
 ### Level Up 🚀
-Build `emoji_for(mood)` that RETURNS just an emoji ("happy" → "😄", "sad" → "😢", else "🙂"). Then compose it inside an f-string: `print(f"Your mood badge: {emoji_for(mood)}")`. Functions feeding f-strings — that's exactly how the polished final chatbot will be wired.
+Write `is_question(text)` that returns True if the text ends with `"?"` (hint:
+`text.endswith("?")`).
 
 ---
 
 # PART 3 — BUILDING THE CHATBOT
 
----
-
 ## Lesson 17: Greeting and Remembering the Name
 
 ### Big Idea
-Start the real chatbot: greet, ask the name, remember it.
+The bot asks your name first, remembers it, and uses it in every reply.
 
 ### Kid Meaning
-A good buddy learns your name first.
+A good friend remembers your name. We store it in a box that stays filled between
+messages, so the bot can greet you personally forever after.
 
 ### Chatbot Connection
-This is the opening of Mood Buddy.
+This is the chatbot's first real conversation step — and the start of our final
+program.
 
 ### The Code
 ```python
-def divider():
-    print("=" * 28)
+import tkinter as tk
 
-divider()
-print("   MOOD BUDDY 🤖")
-divider()
-name = input("Hi! What's your name? ").strip()
-print(f"Great to meet you, {name}! 😊")
+WIDTH, HEIGHT = 420, 560
+root = tk.Tk()
+root.title("Emoji Mood Chatbot")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1230")
+canvas.pack()
+
+name = ""            # empty until they tell us
+cx, cy, r = WIDTH/2, 180, 100
+
+def draw_face():
+    canvas.delete("face")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill="#ffd54a", tags="face")
+    canvas.create_oval(cx-40, cy-30, cx-22, cy-12, fill="black", tags="face")
+    canvas.create_oval(cx+22, cy-30, cx+40, cy-12, fill="black", tags="face")
+    canvas.create_arc(cx-50, cy-5, cx+50, cy+65, start=200, extent=140,
+                      style="arc", width=6, tags="face")
+
+def say(words):
+    canvas.delete("bubble")
+    canvas.create_rectangle(30, 330, WIDTH-30, 420, fill="#1b2350",
+                            outline="#3a4a90", width=2, tags="bubble")
+    canvas.create_text(WIDTH/2, 375, text=words, fill="white",
+                       width=WIDTH-70, font=("Arial", 14), tags="bubble")
+
+def send():
+    global name
+    text = entry.get().strip()
+    entry.delete(0, tk.END)
+    if text == "":
+        return
+    if name == "":
+        name = text.title()
+        say(f"Nice to meet you, {name}! How do you feel today?")
+    else:
+        say(f"You said '{text}', {name}.")
+
+draw_face()
+say("Hi! I'm your Emoji Mood Bot. What's your name?")
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=8)
+entry.bind("<Return>", lambda event: send())
+entry.focus()
+tk.Button(root, text="Send", font=("Arial", 13), command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+The bot greets you and asks your name. Type it → "Nice to meet you, Ama! How do
+you feel today?" Every message after that uses your name.
 
 ### Line by Line
-- A `divider()` function for neat lines (Lesson 14).
-- Ask and `.strip()` the name.
-- Greet warmly with an f-string.
+- `name = ""` — an EMPTY text box. Empty means "we don't know it yet."
+- `if name == "":` — if we still don't know the name, treat this message AS the
+  name.
+- `name = text.title()` — store it with a capital first letter.
+- `if text == "": return` — if they pressed Send with nothing typed, quietly do
+  nothing. `return` leaves the function early.
+- `root.resizable(False, False)` — locks the window size so the buttons can never
+  get pushed off the screen.
+- `entry.focus()` — puts the typing cursor in the box automatically, so you can
+  type straight away.
+
+### Do It in VS Code 🛠️
+1. Create your real project file `chatbot.py`. Type the code.
+2. Save, run. Type your name, then type anything else and see it remembered.
 
 ### Your Turn
-1. Build this opening and run it.
-2. Make the title and emoji your own.
+1. Change the opening greeting to your own words.
+2. Add the name to the window title after they type it.
+3. Predict what happens if you press Send on an empty box.
+
+### 📸 Show Emrys
+Screenshot the bot greeting you BY NAME. Tell Emrys the name you gave it.
 
 ### Check Your Brain
-- Why `.strip()` the name?
-- Why put the divider in a function?
+- How does the bot know it hasn't learned your name yet?
+- What does `.title()` do to the name?
+- What does `return` do when the box is empty?
+- Why lock the window with `resizable(False, False)`?
 
 ### More Examples
-Level up the opening with `.title()` so any typing becomes a neat name:
+Remembering two things:
 
 ```python
-name = input("Hi! What's your name? ").strip().title()
-print(f"Great to meet you, {name}! 😊")    # "aMA  " becomes "Ama"
-```
-
-A welcome that reacts to the name's length — tiny detail, big charm:
-
-```python
-name = input("What's your name? ").strip().title()
-if len(name) > 8:
-    print(f"Wow, {name} - what a grand name!")
-else:
-    print(f"{name} - short and mighty! 💪")
-```
-
-(`len(name)` counts the letters — a handy little measuring tape for text.)
-
-A two-line "thinking" effect before greeting (chatbots feel alive when they pause):
-
-```python
-print("...")
-print("...")
-print(f"Initializing friendship with {name}... DONE! 🤝")
+name = ""
+favourite = ""
 ```
 
 ### Common Mistakes
-- **Tidying with `.lower()` here:** the NAME should keep its capital — `.strip().title()` for names, `.lower()` for moods. Different jobs, different tidying.
-- **Asking for the name inside the chat loop (coming soon):** then it asks every turn! Names are asked ONCE, before the loop.
-- **Hard-coding the name:** `print("Great to meet you, Esi!")` works only for Esi. The `{name}` box makes it work for everyone — that's the whole point.
+- **Forgetting `global name`:** the name never sticks — it resets each message.
+  **Fix:** add `global name` at the top of `send`.
+- **Comparing wrongly:** `if name = "":` is an error. **Fix:** `==`.
 
 ### Level Up 🚀
-Give Mood Buddy a birth certificate: after greeting, the bot introduces ITSELF — name, age in days (make one up with maths), favourite emoji, and one funny fear ("I fear the OFF switch 😱"). Bots with character get chatted to for twice as long — true in real chatbot design!
+Add a "Forget me" button that sets `name = ""` so the bot asks again.
 
 ---
 
-## Lesson 18: Matching Many Words with a List and in
+## Lesson 18: Matching Many Words with a List and `in`
 
 ### Big Idea
-A **list** holds many values in one box; `in` checks whether something is inside it.
+A list holds many words, and a loop checks them all — so lots of words mean the
+same mood.
 
 ### Kid Meaning
-People say "happy", "glad", "good" — all mean happy. Instead of many `if`s, we keep
-a "happy list" and ask once: "is the mood in my happy list?"
+People don't only say "happy" — they say "glad", "great", "excited". We put all
+those words in one list and check the whole list at once.
 
 ### Chatbot Connection
-This lets the chatbot understand lots of words for the same feeling.
+This makes the bot MUCH smarter. Instead of knowing one word per mood, it knows
+a whole family of words.
 
 ### The Code
 ```python
-mood = input("How do you feel? ").lower().strip()
-happy_words = ["happy", "glad", "good", "great"]
-if mood in happy_words:
-    print("😄 Love that energy!")
-else:
-    print("🙂 Thanks for telling me.")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=420, height=260, bg="#0e1230")
+canvas.pack()
+
+happy_words = ["happy", "glad", "great", "good", "yay", "excited", "fun"]
+
+def has_any(text, words):
+    for word in words:
+        if word in text:
+            return True
+    return False
+
+def send():
+    text = entry.get().lower().strip()
+    found = has_any(text, happy_words)
+    canvas.delete("all")
+    canvas.create_text(210, 110, text=f"Happy word found? {found}",
+                       fill="lime" if found else "#ff9999",
+                       font=("Arial", 16))
+    entry.delete(0, tk.END)
+
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Check", command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+Type "I feel great today" → **True** in green (it found "great"). Type "meh" →
+**False** in red.
 
 ### Line by Line
-- `["happy", "glad", "good", "great"]` — a **list**: many words in one box, inside
-  square brackets, separated by commas.
-- `mood in happy_words` — True if the mood is ANY item in that list.
-- One check handles four words!
+- `happy_words = [...]` — a **list**: many words in one box, separated by commas.
+- `def has_any(text, words):` — a machine with TWO parameters: the message, and
+  the list to search.
+- `for word in words:` — walk through the list one word at a time.
+- `if word in text: return True` — the moment we find ANY match, hand back True
+  and stop looking. No need to check the rest!
+- `return False` — reached only if the loop finished without finding anything.
+  Notice it is lined up with the `for`, NOT inside it.
+- `"lime" if found else "#ff9999"` — a one-line choice: green when True, red when
+  False.
+
+### Do It in VS Code 🛠️
+1. New file `word_lists.py`. Type the code.
+2. Save, run. Try "great", "yay", "excited", then something with none of them.
+3. Add a word to the list, save, run, and test your new word.
 
 ### Your Turn
-1. Make a `sad_words` list ("sad", "down", "blue", "bad") and reply kindly if the
-   mood is in it.
-2. Add the `sad_words` check using `elif`.
-3. Why is a list better than four separate `if`s for the same idea?
+1. Add three more happy words of your own.
+2. Make a `sad_words` list and check it too.
+3. Predict the result for "I had a good day" (True — "good" is in the list).
+
+### 📸 Show Emrys
+Screenshot both a True and a False result. Tell Emrys which word was found.
 
 ### Check Your Brain
-- What is a list? How do you write one?
-- What does `in` check?
+- What is a list?
+- What does the `for` loop do to the list?
+- Why does `return True` stop the loop early?
+- When is `return False` reached?
 
 ### More Examples
-Lists hold anything — try printing whole lists and single items:
+Looping over a list and printing each:
 
 ```python
-fruits = ["mango", "banana", "pawpaw"]
-print(fruits)        # the whole list
-print(fruits[0])     # "mango" - the FIRST item is number 0!
-print(fruits[2])     # "pawpaw" - counting starts at zero
-```
-
-Yes — Python counts from 0. Weird at first, then totally normal. You can also add to a list while the program runs:
-
-```python
-moods_today = []
-moods_today.append("happy")
-moods_today.append("excited")
-print(moods_today)            # ['happy', 'excited']
-print(len(moods_today))       # 2 - how many things inside
-```
-
-`in` works on any list — a guest-list bouncer:
-
-```python
-vip = ["ama", "kofi", "esi"]
-guest = input("Name? ").lower().strip()
-if guest in vip:
-    print("🎉 Welcome to the party!")
-else:
-    print("🚪 Sorry, not on the list...")
+for w in ["glad", "great", "good"]:
+    print(w)
 ```
 
 ### Common Mistakes
-- **Round brackets:** `happy_words = ("happy", "glad")` makes a different thing (a tuple). Lists use SQUARE brackets `[ ]`.
-- **Missing commas:** `["happy" "glad"]` silently GLUES into `["happyglad"]` — one weird item, no error! Commas between every item.
-- **Checking the untidied word:** `"Happy" in happy_words` is False — the list has lowercase words. Tidy before checking (the lesson code does this — keep that habit).
+- **`return False` inside the loop:** it quits after checking only the FIRST word.
+  **Fix:** put it AFTER the loop, lined up with the `for`.
+- **Forgetting commas** between list items → `SyntaxError`. **Fix:** comma after
+  every item except the last.
 
 ### Level Up 🚀
-Build a "mood collector": start `moods_shared = []`, and in a small loop, `append` each mood the player types until "done". Then print `f"You felt {len(moods_shared)} things today: {moods_shared}"`. You're now storing a whole conversation history — a real chatbot memory!
+Write `which_word(text, words)` that returns the actual matching word (not just
+True) so the bot can say "you said 'excited'!"
 
 ---
 
 ## Lesson 19: The Mood Brain as a Function
 
 ### Big Idea
-Put the mood matching inside `mood_reply()` so the chatbot's brain is tidy and
-reusable.
+One machine, `mood_of(text)`, reads the message and returns the mood name.
 
 ### Kid Meaning
-We pack all the feeling-replies into one machine we can press any time.
+This is the bot's brain in one box. Give it your sentence, it hands back "happy",
+"sad", "angry", or "okay".
 
 ### Chatbot Connection
-This is the brain the finished chatbot will use every turn.
+Everything else — the face colour, the mouth shape, the reply — is decided from
+this one answer.
 
 ### The Code
-```python
-def mood_reply(mood):
-    happy_words = ["happy", "glad", "good", "great"]
-    sad_words = ["sad", "down", "blue", "bad"]
-    if mood in happy_words:
-        return "😄 That's wonderful!"
-    elif mood in sad_words:
-        return "🤗 I'm here for you."
-    elif mood == "angry":
-        return "😤 Breathe slowly — you've got this."
-    else:
-        return "🙂 Thanks for sharing how you feel."
+Add these word lists near the top of `chatbot.py`:
 
-mood = input("How do you feel today? ").lower().strip()
-print(mood_reply(mood))
+```python
+happy_words = ["happy", "glad", "great", "good", "yay", "excited", "fun"]
+sad_words   = ["sad", "down", "cry", "bad", "unhappy", "lonely", "upset"]
+angry_words = ["angry", "mad", "cross", "annoyed", "furious"]
+
+def mood_of(text):
+    if has_any(text, happy_words):
+        return "happy"
+    if has_any(text, sad_words):
+        return "sad"
+    if has_any(text, angry_words):
+        return "angry"
+    return "okay"
 ```
+
+And upgrade the face machine to take a mood:
+
+```python
+def draw_face(mood):
+    canvas.delete("face")
+    colors = {"happy": "#ffd54a", "sad": "#7db4ff",
+              "angry": "#ff6b6b", "okay": "#c8d0ff"}
+    color = colors.get(mood, "#c8d0ff")
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill=color, tags="face")
+    canvas.create_oval(cx-40, cy-30, cx-22, cy-12, fill="black", tags="face")
+    canvas.create_oval(cx+22, cy-30, cx+40, cy-12, fill="black", tags="face")
+    if mood == "happy":
+        canvas.create_arc(cx-50, cy-5, cx+50, cy+65, start=200, extent=140,
+                          style="arc", width=6, tags="face")
+    elif mood == "sad":
+        canvas.create_arc(cx-50, cy+30, cx+50, cy+100, start=20, extent=140,
+                          style="arc", width=6, tags="face")
+    elif mood == "angry":
+        canvas.create_line(cx-38, cy+48, cx+38, cy+48, width=6, tags="face")
+        canvas.create_line(cx-50, cy-42, cx-22, cy-32, width=5, tags="face")
+        canvas.create_line(cx+50, cy-42, cx+22, cy-32, width=5, tags="face")
+    else:
+        canvas.create_line(cx-32, cy+45, cx+32, cy+45, width=6, tags="face")
+```
+
+### What You'll See
+Once wired up (next lesson), the face turns yellow-and-smiling, blue-and-drooping,
+or red-with-angry-eyebrows depending on what you type.
 
 ### Line by Line
-- `mood_reply` uses lists + `in` (Lesson 18) to match many words.
-- It `return`s the right message (Lesson 16).
-- We tidy the mood, then print whatever the function returns.
+- `mood_of` uses `has_any` from Lesson 18, so it checks whole word FAMILIES.
+- Notice the plain `if`s (not `elif`) — that's fine here because each one
+  `return`s, which exits immediately.
+- **Order matters:** happy is checked first. "I'm not happy, I'm sad" is read as
+  happy — our bot is simple, and that's okay to admit!
+- In `draw_face`, the angry mood adds two slanted **eyebrow** lines — small
+  details make a face feel alive.
+- `colors.get(mood, "#c8d0ff")` — safe lookup with a fallback (Lesson 15).
+
+### Do It in VS Code 🛠️
+1. In `chatbot.py`, add the word lists, `has_any`, `mood_of`, and this new
+   `draw_face(mood)` (replacing the old no-parameter one).
+2. Change your startup call to `draw_face("okay")`.
+3. Save and run — the bot still greets you; the moods get wired next lesson.
 
 ### Your Turn
-1. Build this and try happy/sad/angry words.
-2. Add an "excited" mood and a "tired" mood inside the function.
-3. Why is the brain easier to manage as one function?
+1. Add a `"tired"` mood with its own words, colour, and a sleepy mouth.
+2. Reorder the checks (sad before happy) and test "happy but sad" — see what
+   changes.
+3. Predict `mood_of("I am furious")`. (Answer: `"angry"`.)
+
+### 📸 Show Emrys
+Send Emrys your `mood_of` function and your word lists. Tell Emrys which extra
+mood you invented.
 
 ### Check Your Brain
-- Why use lists inside the function?
-- What does `print(mood_reply(mood))` do in one line?
+- What does `mood_of` hand back?
+- Why can we use plain `if`s here instead of `elif`?
+- Which mood wins if the text has both happy and sad words?
+- What draws the angry eyebrows?
 
 ### More Examples
-Make the brain RANDOM so replies never repeat — `random.choice` picks one item from a list (the bot instantly feels twice as alive):
+A tiny brain with one rule:
 
 ```python
-import random
-
-def mood_reply(mood):
-    happy_words = ["happy", "glad", "good", "great"]
-    if mood in happy_words:
-        return random.choice([
-            "😄 That's wonderful!",
-            "🌞 You're glowing today!",
-            "🎉 Love that for you!",
-        ])
-    else:
-        return "🙂 Thanks for sharing."
-
-print(mood_reply("happy"))
-print(mood_reply("happy"))   # run twice - probably different!
+def is_greeting(text):
+    return "hello" in text or "hi" in text
 ```
-
-Test a brain the way pros test code — fire many moods at it:
-
-```python
-for test_mood in ["happy", "sad", "angry", "confused"]:
-    print(test_mood, "->", mood_reply(test_mood))
-```
-
-(`for ... in list` is a loop that visits each item — a cousin of `while` you'll use a lot next year.)
 
 ### Common Mistakes
-- **Lists outside, function can't see edits:** keep the word-lists INSIDE the function so the whole brain travels together — one machine, fully packed.
-- **Forgetting `return` on a branch:** if "angry" has no `return`, `mood_reply("angry")` hands back `None` and the bot prints `None` — looks broken! Every branch needs its return.
-- **Checking `mood in "happy"`:** backwards! That checks letters inside the WORD "happy". You want `mood in happy_words` — item in LIST.
+- **Checking the untidied text:** if you forget `.lower()`, "HAPPY" won't match.
+  **Fix:** tidy before calling `mood_of`.
+- **Missing the final `return`:** without `return "okay"`, unknown moods hand back
+  `None` and break the colour lookup. **Fix:** always end with a default.
 
 ### Level Up 🚀
-Grow the brain to FIVE feelings, each matching at least 3 words, each with 2+ random replies. Then run the pro test loop above on all your words. A brain this rich is genuinely better than some real commercial bots from a few years ago. Seriously.
+Make `mood_of` also tell you WHICH word matched, so the bot can say "I heard
+'furious'!"
 
 ---
 
-## Lesson 20: Putting It in a Chat Loop (with kindness)
+## Lesson 20: Putting It in a Chat Loop (with Kindness)
 
 ### Big Idea
-Wrap the mood chat in a loop so you can share many feelings until "bye", and handle
-empty answers gently with `continue`.
+Wire it all together: read → tidy → find mood → draw face → reply kindly.
 
 ### Kid Meaning
-A real conversation, not just one question — and a buddy that asks again if you say
-nothing.
+Now the bot really works. Every Send follows the same steps, like a little
+assembly line.
 
 ### Chatbot Connection
-The heart of the finished chatbot.
+This is the beating heart of the finished chatbot.
 
 ### The Code
 ```python
-def mood_reply(mood):
-    happy_words = ["happy", "glad", "good", "great"]
-    sad_words = ["sad", "down", "blue", "bad"]
-    if mood in happy_words:
-        return "😄 That's wonderful!"
-    elif mood in sad_words:
-        return "🤗 I'm here for you."
+def reply_for(mood):
+    if mood == "happy":
+        return f"Yay {name}! I'm so glad you feel happy!"
+    elif mood == "sad":
+        return f"Oh {name}, I'm here for you. Tomorrow will be brighter."
     elif mood == "angry":
-        return "😤 Breathe slowly — you've got this."
+        return f"Take a deep breath, {name}. It's okay to feel angry."
     else:
-        return "🙂 Thanks for sharing."
+        return f"Thanks for sharing, {name}. Tell me more!"
 
-name = input("What's your name? ").strip()
-print(f"Hi {name}! Tell me your moods. Say 'bye' to leave.")
-
-mood = ""
-while mood != "bye":
-    mood = input("How do you feel? ").lower().strip()
-    if mood == "":
-        print("I didn't catch that — try a word like 'happy'.")
-        continue          # skip the rest and ask again
-    if mood != "bye":
-        print(mood_reply(mood))
-
-print(f"👋 Bye {name}, take care!")
+def send():
+    global name
+    text = entry.get().lower().strip()
+    entry.delete(0, tk.END)
+    if text == "":
+        return
+    if name == "":
+        name = text.title()
+        draw_face("happy")
+        say(f"Nice to meet you, {name}! How do you feel today?")
+        return
+    mood = mood_of(text)          # 1. work out the mood
+    draw_face(mood)               # 2. show it on the face
+    say(reply_for(mood))          # 3. say something kind
 ```
+
+### What You'll See
+Type "I feel great!" → the face turns **yellow and smiles**, and the bubble says
+"Yay Ama! I'm so glad you feel happy!" Type "I'm so upset" → **blue and drooping**
+with a caring reply.
 
 ### Line by Line
-- Greet by name once, OUTSIDE the loop.
-- `if mood == "":` — if they typed nothing, say so and `continue` (jump back to ask
-  again), so blanks never cause trouble.
-- `if mood != "bye":` — don't run a mood reply for the word "bye" itself.
-- Farewell uses the remembered name.
+- `reply_for(mood)` — returns a kind sentence, using the remembered `name`.
+- The `send` assembly line: tidy the text → handle the name → find the mood →
+  draw → speak.
+- `say(reply_for(mood))` — the answer from one machine goes straight into another.
+  You can nest calls like this once you're comfortable.
+- The `else` branch is deliberately **kind**, not "I don't understand." A good bot
+  never makes you feel silly.
+
+### Do It in VS Code 🛠️
+1. Add `reply_for` and replace `send` in `chatbot.py`.
+2. Save, run. Try several moods and watch the face AND bubble change together.
 
 ### Your Turn
-1. Build this and have a full chat, including pressing Enter on an empty line.
-2. Why do we check `if mood != "bye":` before replying?
-3. What does `continue` do?
+1. Rewrite all four replies in your own caring words.
+2. Add a reply for your extra mood from Lesson 19.
+3. Predict the face colour for "today was bad". (Blue — "bad" is a sad word.)
+
+### 📸 Show Emrys
+Screenshot the happy face AND the sad face with their replies. Tell Emrys your
+favourite reply you wrote.
 
 ### Check Your Brain
-- What ends the chat loop?
-- Why greet by name OUTSIDE the loop?
+- What are the steps `send` follows, in order?
+- Where does `reply_for` get the name from?
+- Why is the `else` reply written kindly?
 
 ### More Examples
-Use the name INSIDE replies sometimes — friends use your name:
+Nesting calls:
 
 ```python
-if mood != "bye":
-    print(f"{name}, here's my reply: {mood_reply(mood)}")
-```
-
-A "Buddy:" prefix makes the chat look like a real messaging app:
-
-```python
-print(f"Buddy: {mood_reply(mood)}")
-```
-
-Gentle nudges when the same mood repeats — remember the last mood in a box:
-
-```python
-last_mood = ""
-# inside the loop, after getting a real mood:
-if mood == last_mood:
-    print("Buddy: Still feeling that way? I'm listening. 💙")
-else:
-    print("Buddy:", mood_reply(mood))
-last_mood = mood
+say(reply_for(mood_of(text)))   # all three machines in one line!
 ```
 
 ### Common Mistakes
-- **Greeting inside the loop:** "Hi Esi!" before every single mood — sweet once, weird the fifth time. One-time things live OUTSIDE.
-- **Forgetting `continue` after the empty-check:** without it, the empty text falls through to `mood_reply("")` and gets the confused else-reply. `continue` skips the rest properly.
-- **Checking `mood != "bye"` BEFORE tidying:** if the check happens before `.lower()`, typing "Bye" doesn't end the chat. Tidy first, check after — order is everything.
+- **Forgetting `return` after the name step:** the bot would treat your NAME as a
+  mood too. **Fix:** `return` right after greeting them.
+- **Drawing before deciding:** call `mood_of` FIRST, then `draw_face(mood)`.
 
 ### Level Up 🚀
-Add a "mood streak": if the player gives 3 happy-family moods in a row, the bot throws a mini party (`"🎊 THREE happy moods - party mode!"` + emoji line). Track a `streak` counter that resets on non-happy moods. Streaks are the secret sauce of every app you love — now you can build them.
+Make the speech bubble colour match the mood colour, so the whole window feels
+the emotion.
 
 ---
 
 ## Lesson 21: A Few Smart Answers (Questions)
 
 ### Big Idea
-The chatbot can answer simple questions too, by spotting keywords with `in`.
+The bot can spot simple questions and answer them specially.
 
 ### Kid Meaning
-A buddy that can also reply to "what is your name?" feels clever.
+If you ask "what is your name?", a mood reply would be silly. We check for a few
+questions FIRST and answer those properly.
 
 ### Chatbot Connection
-Adds a little extra intelligence to Mood Buddy.
+This makes the bot feel much more alive — it can talk about itself, not just
+about your feelings.
 
 ### The Code
 ```python
-def answer(text):
+def answer_question(text):
     if "your name" in text:
-        return "I'm Mood Buddy, your friendly helper! 🤖"
-    elif "joke" in text:
-        return "Why did the computer go to school? To improve its 'byte'! 😄"
-    else:
-        return None     # None means "I have no special answer"
-
-reply = answer("tell me a joke")
-if reply is not None:
-    print(reply)
+        return "I'm Emoji Mood Bot! Nice to meet you."
+    if "how are you" in text:
+        return "I'm always cheerful - I'm made of code!"
+    if "how old" in text:
+        return "I was born the moment you pressed Run!"
+    if "what can you do" in text:
+        return "Tell me how you feel and I'll show it on my face."
+    return ""      # empty means "not a question I know"
 ```
+
+Wire it into `send`, BEFORE the mood check:
+
+```python
+    reply = answer_question(text)
+    if reply != "":
+        draw_face("happy")
+        say(reply)
+        return
+    mood = mood_of(text)
+    draw_face(mood)
+    say(reply_for(mood))
+```
+
+### What You'll See
+Ask "what is your name?" → the bot answers about itself instead of guessing a
+mood. Ask about feelings → normal mood behaviour.
 
 ### Line by Line
-- `answer(text)` looks for keywords; `in` here checks if a word appears ANYWHERE in
-  the sentence.
-- It `return`s a special reply, or `None` if it has nothing special.
-- `if reply is not None:` — only print when there really is a special answer.
-- `None` is Python's word for "nothing here".
+- `answer_question(text)` — returns an answer, or an **empty text** `""` meaning
+  "I don't know this question."
+- `if reply != "":` — `!=` means "is NOT equal to". So: if we DID find an answer…
+- `return` — stops `send` so the mood code never runs for a question.
+- Order matters: questions are checked FIRST, moods second.
+
+### Do It in VS Code 🛠️
+1. Add `answer_question` and update `send` in `chatbot.py`.
+2. Save, run. Ask all four questions, then say a mood.
 
 ### Your Turn
-1. Add one more question the bot can answer (e.g. contains "favourite colour").
-2. Test it with a sentence containing that keyword.
-3. What does returning `None` let us do?
+1. Add two more questions the bot can answer (e.g. "favourite colour").
+2. Change the bot's self-description.
+3. Predict what happens for "how are you feeling happy?" (The question wins — it's
+   checked first!)
+
+### 📸 Show Emrys
+Screenshot the bot answering a question about itself. Tell Emrys which questions
+you added.
 
 ### Check Your Brain
-- What does `in` check inside a sentence?
-- What does `None` mean?
+- What does an empty `""` return mean here?
+- What does `!=` mean?
+- Why must questions be checked BEFORE moods?
 
 ### More Examples
-`in` searches anywhere in the sentence — all three of these find it:
+Checking for a question mark:
 
 ```python
-print("joke" in "tell me a joke")        # True
-print("joke" in "joke please!")          # True
-print("joke" in "I love jokes")          # True - "joke" is inside "jokes"!
-print("joke" in "make me laugh")         # False - word not there
-```
-
-More smart answers — each `elif` is a new skill for your bot:
-
-```python
-def answer(text):
-    if "your name" in text:
-        return "I'm Mood Buddy! 🤖"
-    elif "how old" in text:
-        return "I was born this term - so VERY young and VERY clever."
-    elif "thank" in text:
-        return "Anytime, friend! 💙"
-    elif "joke" in text:
-        return "What do you call a computer that sings? A-Dell! 🎤"
-    else:
-        return None
-```
-
-Why `None` is the perfect "no answer" — you can test for it:
-
-```python
-print(answer("tell me a joke"))    # the joke
-print(answer("blah blah"))         # None - nothing special found
+if text.endswith("?"):
+    say("That's a good question!")
 ```
 
 ### Common Mistakes
-- **`== ` instead of `in`:** `if text == "joke":` only matches the EXACT word "joke" alone — "tell me a joke" fails! `in` finds it anywhere.
-- **Returning `"None"` in quotes:** that's the WORD None, which counts as a real answer — your else-replies stop working. Bare `None`, no quotes.
-- **`if reply:` vs `if reply is not None:`** — both work here, but learn `is not None` first: it says exactly what you mean.
+- **Checking moods first:** questions get mood replies. **Fix:** put
+  `answer_question` before `mood_of`.
+- **Forgetting `return`:** both a question answer AND a mood reply appear, and the
+  second overwrites the first. **Fix:** `return` after answering.
 
 ### Level Up 🚀
-Teach your bot FIVE questions, including one about YOUR school ("credent" in text → a proud reply!) and one that returns a random joke from a list (`random.choice` + Lesson 19). A bot that surprises you with different jokes? People will keep poking it to find them all.
+Make the bot answer "what mood am I?" by remembering the LAST mood in a variable.
 
 ---
 
 ## Lesson 22: The Full Chatbot — Moods AND Questions
 
 ### Big Idea
-Combine mood replies and question answers in one chat loop.
+Combine greeting, questions, moods, and goodbye into one complete conversation.
 
 ### Kid Meaning
-Now the buddy understands feelings AND simple questions — a real little chatbot!
+All the machines now work as a team. Your bot can meet you, chat about itself,
+read your feelings, and say goodbye.
 
 ### Chatbot Connection
-This is your complete Emoji Mood Chatbot.
+This is the whole conversation flow — everything except the final polish.
 
 ### The Code
 ```python
-def mood_reply(mood):
-    happy = ["happy", "glad", "good", "great"]
-    sad = ["sad", "down", "blue", "bad"]
-    if mood in happy:
-        return "😄 That's wonderful!"
-    elif mood in sad:
-        return "🤗 I'm here for you."
-    elif mood == "angry":
-        return "😤 Breathe slowly — you've got this."
-    else:
-        return "🙂 Thanks for sharing."
-
-def answer(text):
-    if "your name" in text:
-        return "I'm Mood Buddy! 🤖"
-    elif "joke" in text:
-        return "Why was the computer cold? It left its Windows open! 😄"
-    else:
-        return None
-
-name = input("What's your name? ").strip()
-print(f"Hi {name}! Chat with me. Say 'bye' to leave.")
-
-text = ""
-while text != "bye":
-    text = input("You: ").lower().strip()
+def send():
+    global name
+    text = entry.get().lower().strip()
+    entry.delete(0, tk.END)
     if text == "":
-        print("Buddy: Say something? 🙂")
-        continue
-    if text == "bye":
-        break
-    special = answer(text)
-    if special is not None:
-        print("Buddy:", special)
-    else:
-        print("Buddy:", mood_reply(text))
+        return
 
-print(f"👋 Bye {name}, talk soon!")
+    if name == "":                       # 1. learn the name
+        name = text.title()
+        draw_face("happy")
+        say(f"Nice to meet you, {name}! How do you feel today?")
+        return
+
+    if text == "bye":                    # 2. goodbye
+        draw_face("happy")
+        say(f"Bye {name}! Come back soon.")
+        return
+
+    reply = answer_question(text)        # 3. a known question?
+    if reply != "":
+        draw_face("happy")
+        say(reply)
+        return
+
+    mood = mood_of(text)                 # 4. otherwise, read the mood
+    draw_face(mood)
+    say(reply_for(mood))
 ```
+
+### What You'll See
+A full conversation: it learns your name, answers questions, reacts to moods with
+the right face, and waves goodbye when you type "bye".
 
 ### Line by Line
-- Two helper functions: `mood_reply` and `answer`.
-- The loop reads what the player types.
-- Empty? Ask again with `continue`. Said "bye"? `break` (stop the loop now).
-- If there's a special `answer`, use it; otherwise treat the text as a mood.
-- `break` is a new word: it immediately leaves the loop.
+- The four numbered steps run **in order**, and each ends with `return` so only
+  ONE thing happens per message.
+- This shape — check the special cases first, general case last — is how real
+  programs are organised.
+- Read it top to bottom like a flowchart: "Is it the name? No. Is it bye? No. Is
+  it a question? No. Then it's a mood."
+
+### Do It in VS Code 🛠️
+1. Replace `send` in `chatbot.py` with this full version.
+2. Save, run. Have a whole conversation: name → question → happy → sad → bye.
 
 ### Your Turn
-1. Build the full chatbot and have a real conversation.
-2. What's the difference between `break` and `continue`?
-3. Add one new mood AND one new question of your own.
+1. Add a step that replies specially to "hello".
+2. Move the `bye` check to the END and see what breaks (bye becomes a mood!).
+   Then put it back.
+3. Predict which step handles "I am glad". (Step 4 — the mood.)
+
+### 📸 Show Emrys
+Screenshot four moments of one conversation: greeting, a question, a mood, and
+goodbye. Tell Emrys the order you tried.
 
 ### Check Your Brain
-- When do we use `answer()` vs `mood_reply()`?
-- What does `break` do?
+- Why does each step end with `return`?
+- What would happen if the name check came LAST?
+- Which step handles a message the bot has never seen?
 
 ### More Examples
-`break` vs `continue` — the two loop controls, side by side:
+The same "special cases first" idea elsewhere:
 
 ```python
-n = 0
-while n < 10:
-    n = n + 1
-    if n == 3:
-        continue      # skip JUST this lap (3 won't print)
-    if n == 6:
-        break         # smash out of the loop entirely
-    print(n)
-# prints: 1 2 4 5  - no 3 (skipped), stops before 6 (broke out)
-```
-
-Make the bot feel alive with a tiny pause — `time.sleep(1)` waits one second:
-
-```python
-import time
-
-print("Buddy is typing", end="")
-time.sleep(1)
-print(".", end="")
-time.sleep(1)
-print(". 🤖")
-```
-
-A help command, so players know what the bot can do:
-
-```python
-if text == "help":
-    print("Buddy: Tell me a mood (happy/sad/angry),")
-    print("       ask my name, or say 'joke'. 'bye' to leave.")
-    continue
+age = 10
+if age < 0:
+    print("That can't be right!")
+elif age < 13:
+    print("Child")
+else:
+    print("Teen or older")
 ```
 
 ### Common Mistakes
-- **`break` outside a loop:** → `SyntaxError: 'break' outside loop`. It only means something inside `while` (or `for`).
-- **Question-words caught as moods:** type "what is your name" without the `answer()` check first and the bot replies "🙂 Thanks for sharing" — nonsense! Order matters: check special answers BEFORE mood replies (the lesson code does this — keep it).
-- **Two prints for one reply:** if you print in mood_reply AND print its return — `None` sneaks onto the screen. One job per function.
+- **Missing `return`s:** several replies fire and the last one wins, confusingly.
+  **Fix:** `return` after every branch.
+- **Wrong order:** general checks before special ones swallow the special cases.
+  **Fix:** most specific first.
 
 ### Level Up 🚀
-Add the `help` command AND the typing pause to your full chatbot. Then run a "Turing test": let a friend chat for one minute and ask them to rate how alive Buddy feels out of 10. Add one feature and test again — did the score go up? Congratulations: that's a real product-improvement loop.
+Add a "help" command that lists everything the bot can do.
 
 ---
 
 ## Lesson 23: Making It Friendlier — Counting and Caring
 
 ### Big Idea
-Track how many moods were shared and give a caring summary at the end.
+Count the messages, show them on screen, and make the goodbye personal.
 
 ### Kid Meaning
-A buddy that remembers the whole chat feels extra kind.
+Little touches make a bot feel warm: remembering how much you've chatted and
+mentioning it when you leave.
 
 ### Chatbot Connection
-Adds a warm ending to the conversation.
+This is the polish that turns a working program into something people enjoy using.
 
 ### The Code
+Add near the top:
+
 ```python
-shared = 0
-# ...inside your chat loop, after a real mood reply:
-shared = shared + 1
-# ...after the loop:
-print(f"You shared {shared} feelings with me today. Thank you! 💙")
+messages = 0
+
+def show_count():
+    canvas.delete("count")
+    canvas.create_text(WIDTH-20, 20, text=f"messages: {messages}",
+                       fill="#8fa0d8", anchor="e", tags="count")
 ```
+
+Then inside `send`, change the `global` line and add the counting:
+
+```python
+    global name, messages
+    ...
+    if text == "bye":
+        draw_face("happy")
+        say(f"Bye {name}! You sent {messages} messages. Come back soon!")
+        return
+    ...
+    messages = messages + 1
+    mood = mood_of(text)
+    draw_face(mood)
+    say(reply_for(mood))
+    show_count()
+```
+
+### What You'll See
+A small counter in the **top-right corner** climbing with every message, and a
+goodbye that remembers your whole chat: "Bye Ama! You sent 7 messages."
 
 ### Line by Line
-- `shared = 0` before the loop — a counter (Lesson 5).
-- `shared = shared + 1` each time a real mood is replied to.
-- After the loop, an f-string thanks them with the count.
+- `messages = 0` — lives outside the function so it survives between clicks.
+- `global name, messages` — now the function may change BOTH outside boxes.
+- `anchor="e"` — anchors the text by its **east (right) edge**, so it sits neatly
+  against the right side no matter how long the number gets.
+- `show_count()` — its own little machine, called at the end of each message.
+
+### Do It in VS Code 🛠️
+1. Add `messages = 0`, `show_count`, update `global name, messages`, and add the
+   counting lines.
+2. Save, run. Send several messages, watch the counter, then type "bye".
 
 ### Your Turn
-1. Add the counter to your chatbot and show the total at the end.
-2. If `shared` is 0, print "We didn't chat much — come back soon!" instead.
-3. Add a different goodbye if they shared more than 5 feelings.
+1. Move the counter to the top-LEFT (change the x and use `anchor="w"`).
+2. Add a special message when `messages` reaches 10.
+3. Predict the goodbye text after 3 messages.
+
+### 📸 Show Emrys
+Screenshot the counter after several messages AND your personal goodbye. Tell
+Emrys how many messages you sent.
 
 ### Check Your Brain
-- Where does `shared = shared + 1` go?
-- Why use an f-string for the summary?
+- Where must `messages` be defined so it remembers?
+- What does `global name, messages` allow?
+- What does `anchor="e"` do?
 
 ### More Examples
-A summary that *reacts* to the count — if/elif on your own statistic:
+Celebrating a milestone:
 
 ```python
-if shared == 0:
-    print("We barely chatted - come back soon! 🥺")
-elif shared <= 3:
-    print(f"You shared {shared} feelings. A lovely little chat! 💙")
-else:
-    print(f"WOW - {shared} feelings! You're a sharing superstar! 🌟")
-```
-
-Remember the moods themselves, not just the count (Lesson 18's append):
-
-```python
-moods_list = []
-# inside the loop, after a real mood:
-moods_list.append(mood)
-# after the loop:
-print(f"Today you felt: {moods_list}")
-```
-
-A caring touch — count SAD moods separately and check in at the end:
-
-```python
-sad_count = 0
-# inside the loop, when the mood was in sad_words:
-sad_count = sad_count + 1
-# after the loop:
-if sad_count >= 2:
-    print("You had some heavy feelings today. Be kind to yourself. 🫂")
+if messages == 10:
+    say(f"Wow {name}, ten messages! You're a great chatter.")
 ```
 
 ### Common Mistakes
-- **Counting "bye" as a feeling:** put `shared = shared + 1` only on the real-mood path, AFTER the bye-check and empty-check.
-- **Resetting inside the loop:** `shared = 0` inside the while wipes the count every lap. Starting values live BEFORE the loop.
-- **Plural problems:** "You shared 1 feelings" — oops! Fix with an if, or the slick one-liner: `f"{shared} feeling{'s' if shared != 1 else ''}"` (ask your teacher to unpack that trick).
+- **Forgetting to add `messages` to `global`:** `UnboundLocalError`. **Fix:**
+  `global name, messages`.
+- **Counting the name message:** put `messages = messages + 1` AFTER the name
+  step so the name doesn't count as a chat message.
 
 ### Level Up 🚀
-Build a full "chat report card": total moods, the list of moods, the most common one (try `max(moods_list, key=moods_list.count)` — a spicy one-liner!), and a kind sign-off. Print it in a bordered box. Data + kindness = the heart of every great wellbeing app.
+Make the face **blink**: briefly draw closed eyes, then reopen them using
+`root.after(...)`.
 
 ---
 
 ## Lesson 24: Showcase and Reflection
 
 ### Big Idea
-You built a real chatbot from nothing — celebrate and share it.
+Assemble the complete Emoji Mood Chatbot and show it off — you built a real
+talking, feeling program!
 
 ### Kid Meaning
-From zero to a talking, feeling-aware buddy. Be proud!
+Every piece you learned — windows, shapes, variables, maths, Entry input, tidying
+text, if/elif, booleans, loops, lists, functions, parameters, and return — comes
+together into one bot you can chat with and share.
 
 ### Chatbot Connection
-This is your finished Emoji Mood Chatbot — greeting, name memory, mood replies,
-question answers, chat loop, and a caring summary.
+This is the finished product. Read it, run it, and be proud.
 
 ### The Code
 ```python
-# This is YOUR finished chatbot. Read every line top to bottom and
-# make sure you can explain it. That's how you know you've truly learned it.
+import tkinter as tk
+
+WIDTH, HEIGHT = 420, 620
+root = tk.Tk()
+root.title("Emoji Mood Chatbot")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0e1230")
+canvas.pack()
+
+name = ""
+messages = 0
+cx, cy, r = WIDTH / 2, 200, 110
+
+happy_words = ["happy", "glad", "great", "good", "yay", "excited", "fun"]
+sad_words   = ["sad", "down", "cry", "bad", "unhappy", "lonely", "upset"]
+angry_words = ["angry", "mad", "cross", "annoyed", "furious"]
+
+def has_any(text, words):
+    for word in words:
+        if word in text:
+            return True
+    return False
+
+def mood_of(text):
+    if has_any(text, happy_words):
+        return "happy"
+    if has_any(text, sad_words):
+        return "sad"
+    if has_any(text, angry_words):
+        return "angry"
+    return "okay"
+
+def draw_face(mood):
+    canvas.delete("face")
+    colors = {"happy": "#ffd54a", "sad": "#7db4ff",
+              "angry": "#ff6b6b", "okay": "#c8d0ff"}
+    color = colors.get(mood, "#c8d0ff")
+    canvas.create_oval(cx - r, cy - r, cx + r, cy + r, fill=color,
+                       outline="", tags="face")
+    canvas.create_oval(cx - 45, cy - 30, cx - 25, cy - 10, fill="black",
+                       tags="face")
+    canvas.create_oval(cx + 25, cy - 30, cx + 45, cy - 10, fill="black",
+                       tags="face")
+    if mood == "happy":
+        canvas.create_arc(cx - 50, cy - 10, cx + 50, cy + 70, start=200,
+                          extent=140, style="arc", width=6, tags="face")
+    elif mood == "sad":
+        canvas.create_arc(cx - 50, cy + 30, cx + 50, cy + 100, start=20,
+                          extent=140, style="arc", width=6, tags="face")
+    elif mood == "angry":
+        canvas.create_line(cx - 40, cy + 50, cx + 40, cy + 50, width=6,
+                           tags="face")
+        canvas.create_line(cx - 50, cy - 40, cx - 20, cy - 30, width=5,
+                           tags="face")
+        canvas.create_line(cx + 50, cy - 40, cx + 20, cy - 30, width=5,
+                           tags="face")
+    else:
+        canvas.create_line(cx - 35, cy + 45, cx + 35, cy + 45, width=6,
+                           tags="face")
+
+def say(text, color="white"):
+    canvas.delete("bubble")
+    canvas.create_rectangle(30, 360, WIDTH - 30, 450, fill="#1b2350",
+                            outline="#3a4a90", width=2, tags="bubble")
+    canvas.create_text(WIDTH / 2, 405, text=text, fill=color,
+                       width=WIDTH - 70, font=("Arial", 14), tags="bubble")
+
+def reply_for(mood):
+    if mood == "happy":
+        return f"Yay {name}! I'm so glad you feel happy!"
+    elif mood == "sad":
+        return f"Oh {name}, I'm here for you. Tomorrow will be brighter."
+    elif mood == "angry":
+        return f"Take a deep breath, {name}. It's okay to feel angry."
+    else:
+        return f"Thanks for sharing, {name}. Tell me more!"
+
+def answer_question(text):
+    if "your name" in text:
+        return "I'm Emoji Mood Bot! Nice to meet you."
+    if "how are you" in text:
+        return "I'm always cheerful - I'm made of code!"
+    if "what can you do" in text:
+        return "Tell me how you feel and I'll show it on my face."
+    return ""
+
+def show_count():
+    canvas.delete("count")
+    canvas.create_text(WIDTH - 20, 20, text=f"messages: {messages}",
+                       fill="#8fa0d8", anchor="e", tags="count")
+
+def send():
+    global name, messages
+    text = entry.get().lower().strip()
+    entry.delete(0, tk.END)
+    if text == "":
+        return
+    if name == "":
+        name = text.title()
+        draw_face("happy")
+        say(f"Nice to meet you, {name}! How do you feel today?")
+        return
+    if text == "bye":
+        draw_face("happy")
+        say(f"Bye {name}! You sent {messages} messages. Come back soon!")
+        return
+    reply = answer_question(text)
+    if reply != "":
+        draw_face("happy")
+        say(reply)
+        return
+    messages = messages + 1
+    mood = mood_of(text)
+    draw_face(mood)
+    say(reply_for(mood))
+    show_count()
+
+draw_face("okay")
+say("Hi! I'm your Emoji Mood Bot. What's your name?")
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=8)
+entry.bind("<Return>", lambda event: send())
+entry.focus()
+tk.Button(root, text="Send", font=("Arial", 13), command=send).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+The full chatbot: a big emoji face that smiles, droops, or scowls with your mood;
+a speech bubble with kind replies using your name; a message counter; answers to
+questions about itself; and a warm goodbye.
 
 ### Line by Line
-- Open your full chatbot file and explain each line out loud.
-- Any fuzzy line → revisit the lesson that taught it.
+- Every function is one you built across the course. Read each name — you know
+  exactly what it does now.
+- The setup at the bottom draws the first face, says hello, wires the Entry (with
+  Enter-key support) and the Send button — then `mainloop()` waits for you.
+- Notice how `send` reads like a story: name? bye? question? mood.
 
-### Your Turn (Showcase)
-1. Let your class or family chat with your bot.
-2. Explain THREE lines of your code to them.
-3. Pick ONE upgrade you'd add next (more moods, save the chat, a typing delay) and
-   describe how it might work.
-4. Brilliant — you're now a beginner Python chatbot-maker! 🎉
+### Do It in VS Code 🛠️
+1. Make sure your `chatbot.py` matches this complete version.
+2. Save, run. Have a long conversation. Try every mood word in your lists!
+3. Show it to a friend or family member and let them chat with it.
+
+### Your Turn — Reflection
+1. Which lesson was the hardest, and what finally made it click?
+2. Add ONE personal touch (a new mood, your own colours, a new question).
+3. Write two sentences: what are you proudest of building?
+
+### 📸 Show Emrys
+Screenshot your finished chatbot mid-conversation AND your goodbye screen. Tell
+Emrys: "Course complete!" and share your one personal touch.
 
 ### Check Your Brain
-- What was your favourite part to build?
-- Explain what a variable, an `if`, a loop, a function with `return`, and a list
-  each do.
-- What's one thing you understand now that you didn't 4 months ago?
+- Name three different concepts this chatbot uses (there are many!).
+- Which function decides the mood, and which one draws it?
+- How would you explain "the bot's brain" to a friend?
 
-### Look How Far You've Come 🏆
-Four months ago you had never written a line of code. Today your chatbot uses ALL of this — read it out loud and feel proud:
-
-- **print & f-strings** — the bot talks beautifully (Lessons 1, 7)
-- **variables** — it remembers names and moods (Lessons 3, 5)
-- **input + .lower()/.strip()** — it listens and forgives messy typing (Lessons 6, 8)
-- **if / elif / else** — it chooses the right reply (Lessons 9, 10)
-- **while loops + break/continue** — it holds a whole conversation (Lessons 12, 13, 22)
-- **functions + return** — its brain is tidy, reusable machinery (Lessons 14–16, 19)
-- **lists + in** — it understands many words for one feeling (Lesson 18)
-- **counters** — it remembers the whole chat and cares (Lessons 5, 23)
-
-Those are the SAME building blocks inside WhatsApp bots, customer-service bots, and even the giant AI assistants — just stacked much higher. You now stand on the first floor of that tower.
-
-### More Examples (Showcase ideas)
-Three quick make-it-yours touches for demo day:
+### More Examples
+Ideas to keep growing your bot:
 
 ```python
-# 1. A signed banner
-print("MOOD BUDDY v1.0 - built by Esi, Class 5 🚀")
+# Flash the background to match a happy mood
+canvas.config(bg="#1a2a1a")
+root.after(400, lambda: canvas.config(bg="#0e1230"))
 ```
 
-```python
-# 2. A typing pause before each reply (import time at the top)
-time.sleep(1)
-```
+### Common Mistakes
+- **Copy-paste errors:** if it won't run, read the terminal's red line number and
+  check that exact line. **Fix:** compare it character by character.
+- **Indentation drift:** mixed spaces break Python. **Fix:** keep 4 spaces per
+  level everywhere.
 
-```python
-# 3. A grand farewell with stats
-print(f"Buddy: {shared} feelings shared. You're brave, {name}. 💙")
-```
-
-### Common Mistakes (on showcase day!)
-- **Last-minute edits:** if it works, FREEZE it. Pros call this a "code freeze" before launch.
-- **Demo without a script:** pick the 3 lines you'll explain and practise saying them once.
-- **Skipping the final test:** run ONE full chat before the audience — a mood, a joke request, an empty Enter, then "bye".
-
-### Level Up 🚀 (your next adventure)
-1. **Memory bot** — save the chat to a file so Buddy remembers you TOMORROW (Class 6 learns files!).
-2. **Two-bot theatre** — make two bots chat with EACH OTHER on screen, line by line.
-3. **Mood graph** — at the end, print a bar of emoji per mood: `happy 😄😄😄`, `sad 😢` — your first data visualisation.
-
-You didn't just learn Python. You built a friend with it. See you in Class 6. 🤖💙
+### Level Up 🚀
+Give your bot a memory of the whole chat: keep a list of every mood, and at
+"bye" tell the user which mood they felt most. You are officially a bot maker! 🤖

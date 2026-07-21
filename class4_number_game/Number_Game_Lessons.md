@@ -1,13 +1,17 @@
-# Magic Number Game Lessons: Class 4 Edition
+# Magic Number Game Lessons: Class 4 Edition (Graphics Version)
 
-Build your very own **Magic Number Game** — the computer secretly picks a number,
-and you try to guess it. The computer tells you "too high" or "too low" until you
-get it right, then cheers for you and counts how many tries you took!
+Build your very own **Magic Number Game** — but this time you can SEE it! The
+computer secretly picks a number, and you try to guess it. A tall glowing
+**thermometer** fills up to your guess and turns **red when you're too high**,
+**blue when you're too low**, and bursts into **⭐ stars** when you finally get
+it right. Everything happens in a real window that pops up on your screen — not
+just words in a black box.
 
 This project is for **Class 4** (beginners, around 9–10 years old). It uses Python
-on a normal school computer. You start from absolutely zero — no experience
-needed. Every single line of code is explained in simple words so you truly
-understand it, not just copy it.
+on a normal school computer with **tkinter**, the drawing kit that comes free
+inside Python — nothing to install. You start from absolutely zero — no
+experience needed. Every single line of code is explained in simple words so you
+truly understand it, not just copy it.
 
 ---
 
@@ -18,9 +22,12 @@ Each lesson has the same shape:
 - **Big Idea** — the one thing this lesson teaches.
 - **Kid Meaning** — the idea in very simple words.
 - **Game Connection** — how this fits our Magic Number Game.
-- **The Code** — the actual Python to type.
+- **The Code** — the actual Python to type (it draws something you can see!).
+- **What You'll See** — the picture or motion that appears in the window.
 - **Line by Line** — every important line explained.
+- **Do It in VS Code** — the exact steps to type, save, and run it.
 - **Your Turn** — a small task YOU do to practise (this is the most important part!).
+- **📸 Show Emrys** — send a screenshot of your window so Emrys can check it.
 - **Check Your Brain** — quick questions to make sure it stuck.
 - **More Examples** — extra runnable programs that stretch the idea further.
 - **Common Mistakes** — the real errors beginners hit, with the exact fix.
@@ -35,19 +42,24 @@ programmers use every day. The rhythm for every piece of code is always:
 1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
 2. Type the code in the editor.
 3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
-4. Run: press the **▶ Run** button at the top-right, and read the result in
-   the **TERMINAL** panel at the bottom.
+4. Run: press the **▶ Run** button at the top-right.
+5. A **window pops up** showing your drawing. Look at it! (When you're done,
+   click the window's **X** to close it.)
+
+Because our programs draw pictures, the exciting part is the **window**, not the
+terminal. But keep an eye on the terminal too — if something goes wrong, Python
+prints a red error message there, and errors are just clues.
 
 You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
 your workbench.
 
 ### Show Emrys Your Work 📸
 
-After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
-printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
-celebrate what's right, and help fix anything that isn't. If something errored,
-paste the red error message too — errors are clues, and Emrys reads them like
-a detective. No skipping this step: real coders always show their output.
+After EVERY "Your Turn" task, show Emrys the proof: **take a screenshot of the
+window your program drew** and send it to Emrys. Emrys will check it, celebrate
+what's right, and help fix anything that isn't. If something errored, paste the
+red error message from the terminal too — errors are clues, and Emrys reads them
+like a detective. No skipping this step: real coders always show their output.
 
 Teach one lesson at a time. Explain the idea first, then the code, then let
 students type it and run it themselves. **Always do "Your Turn" — that is where
@@ -57,3302 +69,2290 @@ than to copy five.
 **This course takes about 4 months** (roughly two lessons a week). It has three
 parts:
 
-- **Part 1 — First Steps (Lessons 1–8):** learn what code is and the basic
-  building blocks — printing, variables, and input.
-- **Part 2 — Making Choices (Lessons 9–16):** teach the computer to decide and
-  repeat, using `if` and loops.
+- **Part 1 — First Pictures (Lessons 1–8):** open a window, draw shapes and text,
+  store things in variables, do maths, and get numbers from the player.
+- **Part 2 — Making Choices & Motion (Lessons 9–16):** colours that change with
+  `if`, drawing lots of things with loops, random numbers, and functions.
 - **Part 3 — Building the Game (Lessons 17–24):** put it all together into the
-  real Magic Number Game, then make it even cooler.
-
-Works on **Windows, Mac, and Linux**.
+  full glowing thermometer Magic Number Game.
 
 ---
 
-# PART 1 — FIRST STEPS
+# PART 1 — FIRST PICTURES
 
----
-
-## Lesson 1: What Is Code? Saying Hello
+## Lesson 1: What Is Code? Opening a Window
 
 ### Big Idea
-Code is a list of instructions we give the computer, one line at a time.
+Code is a list of instructions we give the computer, one line at a time — and
+those instructions can draw a real window on the screen.
 
 ### Kid Meaning
 A recipe tells a cook what to do step by step. Code tells the computer what to do
 step by step. The computer does EXACTLY what you say — nothing more, nothing less.
+Today we tell it: "Open a window and write hello inside it."
 
 ### Game Connection
-Our game will need to "say" things like "Too high!" — so first we learn how to
-make the computer say anything at all.
+Our whole game lives inside a window with a thermometer in it. Before we can
+build the thermometer, we must learn how to make a window appear at all.
 
 ### The Code
 ```python
-print("Hello! I am your computer.")
-print("Let's make a game together.")
+import tkinter as tk
+
+root = tk.Tk()
+root.title("My First Window")
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+
+canvas.create_text(200, 200, text="Hello! I am your computer.", fill="white")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL at the bottom of VS Code shows:**
-
-```text
-Hello! I am your computer.
-Let's make a game together.
-```
-
-Notice: the quotes are **gone** in the output. The quotes are for Python's
-eyes only — they mark where your message starts and ends.
+### What You'll See
+A black window titled **"My First Window"** pops up, with the white words
+**"Hello! I am your computer."** floating right in the middle.
 
 ### Line by Line
-- `print(...)` — `print` is a command that means "show this on the screen."
-  It is the computer's mouth: whatever you put inside, it says.
-- The words inside the quotes `" "` are exactly what gets shown — letter for
-  letter, space for space, even the punctuation.
-- Each `print` line shows on its own new line, in the exact order you wrote
-  them — top to bottom, like reading a book.
-
-### Slow Motion 🔬 — every single piece explained
-Look at `print("Hello! I am your computer.")` one piece at a time:
-
-- `print` — the command's name. It must be spelled in small letters exactly
-  like this. The computer has a dictionary of commands it knows, and `print`
-  is one of them.
-- `(` and `)` — the brackets are like HANDS. The computer holds whatever is
-  between them and works on it. Every `(` must have a matching `)`.
-- `"` and `"` — the quotes are like a GIFT BOX around your words. They tell
-  Python: "don't try to understand these words — just deliver them."
-- `Hello! I am your computer.` — the message itself. You can write ANYTHING
-  here: your name, a joke, even emoji.
-
-What actually happens when you press Run: VS Code hands your file to Python →
-Python reads line 1 → sees `print` → takes the message out of the gift box →
-shows it in the terminal → moves to line 2 → does it again → no more lines, so
-it stops. The whole thing takes less than a blink. That's a PROGRAM: a list of
-orders, followed perfectly, top to bottom.
+- `import tkinter as tk` — brings in Python's drawing kit and gives it the short
+  nickname `tk` so we type less. Think of it as opening your box of crayons.
+- `root = tk.Tk()` — makes the window itself. `root` is the name we'll use to
+  talk to that window.
+- `root.title("My First Window")` — writes the title at the top of the window.
+- `canvas = tk.Canvas(root, width=400, height=400, bg="black")` — puts a black
+  drawing sheet, 400 wide and 400 tall, inside the window. `canvas` is our paper.
+- `canvas.pack()` — actually places the canvas into the window (without this, the
+  paper stays hidden).
+- `canvas.create_text(200, 200, text="...", fill="white")` — writes text at the
+  spot 200 across and 200 down (the middle), in white.
+- `root.mainloop()` — the magic word that keeps the window open and waiting.
+  Without it, the window would blink and vanish.
 
 ### Do It in VS Code 🛠️
-1. Open VS Code → **File → New File** → name it `hello.py` → save it on your
-   Desktop.
-2. Type the two `print` lines yourself (don't copy-paste — typing teaches your
-   fingers the language).
-3. Save: **Ctrl+S**. (A white dot on the file tab means UNSAVED — make it
-   disappear!)
-4. Press the **▶ Run** button at the top-right.
-5. Read the TERMINAL panel at the bottom — your two lines should be there.
+1. **File → New File** → name it `window.py` → save it on your Desktop.
+2. Type the code above yourself (don't copy-paste — typing teaches your fingers).
+3. Save: **Ctrl+S** (make the white "unsaved" dot on the tab disappear).
+4. Press the **▶ Run** button. A black window should pop up!
+5. Look at your window. Then close it by clicking the **X**.
 
 ### Your Turn
-1. Make the computer print your own name, like: `print("My name is Ama.")`
-2. Add two more `print` lines: your favourite food and your favourite colour.
-3. BEFORE you run: predict out loud exactly what the terminal will show, in
-   order. Then run. Were you right, line for line?
-4. Now break it ON PURPOSE: remove one closing quote and run. Read the red
-   error slowly. Put the quote back, run again — green and clean. You just had
-   your first conversation with a Python error, and you won.
+1. Change the message to your own name, like `text="My name is Ama."`.
+2. Change `fill="white"` to `fill="yellow"`. Run again — different colour!
+3. Change the title to `"Ama's Window"`.
+4. BEFORE you run: predict out loud what will be different. Then run. Right?
 
 ### 📸 Show Emrys
-Copy everything the terminal printed (your three lines) and **paste it to
-Emrys** — or send a screenshot. Tell Emrys: "Lesson 1 done!" Emrys will check
-each line and give you your first ✅ of the course.
+Take a screenshot of your window with your name in it and **send it to Emrys**.
+Say: "Lesson 1 done!" Emrys will give you your first ✅ of the course.
 
 ### Check Your Brain
-- What does `print` do?
-- What do the quotes `" "` mark — and do they appear in the output?
-- If you write three `print` lines, how many lines show on screen?
-- What are the brackets `( )` for?
+- What does `import tkinter as tk` bring us?
+- Which line makes the window actually appear and stay open?
+- What do the two numbers in `create_text(200, 200, ...)` mean?
+- What does `fill` change?
 
 ### More Examples
-Try each one — predict what it shows BEFORE you run it:
+Try each — predict what you'll see BEFORE you run it:
 
 ```python
-print("I am learning Python!")
-print("Python is a snake AND a computer language.")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="navy")
+canvas.pack()
+canvas.create_text(200, 100, text="Top", fill="white")
+canvas.create_text(200, 300, text="Bottom", fill="pink")
+root.mainloop()
 ```
 
-The computer prints things in the exact order you write them:
+Bigger words — add a font:
 
 ```python
-print("First")
-print("Second")
-print("Third")
-```
-
-You can even print an empty line to make space — `print()` with nothing inside:
-
-```python
-print("Top line")
-print()
-print("Bottom line - see the gap above me?")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+canvas.create_text(200, 200, text="BIG!", fill="lime", font=("Arial", 40))
+root.mainloop()
 ```
 
 ### Common Mistakes
-Everyone makes these — spotting them makes you a real coder:
-
-- **Forgetting the quotes:** `print(Hello)` → Python says `NameError: name 'Hello' is not defined`. It thinks Hello is a box name, not words. **Fix:** `print("Hello")`.
-- **Forgetting a bracket:** `print("Hello"` → Python says `SyntaxError: '(' was never closed`. **Fix:** close it — `print("Hello")`.
-- **Capital P:** `Print("Hello")` → `NameError`. Python only knows lowercase `print`. Computers are picky about spelling!
+- **Forgetting `root.mainloop()`:** the window flashes and disappears. **Fix:** add
+  it as the LAST line.
+- **Forgetting `canvas.pack()`:** the window opens but is empty. **Fix:** add
+  `canvas.pack()` after making the canvas.
+- **Capital letters wrong:** `Import` or `Canvas()` with the wrong case →
+  `NameError`. Python is picky — copy the spelling exactly.
 
 ### Level Up 🚀
-Make the computer print a little picture using symbols — this is called ASCII art:
-
-```python
-print("  *  ")
-print(" *** ")
-print("*****")
-```
-
-That's a tree top! Can you add a trunk? Can you print your initial in stars?
+Write THREE lines of text at three different heights (y = 100, 200, 300) in three
+different colours. Can you make a tiny poster?
 
 ---
 
-## Lesson 2: How to Run Python
+## Lesson 2: How to Run Python (and Draw a Shape)
 
 ### Big Idea
-We type code in a file and then "run" it to see it work.
+We type code in a file, save it, and then "run" it to see the window appear.
 
 ### Kid Meaning
 Writing code is like writing a letter. Running it is like reading the letter out
-loud — that is when things actually happen.
+loud — that is when things actually happen and the window pops up.
 
 ### Game Connection
-You will run your game again and again as you build it, checking it each time.
+You will run your game again and again as you build it, checking the window each
+time to see your thermometer grow.
 
 ### The Code
 ```python
-print("If you can see this, Python is working!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="white")
+canvas.pack()
+
+canvas.create_rectangle(100, 100, 300, 300, fill="red")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-If you can see this, Python is working!
-```
+### What You'll See
+A white window with a big **red square** in the middle.
 
 ### Line by Line
-- This is one instruction. When you run the file, Python reads it top to
-  bottom, like you read a page.
-- Save your file with a name ending in `.py`, for example `game.py`. The `.py`
-  ending is a label that tells the computer "this is Python" — like `.mp3`
-  means music and `.jpg` means a picture.
+- `create_rectangle(100, 100, 300, 300, fill="red")` — draws a rectangle. The
+  first two numbers `(100, 100)` are the **top-left corner**, the next two
+  `(300, 300)` are the **bottom-right corner**. `fill="red"` paints the inside.
+- The rest is the same window-and-canvas setup from Lesson 1 — you'll use it at
+  the top of every program.
+
+### The Screen Map 🗺️ — where do the numbers point?
+Every spot on the canvas has two numbers: **x** (how far ACROSS) and **y** (how
+far DOWN). Here is the big surprise that trips up almost everyone:
+
+- The corner **(0, 0) is the TOP-LEFT**, not the middle and not the bottom.
+- **x** gets bigger as you go **right** → (like normal).
+- **y** gets bigger as you go **DOWN** ↓ — this is BACKWARDS from maths class,
+  where up is the big direction! On the screen, **down is the big direction.**
+
+Picture the canvas like reading a book: you start at the top-left and your eyes
+travel right and then down. So:
+
+```text
+(0,0) ─────────► x gets bigger →
+  │  •(100,50)  ← a bit right, near the top
+  │
+  ▼            •(200,200) ← the middle of a 400×400 canvas
+y gets
+bigger        •(50,350) ← near the bottom-left
+  ↓
+```
+
+Remember this and shapes go exactly where you expect. Forget it and your circle
+ends up "upside down" from where you pictured it — that's not a bug, it's just
+the screen map. (This is also the secret behind the thermometer later: to draw
+HIGHER up we use a SMALLER y.)
 
 ### Slow Motion 🔬 — writing vs running
 There are TWO different moments, and mixing them up confuses every beginner:
 
-- **Writing** = typing the code into the VS Code editor. Nothing happens yet —
-  it's like writing a letter that nobody has read.
-- **Saving** = Ctrl+S. Your words are now safely on the computer's disk. STILL
-  nothing happens.
-- **Running** = pressing **▶**. NOW Python reads your letter out loud and the
-  instructions actually happen. This is the magic moment.
+- **Writing** = typing the code into the editor. Nothing happens yet.
+- **Saving** = Ctrl+S. Your words are safely on the disk. STILL nothing happens.
+- **Running** = pressing **▶**. NOW Python reads your file and the window pops up.
 
-The biggest beginner trap: changing the code and running WITHOUT saving — the
-computer runs the OLD saved version and you sit there confused why nothing
-changed. The rhythm to burn into your fingers: **type → Ctrl+S → ▶ → read the
-terminal.** Every time. Forever.
+The biggest trap: changing the code and running WITHOUT saving — the computer
+runs the OLD version and you wonder why nothing changed. Burn this rhythm into
+your fingers: **type → Ctrl+S → ▶ → look at the window.** Every time. Forever.
 
 ### Do It in VS Code 🛠️
-1. **File → New File** → name it `practice.py` → save on your Desktop.
-2. Type the print line above.
-3. **Ctrl+S** — watch the white "unsaved" dot on the tab disappear.
-4. Press **▶ Run** (top-right). The TERMINAL opens at the bottom by itself.
-5. Find your sentence in the terminal. That text travelled: your fingers → the
-   editor → the disk → Python → the screen. You're officially running programs.
-
-There's a second way to run, like the pros: open **Terminal → New Terminal**
-and type `python practice.py` then press Enter. Same result — the ▶ button
-just types that command for you.
+1. **File → New File** → name it `shape.py` → save on your Desktop.
+2. Type the code above.
+3. **Ctrl+S** — watch the white "unsaved" dot disappear.
+4. Press **▶ Run**. Your red square window appears.
+5. Change `fill="red"` to `fill="blue"` but DON'T save. Run. Still red? That's
+   the save lesson! Now save and run — blue. Save first, always.
 
 ### Your Turn
-1. Save a file called `practice.py`.
-2. Put one `print` line inside that says `"I ran my first program!"`.
-3. Run it with the ▶ button. Then run it AGAIN with `python practice.py` typed
-   in the terminal — prove to yourself both roads lead to the same place.
-4. Change the message, but DON'T save, and run. See the old message? Now save
-   and run. THAT lesson — save first! — just saved you a hundred future
-   headaches.
+1. Make the square smaller: try `create_rectangle(150, 150, 250, 250, ...)`.
+2. Change its colour to `"green"`.
+3. Add a second rectangle somewhere else in a different colour.
+4. Predict where each shape will land BEFORE you run.
 
 ### 📸 Show Emrys
-Paste the terminal output of your `practice.py` to Emrys (or screenshot it) and
-tell Emrys which way you ran it — the ▶ button or the typed command. Emrys
-will confirm your setup is rock solid.
+Screenshot your two-shape window and send it to Emrys. Tell Emrys which way you
+ran it — the ▶ button. Emrys will confirm your setup is rock solid.
 
 ### Check Your Brain
-- What ending must a Python file name have?
-- What is the difference between "writing" code and "running" code?
+- What are the four numbers in `create_rectangle` for?
 - Why must you SAVE before you run?
+- What does `fill` do to a shape?
 
 ### More Examples
-Make a few tiny files and run each one — running programs should feel as easy as opening a book:
+A circle uses `create_oval` with the same four corner numbers:
 
 ```python
-# file: morning.py
-print("Good morning, class!")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+canvas.create_oval(100, 100, 300, 300, fill="orange")
+root.mainloop()
 ```
 
-```python
-# file: countdown.py
-print("3...")
-print("2...")
-print("1...")
-print("Blast off!")
-```
-
-The line starting with `#` is a **comment** — a note for humans. The computer skips it completely. Coders leave comments like sticky notes to remember what the code does:
+A straight line goes from one point to another:
 
 ```python
-# This program cheers for our team
-print("Go go go!")  # this part shows on screen
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="white")
+canvas.pack()
+canvas.create_line(0, 0, 400, 400, fill="purple", width=5)
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **Saving without `.py`:** if the file is called `game.txt`, the Run button may not work. **Fix:** save it as `game.py`.
-- **Forgetting to SAVE before running:** you change the code, run it, and see the OLD result. **Fix:** save first (Ctrl+S), then run. Many editors show a dot ● on the tab when you haven't saved.
-- **Editing the output window instead of the code window:** nothing happens there! **Fix:** type only in the code editor (the big writing area), then press Run.
+- **Running the wrong file:** make sure the file you edited is the one you ran
+  (its name shows on the tab). **Fix:** click the correct tab, then ▶.
+- **Corners backwards:** if the second corner is smaller than the first, the shape
+  can vanish. **Fix:** first pair = top-left, second pair = bottom-right.
 
 ### Level Up 🚀
-Make a file called `about_me.py` that prints 5 lines about you — name, class, town, favourite food, and what you want to build with Python. Run it for the person next to you. You just wrote and ran a real program — that's exactly what professional programmers do all day!
+Draw a simple face: a big circle for the head, two small circles for eyes, and a
+line for the mouth. Colours are up to you!
 
 ---
 
 ## Lesson 3: Variables — Boxes That Remember
 
 ### Big Idea
-A variable is a labelled box that stores a value so we can use it later.
+A variable is a named box that remembers a value so we can use it again.
 
 ### Kid Meaning
-Imagine a box with a name sticker on it. You put something inside, and whenever
-you say the box's name, the computer looks inside and uses what's there.
+A box with a label. You write `x = 200` and now the box called `x` holds 200.
+Whenever you say `x`, the computer looks in the box and uses what's inside.
 
 ### Game Connection
-Our game must remember the secret number and how many guesses you have made. Those
-are stored in variables.
+Our game must remember lots of things: where the thermometer is, how wide it is,
+the secret number. Variables are how the computer remembers.
 
 ### The Code
 ```python
-name = "Kofi"
-age = 9
-print(name)
-print(age)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+
+x = 200
+y = 200
+size = 60
+
+canvas.create_oval(x - size, y - size, x + size, y + size, fill="cyan")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-Kofi
-9
-```
-
-See that? It printed `Kofi` — NOT the word `name`. Because there are no quotes
-around `name` in `print(name)`, Python knows you mean "open the box called
-name and show what's inside."
+### What You'll See
+A cyan circle in the middle of a black window. Its position and size come from
+the boxes `x`, `y`, and `size`.
 
 ### Line by Line
-- `name = "Kofi"` — make a box called `name` and put the word `Kofi` inside.
-  The single `=` means "PUT INTO" (not "equals" like in maths!). Read it
-  right-to-left: take `"Kofi"`, put it into `name`.
-- `age = 9` — make a box called `age` and put the number `9` inside.
-- `print(name)` — show what is inside the `name` box (Kofi), NOT the word
-  "name". No quotes = "look inside the box". Quotes = "say this exact word".
-- Notice: words need quotes (`"Kofi"`), but numbers do not (`9`).
-
-### Slow Motion 🔬 — what IS a variable really?
-Inside the computer there is memory — millions of tiny shelves. When Python
-reads `name = "Kofi"`, it does three things:
-
-1. Finds an empty shelf.
-2. Puts the word `"Kofi"` on it.
-3. Sticks a label on the shelf that says `name`.
-
-From now on, whenever you write `name` (no quotes), Python walks to that
-shelf, reads the label, and brings you what's on it. When you later write
-`name = "Ama"`, Python doesn't get a new shelf — it REPLACES what's on the
-labelled shelf. The old value is gone forever. One label, one current value.
-
-**Naming rules** (Python is strict): letters, numbers, and `_` only — no
-spaces. `lucky_number` ✅, `lucky number` ❌ (SyntaxError). Names can't START
-with a number: `2cool` ❌, `cool2` ✅. And capitals matter: `Name` and `name`
-are two DIFFERENT shelves!
+- `x = 200` — makes a box named `x` and puts 200 inside. This is the circle's
+  left-right centre.
+- `y = 200` — the circle's up-down centre.
+- `size = 60` — how far the circle reaches from its centre (its radius).
+- `create_oval(x - size, y - size, x + size, y + size, ...)` — instead of typing
+  numbers, we use the boxes. `x - size` is the left edge, `x + size` the right,
+  and so on. Change one box and the whole circle moves or grows.
 
 ### Do It in VS Code 🛠️
-1. Open `game.py` (or make `practice.py`) in VS Code.
-2. Type the four lines, save (**Ctrl+S**), run (**▶**).
-3. Confirm the terminal shows `Kofi` then `9` — values, not label names.
+1. New file `circle.py`. Type the code.
+2. Save and run — see the cyan circle.
+3. Change `x = 200` to `x = 100`. Save, run. The circle jumped LEFT.
+4. Change `size = 60` to `size = 120`. Save, run. It got BIGGER.
 
 ### Your Turn
-1. Make a variable `favourite_game` and put your favourite game inside it.
-2. Make a variable `lucky_number` with a number you like.
-3. Print both.
-4. Now change `lucky_number` to a different number on a NEW line below, and
-   print it again. Run it — you'll see the old number first, then the new one.
-   That's the shelf being replaced while the program runs!
-5. Predict first, then test: what does `print("lucky_number")` show — WITH
-   quotes? Run it. (It shows the words `lucky_number`, because quotes mean
-   "say exactly this". Quotes change everything!)
+1. Move the circle to the top of the window (make `y` smaller, like 80).
+2. Make it tiny (`size = 20`) and then huge (`size = 150`).
+3. Change `fill` to your favourite colour.
+4. Predict each change before you run it.
 
 ### 📸 Show Emrys
-Paste your terminal output to Emrys and tell him your variable names. Emrys
-will check that your boxes are filled correctly — and might quiz you: "what's
-inside `lucky_number` right now?"
+Send a screenshot of your circle in a NEW position (not the middle). Tell Emrys
+which variable you changed to move it.
 
 ### Check Your Brain
-- What is a variable, in your own words?
-- Why does `"Kofi"` have quotes but `9` does not?
-- What does `print(name)` show — the word "name" or what's inside it?
-- What happens to the OLD value when you put a new one in the box?
+- What is a variable?
+- Which variable moves the circle up and down?
+- Why is `x - size` the left edge of the circle?
 
 ### More Examples
-Boxes can hold all kinds of things, and you can have as many as you like:
+Two variables sharing one value:
 
 ```python
-school = "Credent Academy"
-class_size = 25
-print(school)
-print(class_size)
+x = 150
+y = x        # y is now also 150
 ```
 
-A box can be **refilled** — the old thing is replaced by the new thing:
+Using a variable for colour too:
 
 ```python
-mood = "sleepy"
-print(mood)
-mood = "excited"
-print(mood)   # shows excited, the old sleepy is gone
-```
-
-One box can even be filled FROM another box:
-
-```python
-best_friend = "Esi"
-team_mate = best_friend
-print(team_mate)   # shows Esi - it copied what was inside
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+my_color = "magenta"
+canvas.create_rectangle(100, 100, 300, 300, fill=my_color)
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **Quotes around numbers you want to do maths with:** `age = "9"` stores a *word* that looks like 9. Later `age + 1` breaks with `TypeError: can only concatenate str (not "int") to str`. **Fix:** for real numbers, no quotes: `age = 9`.
-- **Using a box before filling it:** `print(score)` before ever writing `score = ...` → `NameError: name 'score' is not defined`. **Fix:** fill the box first, use it after.
-- **Spelling the name differently:** `favourite_game = "Ampe"` then `print(favorite_game)` → `NameError`. The names must match EXACTLY, letter for letter.
+- **Using a box before filling it:** `print(score)` before `score = 0` →
+  `NameError`. **Fix:** create the box (give it a value) first.
+- **Spelling the name differently:** `size` vs `Size` are two different boxes.
+  **Fix:** keep names exactly the same everywhere.
 
 ### Level Up 🚀
-Make a "My Hero Card": variables for `hero_name`, `power`, and `strength` (a number from 1 to 100). Print all three. Then change `strength` to a bigger number on the next line and print it again — your hero just levelled up, exactly how game characters work in real games!
+Make TWO circles using variables `x1, y1` and `x2, y2`. Move them so they sit
+side by side like a pair of eyes.
 
 ---
 
 ## Lesson 4: Numbers and Simple Maths
 
 ### Big Idea
-The computer can do maths for us, very fast and never wrong.
+Python can do maths, and we use maths to figure out where things go on screen.
 
 ### Kid Meaning
-The computer is a super calculator. We just tell it the sum.
+Python is a super-fast calculator. `+ - * /` mean add, subtract, multiply,
+divide. We use them to place shapes exactly where we want.
 
 ### Game Connection
-Later the game counts your guesses by adding 1 each time. That is maths!
+The middle of our window is `WIDTH / 2`. The thermometer's mercury height comes
+from maths. Getting positions right is all arithmetic.
 
 ### The Code
 ```python
-a = 5
-b = 3
-print(a + b)
-print(a - b)
-print(a * b)
+import tkinter as tk
+
+WIDTH = 400
+HEIGHT = 400
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="black")
+canvas.pack()
+
+center_x = WIDTH / 2
+center_y = HEIGHT / 2
+
+canvas.create_oval(center_x - 50, center_y - 50,
+                   center_x + 50, center_y + 50, fill="gold")
+canvas.create_text(center_x, center_y, text="Middle!", fill="black")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-8
-2
-15
-```
-
-Only the ANSWERS appear — not the sums. The maths happens invisibly inside
-Python, and `print` shows the result.
+### What You'll See
+A gold circle sitting EXACTLY in the middle of the window, with the word
+"Middle!" on top of it.
 
 ### Line by Line
-- `a + b` — add (gives 8).
-- `a - b` — subtract (gives 2).
-- `a * b` — multiply. We use `*` (a star) for "times", not `x` — because `x`
-  could be a variable name, so Python needs a different symbol.
-- The computer works out the answer FIRST, then hands it to `print` to show.
-  Two steps in one line: calculate, then display.
-
-### Slow Motion 🔬 — how Python reads `print(a + b)`
-Watch Python think, from the inside out:
-
-1. It sees `print(...)` and says: "before I can show anything, I must work out
-   what's inside the brackets."
-2. Inside it finds `a + b`. It opens box `a` → finds 5. Opens box `b` → finds 3.
-3. It adds: 5 + 3 = 8.
-4. NOW print has something to show: `8` goes to the terminal.
-
-The full symbol family you'll use in this course:
-
-```text
-+   add          5 + 3   ->  8
--   subtract     5 - 3   ->  2
-*   multiply     5 * 3   ->  15
-/   divide       6 / 3   ->  2.0   (division always gives a decimal!)
-```
-
-That `2.0` surprise: dividing always produces a decimal number in Python, even
-when it divides evenly. You'll meet this again — for now, just don't be shocked
-by the `.0`.
+- `WIDTH = 400` and `HEIGHT = 400` — boxes holding the window size. We use them
+  everywhere so the maths always fits the window.
+- `center_x = WIDTH / 2` — half of 400 is 200, the left-right middle.
+- `center_y = HEIGHT / 2` — the up-down middle.
+- The shape uses `center_x` and `center_y`, so it's always centred even if we
+  change `WIDTH` later.
 
 ### Do It in VS Code 🛠️
-1. In your practice file, type the five lines, save (**Ctrl+S**), run (**▶**).
-2. Check the terminal shows exactly `8`, `2`, `15`.
-3. Add a sixth line `print(a / b)` and run — see the decimal answer.
+1. New file `maths.py`. Type the code.
+2. Save, run — the gold circle sits dead centre.
+3. Change `WIDTH = 400` to `WIDTH = 600`. Save, run. The circle STILL centres,
+   because the maths did the work.
 
 ### Your Turn
-1. Make two number variables and print their sum.
-2. Try multiplying them.
-3. Predict the answer FIRST, then run it. Were you right?
-4. Calculator race: set `a = 123` and `b = 47`. Predict `a * b` in your head or
-   on paper... then let Python settle it. Who's faster — you or the machine?
-   (This is exactly why humans invented computers!)
-5. Try `print(a + b * 2)` with small numbers. Surprised? Python does `*` BEFORE
-   `+`, just like in maths class (BODMAS). Brackets win over everything:
-   `print((a + b) * 2)` forces the add first.
+1. Make a circle one-QUARTER of the way across: use `WIDTH / 4` for its x.
+2. Try `WIDTH * 3 / 4` for a circle three-quarters across.
+3. Print a sum to the terminal to check Python's maths:
+   `print(10 + 5, 10 - 5, 10 * 5, 10 / 5)`.
 
 ### 📸 Show Emrys
-Paste your terminal output to Emrys, including the race result from task 4.
-Tell Emrys your prediction and whether you beat the computer. 😄
+Screenshot a window with a shape placed using maths (like `WIDTH / 4`). Tell
+Emrys the maths you used.
 
 ### Check Your Brain
-- Which symbol means "times"?
-- What does `a - b` give if `a = 10` and `b = 4`?
-- In `print(2 + 3 * 4)`, what does Python work out first — and what prints?
+- What do `*` and `/` mean?
+- What is `WIDTH / 2` when `WIDTH` is 400?
+- Why is it smart to use `WIDTH` instead of typing 400 everywhere?
 
 ### More Examples
-The computer can solve real problems from your life:
+Maths right inside the numbers:
 
 ```python
-# Pocket money for a week
-per_day = 2
-days = 5
-print(per_day * days)   # how much in a school week?
+canvas.create_rectangle(10, 10, 10 + 100, 10 + 50, fill="teal")
 ```
 
-```python
-# Sharing sweets fairly
-sweets = 20
-friends = 4
-print(sweets / friends)   # the / means divide
-```
-
-Notice: dividing gives `5.0` with a dot — Python's way of saying "this might not be a whole number". You can mix maths in one line, and Python multiplies/divides BEFORE adding/subtracting, just like in maths class:
+The `%` sign gives the remainder (great for patterns later):
 
 ```python
-print(2 + 3 * 4)     # 14, not 20! (times first)
-print((2 + 3) * 4)   # 20 - brackets go first, same as maths
+print(17 % 5)   # shows 2, because 17 = 3*5 + 2
 ```
 
 ### Common Mistakes
-- **Using `x` for times:** `print(5 x 3)` → `SyntaxError`. The computer only knows `*`. **Fix:** `print(5 * 3)`.
-- **Quotes around the sum:** `print("5 + 3")` shows the words `5 + 3`, not `8`! Quotes mean "say exactly this". **Fix:** no quotes when you want the answer: `print(5 + 3)`.
-- **Expecting `÷`:** there is no `÷` key — divide is `/` (the slash).
+- **Whole vs decimal:** `400 / 2` gives `200.0` (a decimal). tkinter is fine with
+  that. If you need a whole number, use `//`: `400 // 2` gives `200`.
+- **Forgetting order:** Python does `*` and `/` before `+` and `-`, just like in
+  school. Use brackets to be sure: `(WIDTH + 10) / 2`.
 
 ### Level Up 🚀
-Be the class shopkeeper: a pencil costs 3 cedis and a notebook costs 7 cedis. Make variables `pencils = 4` and `notebooks = 2`, then print the total cost in ONE print line. (Answer should be 26 — did your code agree?)
+Draw a shape that is always 50 pixels in from every edge of the window, using
+`WIDTH` and `HEIGHT` maths — so it resizes correctly when you change the window
+size.
 
 ---
 
-## Lesson 5: Counting Up by Adding to a Variable
+## Lesson 5: Making Things Move by Changing a Variable
 
 ### Big Idea
-We can update a variable using its own value, like `count = count + 1`.
+If we change a variable a little bit again and again, our shape can MOVE.
 
 ### Kid Meaning
-It looks strange, but it means: "take what's in the box, add one, put it back."
-Like adding one more sweet to your jar.
+Add 5 to `x`, redraw, add 5 again, redraw… and the shape slides across the
+screen. That's animation — just fast redrawing.
 
 ### Game Connection
-This is EXACTLY how the game counts tries: every guess does `guesses = guesses + 1`.
+When you win, stars and mercury will animate. Movement is the same trick every
+time: change a number, redraw, repeat.
 
 ### The Code
 ```python
-guesses = 0
-print(guesses)
-guesses = guesses + 1
-print(guesses)
-guesses = guesses + 1
-print(guesses)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+
+x = 50
+ball = canvas.create_oval(x - 20, 190, x + 20, 230, fill="red")
+
+def move():
+    global x
+    x = x + 5
+    canvas.coords(ball, x - 20, 190, x + 20, 230)
+    root.after(30, move)
+
+move()
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-0
-1
-2
-```
-
-A counter, counting. You just built the heart of every scoreboard, step
-counter, and "likes" number you've ever seen.
+### What You'll See
+A red ball slides smoothly from the left side across the window.
 
 ### Line by Line
-- `guesses = 0` — start the counter at zero. (Counters must be BORN before
-  they can grow — this line is the birth.)
-- `guesses = guesses + 1` — new value is the old value plus one. Now it's 1.
-- Do it again and it becomes 2. The box keeps only the latest number.
-
-### Slow Motion 🔬 — why `guesses = guesses + 1` isn't crazy
-In maths class, `x = x + 1` would be impossible — nothing equals itself plus
-one! But remember: in Python `=` does NOT mean "equals". It means **"work out
-the right side, then PUT it into the left side."** So Python does this:
-
-1. RIGHT SIDE first: open the `guesses` box → finds `0` → adds 1 → gets `1`.
-2. THEN the `=`: put `1` back into the `guesses` box, replacing the `0`.
-
-Old value out, new value in. Like adding one sweet to your jar: count what's
-in the jar, add one, that's the new count. The order — *right side first, then
-store* — is the key that makes it make sense.
+- `ball = canvas.create_oval(...)` — we SAVE the shape in a box called `ball` so
+  we can move it later.
+- `def move():` — makes a reusable machine (a function) named `move`.
+- `global x` — tells Python "use the outside box `x`, don't make a new one."
+- `x = x + 5` — take what's in `x`, add 5, put it back. The ball's centre shifts
+  right by 5.
+- `canvas.coords(ball, ...)` — moves the ball to the new position.
+- `root.after(30, move)` — "in 30 milliseconds, run `move` again." That repeat is
+  what makes it keep sliding.
+- `move()` — starts the whole thing off once.
 
 ### Do It in VS Code 🛠️
-1. Type the six lines in your practice file. Save (**Ctrl+S**), run (**▶**).
-2. Confirm: `0`, `1`, `2` — one per line.
-3. Now add `guesses = guesses + 1` and `print(guesses)` once more — predict the
-   fourth number before running.
+1. New file `move.py`. Type the code carefully (the indenting matters!).
+2. Save, run — watch the ball glide.
+3. Change `x = x + 5` to `x = x + 2` (slower) or `x = x + 15` (faster).
 
 ### Your Turn
-1. Start a variable `score = 0`.
-2. Add 10 to it, print it. Add 10 again, print it.
-3. Can you make it go up by 5 each time instead?
-4. Make a countdown instead: start `rocket = 3` and SUBTRACT 1 three times,
-   printing each step — `3, 2, 1` — then print `"LIFT OFF! 🚀"`.
-5. Pro shortcut unlock: `score += 10` does exactly the same as
-   `score = score + 10`, just shorter. Try replacing one line with it. (And
-   `rocket -= 1` counts down!) Now you write it like the pros.
+1. Make the ball move DOWN instead of across (change the y numbers each time,
+   not x).
+2. Change the ball's colour and size.
+3. Predict: what happens if you add a BIG number like 40 each step?
 
 ### 📸 Show Emrys
-Paste BOTH outputs to Emrys: your score counter going up, and your rocket
-counting down to lift-off. Emrys will check the numbers step by step.
+Screenshot your moving ball (or describe the motion) and tell Emrys which
+direction it moves and how fast.
 
 ### Check Your Brain
-- What does `count = count + 1` do?
-- If `score` is 20 and you run `score = score + 10`, what is it now?
-- Which side of the `=` does Python work out FIRST?
+- What does `x = x + 5` do to the box `x`?
+- What does `root.after(30, move)` do?
+- Why do we save the shape in a box called `ball`?
 
 ### More Examples
-Counters can go DOWN too — like lives in a game:
+Counting in the terminal (same "add to a variable" idea, no drawing):
 
 ```python
-lives = 3
-print(f"Lives: {lives}")
-lives = lives - 1      # ouch! lost a life
-print(f"Lives: {lives}")
-```
-
-Counters can grow by anything, not just 1:
-
-```python
-savings = 0
-savings = savings + 5    # saved 5 cedis Monday
-savings = savings + 5    # saved 5 more Tuesday
-savings = savings + 10   # big saving day!
-print(savings)           # 20
-```
-
-Coders use a shortcut so often it's worth knowing: `score += 10` means exactly the same as `score = score + 10` (and `lives -= 1` means lose one):
-
-```python
-score = 0
-score += 10
-score += 10
-print(score)   # 20 - same result, less typing
+count = 0
+count = count + 1
+count = count + 1
+print(count)   # shows 2
 ```
 
 ### Common Mistakes
-- **Starting without 0:** using `tries = tries + 1` when `tries` was never created → `NameError: name 'tries' is not defined`. **Fix:** always start the counter first: `tries = 0`.
-- **Writing it backwards:** `count + 1 = count` → `SyntaxError`. The box being filled must be on the LEFT of `=`.
-- **Expecting it to remember between runs:** every time you run the program, counters start fresh from your starting line. (Saving things between runs comes much later!)
+- **Forgetting `global x`:** the ball won't move because Python makes a fresh,
+  separate `x` inside the function. **Fix:** add `global x` at the top of `move`.
+- **Wrong indenting:** everything inside `def move():` must be indented the same.
+  **Fix:** use 4 spaces, line them up.
 
 ### Level Up 🚀
-Make a "clap counter": start `claps = 0`, then add 2 claps, then double the whole thing (`claps = claps * 2`), then add 1. Predict the final number BEFORE you run it. If you predicted right, you're thinking exactly like the computer — that skill is called *tracing* and pro programmers do it every day.
+Make the ball STOP when it reaches the right edge (hint: only call
+`root.after(...)` again `if x < 400`).
 
 ---
 
-## Lesson 6: Talking to the Player with input()
+## Lesson 6: Talking to the Player with an Entry Box
 
 ### Big Idea
-`input()` lets the computer ask a question and wait for the player to type.
+An Entry box lets the player TYPE something, and a Button lets them send it.
 
 ### Kid Meaning
-It's like the computer asking "What's your name?" and then listening for your
-answer.
+In a game you need to ask the player a question. The Entry box is where they
+type their answer; the Button is the "send" key that hands it to your code.
 
 ### Game Connection
-The whole game is built on this — the computer asks "Guess the number" and waits
-for you to type a guess.
+This is HUGE: the player will type their guess into an Entry box and press
+**Guess!** to send it. This is how they play our game.
 
 ### The Code
 ```python
-name = input("What is your name? ")
-print("Nice to meet you, " + name)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="black")
+canvas.pack()
+
+def show_it():
+    message = entry.get()
+    canvas.delete("all")
+    canvas.create_text(200, 150, text=message, fill="lime", font=("Arial", 24))
+
+entry = tk.Entry(root, font=("Arial", 18))
+entry.pack()
+button = tk.Button(root, text="Show it!", command=show_it)
+button.pack()
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows the question and then... WAITS:**
-
-```text
-What is your name? █
-```
-
-That blinking cursor is the computer listening — for the first time, your
-program needs YOU. Click in the terminal, type your name, press **Enter**:
-
-```text
-What is your name? Ama
-Nice to meet you, Ama
-```
+### What You'll See
+A black window with a typing box and a button. Type anything, press the button,
+and your words appear in big green letters on the canvas.
 
 ### Line by Line
-- `input("What is your name? ")` — shows the question, then STOPS and waits.
-  The whole program freezes patiently until the player presses Enter.
-- Whatever the player types is stored in the `name` box — exactly like
-  `name = "Ama"`, except the PLAYER chose the value, not you.
-- `"Nice to meet you, " + name` — joins two pieces of text together with `+`.
-  This glueing has a fancy name: *concatenation* (kon-kat-en-NAY-shun) — drop
-  that word at home and watch the reaction. 😄
-
-### Slow Motion 🔬 — the conversation pattern
-`input()` is the doorway between your program and a human. Every chat-style
-program in the world follows this exact pattern:
-
-```text
-ASK  ->  the prompt text inside input("...")
-WAIT ->  the program freezes until Enter is pressed
-STORE -> the typed answer lands in a variable
-USE  ->  print (or calculate with) that variable
-```
-
-Two small but mighty details:
-- The space at the end of `"What is your name? "` is on PURPOSE — without it,
-  typing starts squashed against the question mark. Tiny detail, professional
-  feel.
-- With the glue `+`, spaces never appear by magic. `"Hi" + name` makes
-  `HiAma`. You must put the space INSIDE the quotes: `"Hi " + name`.
+- `def show_it():` — the machine that runs when the button is pressed.
+- `message = entry.get()` — `entry.get()` reads whatever the player typed and
+  stores it in the box `message`.
+- `canvas.delete("all")` — wipes the canvas clean so old text doesn't pile up.
+- `canvas.create_text(...)` — draws the player's words.
+- `entry = tk.Entry(root, ...)` — makes the typing box.
+- `button = tk.Button(root, text="Show it!", command=show_it)` — makes a button.
+  `command=show_it` means "when clicked, run `show_it`." (No brackets after
+  `show_it` here — we're naming the machine, not running it yet.)
 
 ### Do It in VS Code 🛠️
-1. Type the two lines, save (**Ctrl+S**), run (**▶**).
-2. **Click inside the TERMINAL panel** (important — your typing must go to the
-   terminal, not the editor!), type your name, press Enter.
-3. Read the greeting. You and your program just had a conversation.
+1. New file `entry.py`. Type the code.
+2. Save, run. Type your name, press **Show it!** — your name appears big.
+3. Type something new and press again — it replaces the old one (thanks to
+   `canvas.delete("all")`).
 
 ### Your Turn
-1. Ask the player their favourite animal and store it.
-2. Print a friendly message using their answer.
-3. Ask a second question (their age) and print both answers.
-4. Build a two-question mini-interview that ends with one combined line, like:
-   `"Wow — a 9-year-old who loves leopards!"` (glue carefully: mind the spaces!)
-5. Run your interview on a CLASSMATE — let them type the answers. Watching
-   someone else use YOUR program for the first time is a feeling you'll never
-   forget.
+1. Change the button text to `"Say it!"`.
+2. Change the drawn text colour and font size.
+3. Predict: what shows if you press the button with the box EMPTY?
 
 ### 📸 Show Emrys
-Paste the whole conversation from the terminal — questions AND answers — to
-Emrys. Emrys will check your glueing (no squashed words!) and might ask what
-`input()` does while it waits.
+Screenshot your window showing YOUR typed word on the canvas. Tell Emrys what you
+typed.
 
 ### Check Your Brain
-- What does `input()` do after it shows the question?
-- What does `+` do between two pieces of text?
-- Where must you click before typing your answer — the editor or the terminal?
+- What does `entry.get()` give you?
+- What does `command=show_it` do?
+- Why do we call `canvas.delete("all")` before drawing new text?
 
 ### More Examples
-The computer can have a whole conversation by asking several questions:
+Two things at once — greet AND draw a circle:
 
 ```python
-food = input("What is your favourite food? ")
-print("Yum! " + food + " is delicious!")
-```
-
-```python
-town = input("Which town are you from? ")
-team = input("Which football team do you support? ")
-print("So a " + team + " fan from " + town + " - nice!")
-```
-
-You can reuse one answer many times once it's in a box:
-
-```python
-name = input("Your name? ")
-print(name + ", " + name + ", " + name + "!")
-print("The crowd is chanting your name!")
+def greet():
+    name = entry.get()
+    canvas.delete("all")
+    canvas.create_text(200, 80, text="Hi " + name + "!", fill="white",
+                       font=("Arial", 20))
+    canvas.create_oval(150, 120, 250, 220, fill="pink")
 ```
 
 ### Common Mistakes
-- **No space in the question:** `input("Your name?")` works, but the player types right against the question mark and it looks squashed. **Fix:** end with a space — `input("Your name? ")`. Small touch, very professional.
-- **Forgetting to store the answer:** writing just `input("Your name? ")` without `name =` — the answer disappears! **Fix:** always catch it in a box: `name = input(...)`.
-- **Joining words without spaces:** `print("Hello" + name)` shows `HelloAma`. **Fix:** include a space inside the quotes: `"Hello " + name`.
+- **Adding brackets:** `command=show_it()` runs it INSTANTLY (wrong). **Fix:** no
+  brackets — `command=show_it`.
+- **Text piles up:** forgetting `canvas.delete("all")` stacks new text on old.
+  **Fix:** clear before you redraw.
 
 ### Level Up 🚀
-Build a two-question "interview robot": it asks your name and your dream job, then announces you like a TV host — "Ladies and gentlemen... AMA, the future PILOT!" Bonus: `.upper()` makes text shout — try `print(name.upper())`.
+Make TWO buttons: one that shows the text in red, one that shows it in blue
+(hint: two little functions, one per button).
 
 ---
 
-## Lesson 7: Words vs Numbers — int() and the Easy f-string
+## Lesson 7: Words vs Numbers — int() and f-strings
 
 ### Big Idea
-Anything typed with `input()` arrives as TEXT, even if it looks like a number. We
-use `int()` to turn it into a real number. And to mix words and numbers in a
-message the EASY way, we use an **f-string**.
+The Entry box always gives us WORDS. To do maths we must turn words into numbers
+with `int()`. And f-strings let us mix words and numbers neatly.
 
 ### Kid Meaning
-"7" written on paper is a drawing of seven. To do maths, the computer needs the
-real number seven, not the drawing. `int()` does that change. An f-string is a
-magic sentence where you can drop a box's value right inside the words.
+`"42"` (with quotes) is the WORD forty-two — you can't do maths with it. `42`
+(no quotes) is the NUMBER. `int("42")` changes the word into the number.
 
 ### Game Connection
-The player types a guess like `50`. We must turn it into a real number before we
-can compare it to the secret. And we'll show messages like "You took 6 tries" by
-dropping the number straight into the sentence with an f-string.
+The player types their guess as words. We must `int()` it into a real number
+before we can compare it to the secret number.
 
 ### The Code
 ```python
-age_text = input("How old are you? ")
-age = int(age_text)
-print(f"Next year you will be {age + 1}")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="black")
+canvas.pack()
+
+def double_it():
+    text = entry.get()
+    number = int(text)
+    answer = number * 2
+    canvas.delete("all")
+    canvas.create_text(200, 150, text=f"{number} doubled is {answer}!",
+                       fill="cyan", font=("Arial", 20))
+
+entry = tk.Entry(root, font=("Arial", 18))
+entry.pack()
+tk.Button(root, text="Double it!", command=double_it).pack()
+
+root.mainloop()
 ```
 
-**When you run it and type `9`, the TERMINAL shows:**
-
-```text
-How old are you? 9
-Next year you will be 10
-```
+### What You'll See
+Type a number, press **Double it!**, and the window shows, e.g., "7 doubled is
+14!"
 
 ### Line by Line
-- `age_text` holds text, e.g. the drawing `"9"`.
-- `int(age_text)` turns `"9"` into the real number `9`.
-- `age + 1` does maths → 10.
-- `print(f"...")` — the little **`f`** before the quotes makes it an f-string.
-  Now anything inside `{ }` is worked out and dropped into the sentence. So
-  `{age + 1}` becomes `10`. **No `str()` needed — this is why f-strings are
-  easier!**
-
-### Slow Motion 🔬 — the "drawing of a number" problem
-This is the single most important secret in beginner Python, so let's nail it:
-
-When you type `9` at an `input()`, Python receives the CHARACTER "9" — a
-drawing, a shape on the screen — not the QUANTITY nine. Try this experiment in
-your head:
-
-```text
-"9" + "1"   ->  "91"   (two drawings glued side by side!)
- 9  +  1    ->  10     (real numbers, real maths)
-```
-
-Same symbols, totally different results. `int(...)` is the converter machine:
-drawing in, real number out. The name comes from *integer* — maths-speak for a
-whole number.
-
-And the f-string: `f"Next year you will be {age + 1}"` — the `f` switches on
-the magic braces. Python sees `{age + 1}`, pauses the sentence, works out the
-maths (9 + 1 = 10), converts the result to text, and stitches it into place.
-One line, no glue, no `str()` headache. (The old way,
-`"Next year: " + str(age + 1)`, still works — you'll see it in other people's
-code — but f-strings are friendlier, so this course uses them.)
+- `text = entry.get()` — gets the typed WORDS, e.g. `"7"`.
+- `number = int(text)` — turns the word `"7"` into the number `7`.
+- `answer = number * 2` — real maths now works.
+- `f"{number} doubled is {answer}!"` — an f-string. The `f` before the quotes
+  lets us drop boxes inside `{ }` and Python fills in their values.
 
 ### Do It in VS Code 🛠️
-1. Type the three lines, save (**Ctrl+S**), run (**▶**).
-2. Click in the terminal, answer with a number, Enter.
-3. Now run it again and type `nine` (letters!) — watch the red `ValueError`
-   appear. Python is saying: "I can't turn the word 'nine' into a number."
-   Read it, don't fear it. Run once more with digits.
+1. New file `double.py`. Type the code.
+2. Save, run. Type `7`, press the button — "7 doubled is 14!"
+3. Try `50`, then `100`.
 
 ### Your Turn
-1. Ask the player for a number, `int()` it, and print it doubled using an
-   f-string: `print(f"Double is {number * 2}")`.
-2. Ask their name AND age, then print one f-string sentence using BOTH, like
-   `print(f"{name} will be {age + 1} next year")`.
-3. Try leaving out the `f` before the quotes and see what prints — what's
-   different? (The braces stop working and print literally!)
-4. Build a tiny "age machine": ask for an age, then print three f-string
-   lines — their age in 10 years, their age doubled, and how old they were
-   3 years ago. One input, three calculations.
-5. Shortcut unlock: `age = int(input("Age? "))` asks AND converts in ONE line.
-   Rewrite your age machine using it. (Read it inside-out: input first, then
-   int wraps the answer.)
+1. Change it to TRIPLE the number (`* 3`) and update the message.
+2. Show the number plus 10 instead.
+3. Type letters instead of a number and press the button. Read the red error in
+   the terminal — that's a clue we'll fix in Lesson 20.
 
 ### 📸 Show Emrys
-Paste your age machine's full conversation to Emrys — AND the `ValueError`
-from the experiment, if you still have it. Emrys loves seeing errors that got
-beaten. Tell Emrys in one sentence what `int()` does.
+Screenshot your window doubling a number. Tell Emrys what number you typed and
+what it showed.
 
 ### Check Your Brain
-- What kind of thing does `input()` always give you — text or number?
-- What does `int()` do?
-- In an f-string, what happens to whatever you put inside `{ }`?
-- Why is an f-string easier than joining with `+` and `str()`?
-- What error appears if someone types `nine` instead of `9`?
+- What is the difference between `"42"` and `42`?
+- What does `int(text)` do?
+- What does the `f` in `f"..."` let you do?
 
 ### More Examples
-f-strings can hold as many `{ }` slots as you want:
+f-strings mixing several boxes:
 
 ```python
-name = "Adwoa"
-age = 10
-print(f"{name} is {age} years old and in Class 4.")
+name = "Ama"
+score = 3
+print(f"{name} has {score} points!")   # Ama has 3 points!
 ```
-
-Maths works right inside the slots:
-
-```python
-price = int(input("Price of one orange? "))
-print(f"Three oranges cost {price * 3} cedis.")
-print(f"Ten oranges cost {price * 10} cedis.")
-```
-
-See the difference between text "7" and number 7 with your own eyes:
-
-```python
-text_seven = "7"
-real_seven = 7
-print(text_seven + text_seven)   # 77  - text glues together!
-print(real_seven + real_seven)   # 14  - numbers do real maths
-```
-
-That first one surprises everyone — text `"7" + "7"` GLUES into `"77"`. That's why `int()` matters so much for our game.
 
 ### Common Mistakes
-- **Doing maths on raw input:** `age = input("Age? ")` then `age + 1` → `TypeError: can only concatenate str (not "int") to str`. **Fix:** convert first — `age = int(input("Age? "))`.
-- **Forgetting the `f`:** `print("You are {age}")` literally shows `You are {age}` with the curly braces! **Fix:** put `f` before the quotes: `print(f"You are {age}")`.
-- **int() on something that isn't a number:** if the player types `nine`, `int("nine")` crashes with `ValueError: invalid literal for int()`. (Lesson 20 teaches the polite fix — for now, type digits.)
+- **Doing maths on words:** `entry.get() * 2` repeats the WORD ("77") instead of
+  doubling. **Fix:** `int(entry.get()) * 2`.
+- **Forgetting the `f`:** `"{number} doubled"` prints the braces literally. **Fix:**
+  put `f` right before the opening quote.
 
 ### Level Up 🚀
-Make a "future machine": ask the player's age, then print what year they'll turn 18, using an f-string with maths inside — `f"You will be 18 in the year {2026 + (18 - age)}"`. Test it on yourself. Did it get your year right?
+Ask for a number and draw a square whose SIZE is that number (bigger number →
+bigger square). Use `int()` to get the size.
 
 ---
 
 ## Lesson 8: Mini-Project — A Greeting Machine
 
 ### Big Idea
-We combine printing, variables, and input into one small working program.
+Put together windows, Entry, buttons, variables, and f-strings into one small
+finished program.
 
 ### Kid Meaning
-Time to put our first tools together and build something that actually talks to a
-person.
+This is your first real mini-app: the player types their name and it greets them
+in style. You already know every piece — now we assemble them.
 
 ### Game Connection
-This is practice for the real game loop: ask → store → use → respond.
+This is a tiny rehearsal for the game: type something, press a button, see the
+window react. The Magic Number Game is this same shape, just bigger.
 
 ### The Code
 ```python
-print("Welcome to the Greeting Machine!")
-name = input("What is your name? ")
-age = int(input("How old are you? "))
-print(f"Hello {name}!")
-print(f"In 5 years you will be {age + 5}")
+import tkinter as tk
+
+WIDTH, HEIGHT = 400, 300
+
+root = tk.Tk()
+root.title("Greeting Machine")
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#101030")
+canvas.pack()
+
+def greet():
+    name = entry.get()
+    canvas.delete("all")
+    canvas.create_text(WIDTH/2, 100, text=f"Hello, {name}!",
+                       fill="gold", font=("Arial", 28, "bold"))
+    canvas.create_text(WIDTH/2, 160, text="Welcome to Python!",
+                       fill="white", font=("Arial", 16))
+    canvas.create_oval(WIDTH/2 - 40, 200, WIDTH/2 + 40, 280, fill="deeppink")
+
+entry = tk.Entry(root, font=("Arial", 18), justify="center")
+entry.pack(pady=8)
+tk.Button(root, text="Greet me!", font=("Arial", 14), command=greet).pack()
+
+root.mainloop()
 ```
 
-**A full run looks like this (with the player typing `Ama` and `9`):**
-
-```text
-Welcome to the Greeting Machine!
-What is your name? Ama
-How old are you? 9
-Hello Ama!
-In 5 years you will be 14
-```
+### What You'll See
+Type your name, press **Greet me!**, and the window shows a golden "Hello, [your
+name]!", a welcome line, and a pink circle.
 
 ### Line by Line
-- We `print` a welcome — every good program greets its user.
-- We ask for the name (text) and store it. Names stay as text, so no `int()`.
-- `int(input(...))` asks AND converts in one line — a neat shortcut. Read it
-  inside-out: `input(...)` runs first and hands its text to `int(...)`.
-- We greet them with an f-string, dropping `{name}` right into the sentence.
-- `{age + 5}` does the little maths inside the f-string — no `str()` needed.
-
-### Slow Motion 🔬 — you now own the 4 superpowers
-Stop and look at what this tiny program uses. EVERYTHING from Part 1:
-
-```text
-Lesson 1+2  ->  print(...)            the computer speaks
-Lesson 3    ->  name = ...            the computer remembers
-Lesson 6    ->  input(...)            the computer listens
-Lesson 7    ->  int(...) + f-strings  the computer calculates and reports
-```
-
-Speak, remember, listen, calculate. That's not a toy list — it's the same four
-powers inside WhatsApp, games, and bank apps. They just stack thousands of
-these together. You have the full starter kit now, and the Magic Number Game
-ahead is built from exactly these four bricks.
-
-Notice also the SHAPE of the program: greet → ask → ask → respond → respond.
-Programs have a flow, like a conversation has a flow. Designing that flow is
-the fun part of being a programmer.
+- The setup and `greet` function combine everything from Lessons 1–7.
+- `justify="center"` centres the text you type in the box.
+- `pady=8` adds a little space above and below the Entry so it looks tidy.
+- Notice how `WIDTH/2` keeps everything centred using maths.
 
 ### Do It in VS Code 🛠️
-1. New file: `greeting_machine.py` — your first named PROJECT file. Save it
-   next to your other files.
-2. Type all five lines. Save (**Ctrl+S**), run (**▶**).
-3. Answer both questions in the terminal. Read your machine's reply.
-4. Run it twice more with different answers — same machine, different
-   conversation every time. That's the power of variables!
+1. New file `greeting.py`. Type the whole program.
+2. Save, run. Type your name, press the button, admire your greeting!
+3. Show a friend and let them type THEIR name.
 
 ### Your Turn
-1. Build the Greeting Machine above and run it.
-2. Add one more question of your own (favourite colour) and use it in a
-   message, like `f"{colour} is a great colour, {name}!"` — two boxes in one
-   sentence.
-3. Add a maths line of your own invention using `{ }` — maybe the year they
-   were born: `f"You were born around {2026 - age}"`. (Mind-blowing, right?)
-4. Show a friend and let them try it. Don't touch the keyboard — watch them
-   use YOUR software.
+1. Change the colours and the welcome message.
+2. Add a THIRD line of text (maybe today's day).
+3. Add a second shape (a rectangle) somewhere.
 
 ### 📸 Show Emrys
-Paste a COMPLETE run of your upgraded Greeting Machine (all questions and
-answers) to Emrys. This is your Part 1 graduation — Emrys will check all four
-superpowers are working and officially promote you to Part 2: teaching the
-computer to make choices. 🎓
+Screenshot your finished Greeting Machine with a name in it. Tell Emrys: "Part 1
+mini-project done!"
 
 ### Check Your Brain
-- Why do we wrap the age question in `int(...)` but not the name question?
-- What does `int(input(...))` do in one line?
-- What are the four superpowers, in your own words?
+- Which line reads what the player typed?
+- How does `f"Hello, {name}!"` build the greeting?
+- What does `canvas.delete("all")` prevent?
 
 ### More Examples
-Your Greeting Machine can become anything. A compliment machine:
+Make the greeting change colour based on nothing yet — but next Part we'll make
+colours change based on the guess. For now, try adding an emoji:
 
 ```python
-print("THE COMPLIMENT MACHINE 3000")
-name = input("Who needs cheering up? ")
-print(f"{name}, you are doing GREAT today!")
-print(f"Everyone says {name} works so hard!")
-```
-
-A mini maths quiz machine:
-
-```python
-print("Quick maths check!")
-number = int(input("Give me any number: "))
-print(f"Double:  {number * 2}")
-print(f"Triple:  {number * 3}")
-print(f"Squared: {number * number}")
-```
-
-A countdown machine using what the player gives:
-
-```python
-start = int(input("Count down from? "))
-print(f"{start}...")
-print(f"{start - 1}...")
-print(f"{start - 2}...")
-print("Time's up!")
+canvas.create_text(WIDTH/2, 240, text="🎉", font=("Arial", 40))
 ```
 
 ### Common Mistakes
-- **Mixing up the order:** trying to `print(f"Hello {name}")` BEFORE the `name = input(...)` line → `NameError`. The computer reads top to bottom; ask first, use after.
-- **int() around the name:** `name = int(input("Your name? "))` crashes when someone types `Ama` — names are words, not numbers! Only convert things that should be numbers.
-- **One bracket too few:** `age = int(input("Age? ")` → `SyntaxError: '(' was never closed`. Two opens need two closes: count them — `int(` and `input(` need `))`.
+- **Widgets not showing:** every widget (Entry, Button) needs `.pack()`. **Fix:**
+  add `.pack()` to each.
+- **Old greeting stays:** clear with `canvas.delete("all")` at the start of
+  `greet`.
 
 ### Level Up 🚀
-Combine everything from Part 1 into a "Registration Desk" for our future game: ask name AND age, then print a little ticket:
-
-```
-==== GAME TICKET ====
-Player: Ama
-Age:    10
-Lucky entry number: 20   <- their age times 2!
-=====================
-```
-
-Use `"=" * 21` to draw the lines — you'll meet this trick properly in Lesson 21.
+Add a "Clear" button that wipes the canvas back to empty (hint: a tiny function
+that just calls `canvas.delete("all")`).
 
 ---
 
-# PART 2 — MAKING CHOICES
-
----
+# PART 2 — MAKING CHOICES & MOTION
 
 ## Lesson 9: Making Decisions with if
 
 ### Big Idea
-`if` lets the computer choose what to do based on a condition (something true or
-false).
+`if` lets the program CHOOSE what to do based on a condition.
 
 ### Kid Meaning
-"IF it is raining, take an umbrella." The computer checks, and only acts if the
-condition is true.
+"IF it is raining, take an umbrella." The computer checks — is it true? — and
+only then does the action. `if` is how programs make choices.
 
 ### Game Connection
-The heart of the game: IF your guess equals the secret number → you win!
+IF your guess is too big, paint the thermometer red. IF it's too small, paint it
+blue. `if` is the heart of hot-and-cold.
 
 ### The Code
 ```python
-number = 7
-if number == 7:
-    print("Lucky seven!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="black")
+canvas.pack()
+
+def check():
+    guess = int(entry.get())
+    canvas.delete("all")
+    if guess > 50:
+        canvas.create_rectangle(50, 50, 350, 250, fill="red")
+        canvas.create_text(200, 150, text="Big number!", fill="white")
+
+entry = tk.Entry(root, font=("Arial", 18))
+entry.pack()
+tk.Button(root, text="Check", command=check).pack()
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-Lucky seven!
-```
-
-Now change the first line to `number = 3`, save, run again — the terminal
-shows **nothing at all**. Silence! The computer checked, the answer was no, so
-it skipped the indented line. You just watched a computer make a decision.
+### What You'll See
+Type a number over 50 and press Check — a red box with "Big number!" appears.
+Type a small number — nothing happens (yet — we add that next lesson).
 
 ### Line by Line
-- `if number == 7:` — check IF `number` is equal to 7. We use `==` (two
-  equals) for "is equal to". (One `=` means "put into the box"; two `==`
-  means "compare what's in the box".)
-- The `:` colon at the end of the if-line is mandatory — it announces "the
-  instructions for YES are coming next."
-- The indented (spaced-in) line runs ONLY if the condition is true.
-  Indentation (the spaces at the start) is how Python knows which lines
-  belong to the `if`.
-
-### Slow Motion 🔬 — how a computer "decides"
-Until today, your programs ran every line, always, top to bottom. Boring
-obedience. The `if` changes everything — now there are lines that MIGHT run:
-
-1. Python reaches `if number == 7:` and asks a yes/no question: "is the value
-   in `number` equal to 7?"
-2. It opens the box, finds 7, compares: YES.
-3. Because YES, it enters the indented block and runs it.
-4. If the answer had been NO, it would JUMP over the indented block entirely,
-   as if those lines didn't exist.
-
-About that indentation: press **Tab** once (VS Code makes it 4 spaces). The
-indented lines are "inside" the if — like things written inside a box on a
-worksheet. When you stop indenting, you're back outside, in "always runs"
-land:
-
-```python
-number = 3
-if number == 7:
-    print("Lucky!")        # inside the if  -> only when YES
-print("Program finished")  # outside        -> ALWAYS runs
-```
-
-Run that — you'll see only `Program finished`. The membership of each line —
-inside or outside — is decided purely by the spaces at the start. In Python,
-**spaces have meaning**. This is THE most important formatting rule in the
-whole language.
+- `if guess > 50:` — checks: is the guess bigger than 50? The `:` starts the
+  "then do this" block.
+- The indented lines under `if` ONLY run when the check is true.
+- `>` means "greater than." Later we'll use `<` (less than) and `==` (equal to).
 
 ### Do It in VS Code 🛠️
-1. Type the three lines. When you press Enter after the `:`, watch VS Code
-   indent the next line for you automatically — it knows!
-2. Save (**Ctrl+S**), run (**▶**): see `Lucky seven!`.
-3. Change `number = 3`, save, run: silence (plus your outside line if you
-   added one).
-4. Try deleting the indentation before `print` and running — VS Code
-   underlines it red and Python says `IndentationError: expected an indented
-   block`. Put the Tab back. Error met, error beaten.
+1. New file `decide.py`. Type the code.
+2. Save, run. Try `80` (red box appears), then `20` (nothing).
 
 ### Your Turn
-1. Make a variable `score = 10`. Write an `if` that prints "Great score!" if
-   score is equal to 10.
-2. Change score to 5 and run again. Does the message still show? Why not?
-3. Make a secret-password check: `password = input("Password? ")` then
-   `if password == "banana":` print a welcome with TWO indented lines (a
-   welcome and a bonus message). Test it with the right and wrong password.
-4. Game preview: set `secret = 42` and `guess = int(input("Guess: "))`, then
-   `if guess == secret:` print "CORRECT!" — that's the actual heart of the
-   Magic Number Game, beating for the first time. Feel it!
+1. Change `> 50` to `> 90` and test.
+2. Change the colour and message inside the `if`.
+3. Predict which numbers make the box appear.
 
 ### 📸 Show Emrys
-Paste TWO runs of your password checker to Emrys — one with the correct
-password, one wrong — so Emrys can see the `if` saying yes AND no. Bonus
-respect: paste your guess-the-secret preview too.
+Screenshot the red box that appears for a big number. Tell Emrys the number you
+typed.
 
 ### Check Your Brain
-- What is the difference between `=` and `==`?
-- Why are the spaces (indentation) before the print important?
-- What happens to the indented lines when the condition is false?
-- What punctuation must end every `if` line?
+- What does `if` do?
+- What does `>` mean?
+- When do the indented lines under `if` run?
 
 ### More Examples
-`if` can check text answers too, not just numbers:
+Comparing with less-than:
 
 ```python
-answer = input("What is the capital of Ghana? ")
-if answer == "Accra":
-    print("Correct! Well done!")
-```
-
-More than one line can live inside an `if` — everything indented belongs to it:
-
-```python
-age = int(input("How old are you? "))
-if age >= 10:
-    print("You are double digits!")
-    print("That is a whole DECADE of you.")
-print("This line prints for everyone - see, it's not indented.")
-```
-
-`>=` means "greater than or equal to". An `if` can also guard a surprise:
-
-```python
-password = input("Whisper the secret word: ")
-if password == "banana":
-    print("The treasure chest opens! 💰")
+if guess < 10:
+    canvas.create_text(200, 150, text="Tiny!", fill="cyan")
 ```
 
 ### Common Mistakes
-- **One `=` in the check:** `if number = 7:` → `SyntaxError`. One `=` fills a box; two `==` compares. **Fix:** `if number == 7:`.
-- **Forgetting the colon:** `if number == 7` → `SyntaxError: expected ':'`. The `:` is the doorway into the if-block.
-- **Forgetting to indent:** writing the `print` at the left edge under an `if` → `IndentationError: expected an indented block`. Press Tab once — the spaces tell Python "this belongs to the if".
+- **Forgetting the colon:** `if guess > 50` (no `:`) → `SyntaxError`. **Fix:** add
+  the `:`.
+- **Not indenting:** the lines under `if` must be indented (4 spaces). **Fix:**
+  indent them so Python knows they belong to the `if`.
 
 ### Level Up 🚀
-Make a "door code" program: the secret code is `4321`. Ask the player for the code (remember `int(...)`), and if it's exactly right, print a 3-line welcome with a treasure inside. Then try typing the wrong code — notice the program just ends quietly. Next lesson we'll teach it to answer back when the code is wrong!
+Make the box a DIFFERENT colour for numbers over 100 vs numbers over 50 (hint:
+two `if` checks).
 
 ---
 
 ## Lesson 10: if, else, and elif — More Choices
 
 ### Big Idea
-`else` says what to do when the `if` is false; `elif` checks another condition.
+`if / elif / else` handles several possibilities: this, or that, otherwise this.
 
 ### Kid Meaning
-"IF it's hot, wear shorts. ELSE wear a jacket." `elif` is "or else, IF this other
-thing..."
+"IF too high, say so. ELSE IF too low, say so. ELSE (only one left) you got it!"
+Python checks them top to bottom and does the FIRST one that's true.
 
 ### Game Connection
-The game says: IF guess is too high → "Too high"; ELIF too low → "Too low"; ELSE
-→ "Correct!"
+This is EXACTLY our game's brain: too high → red, too low → blue, equal → win.
+Three outcomes, three branches.
 
 ### The Code
 ```python
-guess = 50
-secret = 42
-if guess > secret:
-    print("Too high!")
-elif guess < secret:
-    print("Too low!")
-else:
-    print("Correct!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=300, bg="black")
+canvas.pack()
+
+secret = 50
+
+def check():
+    guess = int(entry.get())
+    canvas.delete("all")
+    if guess > secret:
+        canvas.create_text(200, 150, text="Too high!", fill="red",
+                           font=("Arial", 24))
+    elif guess < secret:
+        canvas.create_text(200, 150, text="Too low!", fill="cyan",
+                           font=("Arial", 24))
+    else:
+        canvas.create_text(200, 150, text="You got it!", fill="lime",
+                           font=("Arial", 24))
+
+entry = tk.Entry(root, font=("Arial", 18))
+entry.pack()
+tk.Button(root, text="Guess", command=check).pack()
+
+root.mainloop()
 ```
 
-**With `guess = 50`, the TERMINAL shows:**
-
-```text
-Too high!
-```
-
-One question asked, one answer chosen, the other two skipped. This eight-line
-block IS the brain of the Magic Number Game — everything else we build is
-just decoration around it.
+### What You'll See
+The secret is 50. Guess 80 → "Too high!" in red. Guess 20 → "Too low!" in cyan.
+Guess 50 → "You got it!" in green. This is basically the whole game already!
 
 ### Line by Line
-- `guess > secret` — is the guess bigger? `>` means "greater than". (Memory
-  trick: the arrow opens toward the BIGGER side, like a crocodile mouth that
-  always eats the bigger number. 🐊)
-- `elif guess < secret:` — otherwise, is it smaller? `<` means "less than".
-  `elif` is short for "else if" — "if not THAT, then is it THIS?"
-- `else:` — if neither bigger nor smaller, it must be equal → correct! Notice
-  `else` asks no question and has no condition: it's the catch-all for
-  "none of the above".
-- Only ONE of the three blocks ever runs. Never two, never zero.
-
-### Slow Motion 🔬 — the decision ladder
-Picture the if/elif/else as a ladder Python climbs from the top, stopping at
-the FIRST rung that says YES:
-
-```text
-guess = 50, secret = 42
-
-Rung 1:  if 50 > 42 ?      YES! -> print "Too high!" -> DONE, skip the rest
-Rung 2:  (never even looked at)
-Rung 3:  (never even looked at)
-```
-
-Now mentally run `guess = 42`:
-
-```text
-Rung 1:  if 42 > 42 ?      no  (42 is not bigger than itself)
-Rung 2:  elif 42 < 42 ?    no  (not smaller either)
-Rung 3:  else              -> print "Correct!"
-```
-
-That third case is beautiful: we never ask "is it equal?" — we don't need to!
-If a number is not bigger and not smaller, equality is the only possibility
-left. Programmers love this kind of "free" logic.
+- `secret = 50` — a fixed secret for now (Lesson 14 makes it random).
+- `if guess > secret:` — first check. If true, do this and SKIP the rest.
+- `elif guess < secret:` — "else if" — only checked if the first was false.
+- `else:` — the leftover case (must be equal), so it's a win.
 
 ### Do It in VS Code 🛠️
-1. Type the eight lines. Watch VS Code auto-indent after each `:` — and notice
-   `elif`/`else` must line up with `if` (NOT indented), while their print
-   lines ARE indented.
-2. Save, run, confirm `Too high!`.
-3. Edit → save → run three times: `guess = 42` (Correct!), `guess = 10`
-   (Too low!), `guess = 99` (Too high!). Three runs, three different paths
-   through the same code.
+1. New file `three_ways.py`. Type the code.
+2. Save, run. Try guesses above, below, and exactly 50.
 
 ### Your Turn
-1. Change `guess` to 42 and run — which message shows?
-2. Change `guess` to 10, then to 99. Predict each result before running.
-3. Make it interactive: replace `guess = 50` with
-   `guess = int(input("Your guess: "))` and play it for real. One guess, real
-   feedback — the game is being born in front of you!
-4. Build a ladder of your own: ask for an age, then `if age < 6:` print
-   "Nursery", `elif age < 12:` print "Primary", `else:` print "JHS or beyond".
-   Test all three doors with ages 4, 9, and 14.
+1. Change `secret` to a different number and test all three outcomes.
+2. Change the win message and colour.
+3. Predict what happens if you guess exactly the secret.
 
 ### 📸 Show Emrys
-Paste three runs to Emrys — one "Too high!", one "Too low!", one "Correct!" —
-so Emrys can see you've walked all three paths. Then tell Emrys in one
-sentence why `else` needs no condition.
+Screenshot all three results (three screenshots, or one of the win). Tell Emrys
+the secret you used.
 
 ### Check Your Brain
-- What does `>` mean? What does `<` mean?
-- When does the `else` block run?
-- How many of the three blocks run each time?
-- Why don't we need to ask "is it equal?" anywhere?
+- What is the difference between `if` and `elif`?
+- When does `else` run?
+- Why is exactly one of the three branches always chosen?
 
 ### More Examples
-A grader that turns marks into messages — `elif`s check in order, top to bottom:
+A grader with elif chains:
 
 ```python
-marks = int(input("Your test marks (out of 100): "))
-if marks >= 80:
-    print("Excellent! ⭐")
-elif marks >= 50:
-    print("Good - keep practising!")
+if score >= 90:
+    grade = "A"
+elif score >= 70:
+    grade = "B"
 else:
-    print("Don't worry, we will revise together.")
-```
-
-A weather adviser:
-
-```python
-weather = input("Is it sunny, rainy, or cloudy? ")
-if weather == "rainy":
-    print("Take an umbrella!")
-elif weather == "sunny":
-    print("Wear a hat!")
-else:
-    print("Enjoy your day!")
-```
-
-You can chain MANY elifs — the computer stops at the FIRST true one:
-
-```python
-day = input("What day is it? ")
-if day == "Saturday":
-    print("Weekend! Time to play.")
-elif day == "Sunday":
-    print("Rest day - school tomorrow!")
-elif day == "Friday":
-    print("Almost the weekend...")
-else:
-    print("School day. Let's learn!")
+    grade = "C"
 ```
 
 ### Common Mistakes
-- **`elif` without an `if` first:** `elif` can never start the chain → `SyntaxError`. The chain is always `if` → (maybe some `elif`s) → (maybe one `else`).
-- **Giving `else` a condition:** `else guess < 10:` → `SyntaxError`. `else` means "everything that's left" — it takes no condition, just `else:`.
-- **Wrong order of checks:** in the grader, if you check `marks >= 50` FIRST, a mark of 90 prints "Good" and never reaches "Excellent" — because the computer stops at the first true check. Put the strongest check first.
+- **Using many `if`s instead of `elif`:** separate `if`s can all run and stack
+  messages. **Fix:** use `elif`/`else` so only one runs.
+- **`=` vs `==`:** `if guess = secret` is an error. **Fix:** use `==` to compare.
 
 ### Level Up 🚀
-Build "Hot or Cold" — the heart of next week's game: set `secret = 42`. Ask for a guess. Print "Boiling hot!" if it's exactly right, "Warm" if the guess is between 35 and 49, otherwise "Freezing cold!". Hint: you can write `if 35 <= guess <= 49:` — Python lets you check "between" exactly like maths class.
+Add a fourth branch: if the guess is WAY too high (more than 20 above secret),
+say "WAY too high!" (hint: an extra `elif` before the plain "too high").
 
 ---
 
 ## Lesson 11: True and False (Booleans)
 
 ### Big Idea
-A condition is always either **True** or **False** — these are special values.
+Every check is either True or False — those two values are called Booleans.
 
 ### Kid Meaning
-Like a light switch: on or off. Yes or no. Nothing in between.
+A light switch is on or off. A check is True or False. `guess == secret` is a
+question Python answers with True or False.
 
 ### Game Connection
-"Has the player guessed correctly?" is a yes/no fact the game checks every turn.
+"Have they won yet?" is a True/False fact. We can store it in a box like
+`won = (guess == secret)` and use it to decide whether to celebrate.
 
 ### The Code
 ```python
-secret = 42
-guess = 42
-print(guess == secret)
-print(guess > 100)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=200, bg="black")
+canvas.pack()
+
+secret = 7
+
+def check():
+    guess = int(entry.get())
+    won = (guess == secret)
+    canvas.delete("all")
+    if won:
+        canvas.create_text(200, 100, text="TRUE — you win!", fill="lime")
+    else:
+        canvas.create_text(200, 100, text="FALSE — try again", fill="orange")
+
+entry = tk.Entry(root)
+entry.pack()
+tk.Button(root, text="Check", command=check).pack()
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-True
-False
-```
-
-The computer ANSWERED your questions — out loud! Every comparison secretly
-produces one of these two values, and today you get to see them with your own
-eyes.
+### What You'll See
+Guess 7 → "TRUE — you win!" Any other number → "FALSE — try again."
 
 ### Line by Line
-- `guess == secret` — the computer works this out as `True` (they're equal).
-- `guess > 100` — this is `False` (42 is not over 100).
-- `True` and `False` have no quotes — they are special built-in values, not
-  words. (And the capital T and F matter: `true` ❌, `True` ✅.)
-
-### Slow Motion 🔬 — the secret behind every if
-Here's the curtain-lifting moment. When you wrote `if guess == secret:` in the
-last lessons, Python actually did this:
-
-1. Worked out `guess == secret` → got `True` or `False` (a *boolean* — named
-   after George Boole, a mathematician who studied yes/no logic).
-2. Handed that single value to `if`.
-3. `if True:` → run the block. `if False:` → skip it.
-
-So `if` never sees your comparison — it only ever sees a True or a False!
-That means a boolean can live in a VARIABLE, travel around your program, and
-be used later:
-
-```python
-is_winner = (guess == secret)   # the answer gets stored!
-print(is_winner)                # True
-if is_winner:
-    print("We have a champion!")
-```
-
-`if is_winner:` reads almost like English. Naming your booleans `is_...` or
-`has_...` is a real professional habit — it makes code read like sentences.
+- `won = (guess == secret)` — Python answers the question `guess == secret` with
+  True or False and stores the answer in `won`.
+- `if won:` — since `won` is already True or False, we can use it directly.
+- `==` means "is equal to" (two equals signs — one equals sign means "put into a
+  box").
 
 ### Do It in VS Code 🛠️
-1. Type the four lines, save, run. Confirm `True` then `False`.
-2. Add `print(type(guess == secret))` and run — Python says
-   `<class 'bool'>`. You just asked Python "what KIND of thing is this?" and
-   it answered: a boolean.
+1. New file `boolean.py`. Type the code.
+2. Save, run. Try the secret and a wrong number.
+3. Add `print(won)` inside `check` and watch True/False appear in the terminal.
 
 ### Your Turn
-1. Print whether `10 > 3` (predict first).
-2. Print whether `5 == 6`.
-3. Make a variable `is_winner = (guess == secret)` and print it.
-4. Boolean quiz machine — predict each, then run all five at once:
-   ```python
-   print(7 < 2)
-   print(100 == 100)
-   print(50 > 49)
-   print("cat" == "cat")
-   print("Cat" == "cat")
-   ```
-   That last one is sneaky: capitals make different words, so it's `False`!
-5. Use your stored boolean: write `if is_winner:` with a celebration print
-   under it. One variable driving a decision — that's real program design.
+1. Change the secret and test.
+2. Add another Boolean: `is_big = (guess > 100)` and print it.
+3. Predict the True/False result before each guess.
 
 ### 📸 Show Emrys
-Paste your five-question quiz output to Emrys WITH your predictions, like
-"I predicted True False True True True — got 4/5!" Emrys will explain any
-one that surprised you.
+Screenshot the TRUE win message, and paste the True/False lines from your
+terminal. Tell Emrys the secret.
 
 ### Check Your Brain
-- What are the only two boolean values?
-- Is `7 < 2` True or False?
-- What does `if` actually receive — your comparison, or its answer?
-- Why is `"Cat" == "cat"` False?
+- What two values can a Boolean be?
+- What is the difference between `=` and `==`?
+- What does `won = (guess == secret)` store?
 
 ### More Examples
-Booleans hide inside every check your game makes. You can store them in boxes like any value:
+Booleans from comparisons:
 
 ```python
-age = 10
-is_double_digits = age >= 10
-print(is_double_digits)         # True
-```
-
-Text comparisons give booleans too:
-
-```python
-answer = "yes"
-print(answer == "yes")          # True
-print(answer == "no")           # False
-```
-
-You can combine checks with `and` / `or` — just like English:
-
-```python
-age = 10
-has_ticket = True
-print(age >= 8 and has_ticket)   # True - BOTH must be true
-print(age >= 18 or has_ticket)   # True - at least ONE is true
+print(10 > 3)      # True
+print(5 == 5)      # True
+print(2 < 1)       # False
 ```
 
 ### Common Mistakes
-- **Quotes around True:** `is_winner = "True"` makes a *word*, not a boolean. The real ones have no quotes and a capital first letter: `True`, `False`.
-- **Lowercase:** `true` → `NameError: name 'true' is not defined`. Python only knows `True` and `False` with capitals.
-- **Confusing `=` and `==` again:** it sneaks back here! `print(guess = secret)` is an error; comparing is always `==`.
+- **One equals sign to compare:** `if guess = secret` → error. **Fix:** `==`.
+- **Quoting True:** `won = "True"` makes a WORD, not a Boolean. **Fix:** `won =
+  True` (no quotes).
 
 ### Level Up 🚀
-Truth detective: WITHOUT running it, write down True or False for each line — then run and check your answers like a test.
-
-```python
-print(10 > 5)
-print(3 == 3)
-print("cat" == "Cat")
-print(7 != 7)
-print(5 >= 5 and 2 < 1)
-```
-
-(Watch the third one — computers see `cat` and `Cat` as DIFFERENT because of the capital letter. That fact will matter in Lesson 22!)
+Combine two checks with `and`: `if guess > 0 and guess < 100:` to accept only
+numbers in range. Show a message when it's outside.
 
 ---
 
-## Lesson 12: Repeating with while Loops
+## Lesson 12: Repeating with a for Loop (Drawing the Scale)
 
 ### Big Idea
-A `while` loop repeats lines again and again, as long as a condition stays true.
+A `for` loop repeats an action many times — perfect for drawing rows of marks.
 
 ### Kid Meaning
-"WHILE the music plays, keep dancing." When the music stops (condition false), you
-stop.
+Instead of writing 11 almost-identical lines, a loop says "do this 11 times,
+counting as you go." The counter changes each time so each mark lands in a new
+spot.
 
 ### Game Connection
-The game keeps asking for a guess WHILE you haven't found the number yet.
+Our thermometer needs a scale: little marks and numbers from 0 to 100 up the
+side. A loop draws them all with just a few lines.
 
 ### The Code
 ```python
-count = 1
-while count <= 5:
-    print(f"Count is {count}")
-    count = count + 1
-print("Done!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=200, height=440, bg="black")
+canvas.pack()
+
+for n in range(0, 101, 10):
+    y = 420 - n * 4          # 0 at bottom, 100 near the top
+    canvas.create_line(60, y, 80, y, fill="white")
+    canvas.create_text(110, y, text=str(n), fill="white")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-Count is 1
-Count is 2
-Count is 3
-Count is 4
-Count is 5
-Done!
-```
-
-You wrote `print` ONCE — and got five lines. That's the magic of loops: write
-a little, run a lot.
+### What You'll See
+A neat vertical scale: short white marks with the numbers 0, 10, 20 … 100 climbing
+up the window.
 
 ### Line by Line
-- `while count <= 5:` — keep looping while count is 5 or less (`<=` means
-  "less than or equal to").
-- The indented lines are the loop's body — they run each time around.
-- `count = count + 1` — VERY important: it moves the count up so the loop
-  eventually stops. Without it, the loop would run forever!
-- `print("Done!")` is not indented, so it's OUTSIDE the loop — it runs once,
-  after the loop ends.
-
-### Slow Motion 🔬 — one full lap at a time
-A while loop is a racetrack with a gatekeeper at the entrance. Every lap,
-the gatekeeper checks the condition before letting you in:
-
-```text
-Lap 1: count is 1.  Is 1 <= 5? YES -> print "Count is 1" -> count becomes 2
-Lap 2: count is 2.  Is 2 <= 5? YES -> print "Count is 2" -> count becomes 3
-Lap 3: count is 3.  Is 3 <= 5? YES -> print "Count is 3" -> count becomes 4
-Lap 4: count is 4.  Is 4 <= 5? YES -> print "Count is 4" -> count becomes 5
-Lap 5: count is 5.  Is 5 <= 5? YES -> print "Count is 5" -> count becomes 6
-Lap 6: count is 6.  Is 6 <= 5? NO  -> loop OVER, jump to "Done!"
-```
-
-Tracing laps like this — slowly, on paper or out loud — is how professionals
-debug loops to this day. Notice the three jobs every healthy loop needs:
-**a starting value** (count = 1), **a condition** (count <= 5), and **a
-change** (count + 1). Remove any one and the loop misbehaves.
-
-The infinite loop you were warned about? Without `count = count + 1`, count
-stays 1 forever, `1 <= 5` is forever YES, and the loop never ends — the
-terminal floods with text. If it ever happens: **click in the terminal and
-press Ctrl+C** (the universal STOP), or hit the trash-can icon. Every
-programmer alive has done this. It's a rite of passage, not a disaster.
+- `for n in range(0, 101, 10):` — count `n` from 0 up to (not including) 101, in
+  steps of 10 → 0, 10, 20 … 100.
+- `y = 420 - n * 4` — turns the number into a height. Bigger `n` → smaller `y` →
+  higher up the window.
+- `create_line` and `create_text` — draw one mark and its number. The loop repeats
+  them for every `n`.
+- `str(n)` — turns the number into text so `create_text` can show it.
 
 ### Do It in VS Code 🛠️
-1. Type the five lines — watch the indentation: two lines inside, "Done!"
-   outside.
-2. Save, run, count the five lines plus Done.
-3. NOW, with your teacher's blessing: comment out the count line by putting
-   `#` in front (`# count = count + 1`), save, run — meet the infinite loop —
-   and stop it with **Ctrl+C** in the terminal. Remove the `#`, save, run,
-   order restored. You've now survived the most famous bug in programming. 🏅
+1. New file `scale.py`. Type the code.
+2. Save, run — see the whole scale drawn by ONE loop.
+3. Change the step to `range(0, 101, 5)` for twice as many marks.
 
 ### Your Turn
-1. Make a loop that counts from 1 to 10.
-2. Make a loop that prints "Hello" three times.
-3. Make a countdown: start at 5, loop `while rocket > 0:`, SUBTRACT 1 each
-   lap, then print "LIFT OFF! 🚀" after the loop. (Trace it on paper first —
-   which value never prints?)
-4. Times-table machine: pick a number, and loop to print its table from
-   `x 1` to `x 10` using an f-string like
-   `print(f"7 x {count} = {7 * count}")`. Ten seconds of homework, forever. 😄
+1. Make the marks longer (change `80` to `100`).
+2. Colour the numbers yellow.
+3. Predict how many marks `range(0, 101, 20)` draws.
 
 ### 📸 Show Emrys
-Paste your countdown output AND your times-table to Emrys. If you met the
-infinite loop, tell Emrys how you stopped it — Emrys gives a special badge
-for surviving that one.
+Screenshot your scale. Tell Emrys how many marks it drew and the step you used.
 
 ### Check Your Brain
-- What does a `while` loop do?
-- Why must something change inside the loop?
-- What are the loop's three jobs (start, ___, ___)?
-- How do you stop a runaway loop in the terminal?
+- What does a `for` loop do?
+- What three numbers go inside `range(start, stop, step)`?
+- Why does `str(n)` matter for `create_text`?
 
 ### More Examples
-A rocket countdown — loops can count DOWN as well as up:
+A row of coloured dots:
 
 ```python
-count = 5
-while count > 0:
-    print(f"{count}...")
-    count = count - 1
-print("LIFT OFF! 🚀")
+colors = ["red", "orange", "yellow", "green", "blue"]
+for i in range(5):
+    canvas.create_oval(20 + i*40, 20, 50 + i*40, 50, fill=colors[i])
 ```
-
-A loop that grows money — watch savings double each round:
-
-```python
-money = 1
-while money < 100:
-    print(f"You have {money} cedis")
-    money = money * 2
-print(f"Rich! You ended with {money} cedis")
-```
-
-Loops can also build a repeated picture:
-
-```python
-row = 1
-while row <= 4:
-    print("*" * row)    # 1 star, then 2, then 3, then 4
-    row = row + 1
-```
-
-That last one prints a star triangle — `"*" * row` repeats the star `row` times.
 
 ### Common Mistakes
-- **The forever loop:** forgetting `count = count + 1` means the condition never becomes false — the program runs forever! **Fix:** every `while` needs something inside that moves it toward stopping. (If it happens: click the STOP button, or press Ctrl+C in the terminal. Every coder has done this — it's a rite of passage!)
-- **Moving the wrong way:** `count = count - 1` when the loop needs count to GROW — it runs forever too. Check your direction.
-- **Indenting the after-line:** if `print("Done!")` is indented, it prints EVERY loop, not once at the end. Indentation decides what's inside.
+- **`range(0, 100, 10)` misses 100:** the stop number is NOT included. **Fix:** use
+  `range(0, 101, 10)` to include 100.
+- **Forgetting the colon** after `for ...`. **Fix:** add `:` and indent the body.
 
 ### Level Up 🚀
-The 12-times-table machine: use a loop to print `1 x 12 = 12` up to `12 x 12 = 144`, each line made with an f-string like `f"{n} x 12 = {n * 12}"`. Twelve lines of maths from four lines of code — THAT is why programmers love loops.
+Draw 20 stars scattered up the window using a loop and different heights. (Peek
+ahead: Lesson 14 will make their positions random!)
 
 ---
 
-## Lesson 13: Loops + input Together
+## Lesson 13: Buttons Instead of Loops — the Event Model
 
 ### Big Idea
-We can ask the player something inside a loop, again and again.
+In a window app, we don't loop-and-wait for the player. We let BUTTON CLICKS run
+our code, again and again.
 
 ### Kid Meaning
-Like a teacher asking "Any more questions?" over and over until you say "no".
+In the terminal you'd write `while True: ask again`. But in a window that would
+FREEZE everything. Instead, each button click is one turn. The player controls
+the pace by clicking.
 
 ### Game Connection
-This is the real shape of the game: keep asking for a guess inside a loop.
+"Keep guessing" in our game is just "let them press the Guess button as many
+times as they like." Every click checks their newest guess. No while-loop needed.
 
 ### The Code
 ```python
-answer = ""
-while answer != "stop":
-    answer = input("Type something (or 'stop' to quit): ")
-    print("You typed: " + answer)
-print("You stopped the loop.")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=200, bg="black")
+canvas.pack()
+
+clicks = 0
+
+def press():
+    global clicks
+    clicks = clicks + 1
+    canvas.delete("all")
+    canvas.create_text(200, 100, text=f"You clicked {clicks} times",
+                       fill="lime", font=("Arial", 20))
+
+tk.Button(root, text="Press me", command=press).pack()
+
+root.mainloop()
 ```
 
-**A real run looks like this:**
-
-```text
-Type something (or 'stop' to quit): hello
-You typed: hello
-Type something (or 'stop' to quit): banana
-You typed: banana
-Type something (or 'stop' to quit): stop
-You typed: stop
-You stopped the loop.
-```
-
-The program kept talking with you for as LONG AS YOU WANTED. The player —
-not the programmer — decided when it ended. That's a huge upgrade.
+### What You'll See
+Each time you click **Press me**, the count goes up: "You clicked 1 times", "2
+times", "3 times"… The window never freezes because it just waits for your next
+click.
 
 ### Line by Line
-- `answer = ""` — start with empty text so the loop can begin. (The gatekeeper
-  needs SOMETHING in the box to check — empty text isn't "stop", so we're in.)
-- `while answer != "stop":` — keep going while the answer is NOT "stop". `!=`
-  means "is not equal to" — the opposite of `==`.
-- Inside, we ask again and store the new answer — each lap REPLACES what's in
-  the `answer` box.
-- When the player types `stop`, the condition becomes false at the next
-  gate-check and the loop ends.
-
-### Slow Motion 🔬 — the gate checks at the TOP
-A subtle but important detail: the gatekeeper only checks when a lap BEGINS.
-Trace what happens when you type `stop`:
-
-```text
-Lap 3 begins: answer is "banana".  "banana" != "stop"? YES -> enter
-   - input asks... player types "stop" -> answer box now holds "stop"
-   - print runs: "You typed: stop"   <- still inside the lap!
-Lap 4 begins: "stop" != "stop"? NO -> loop over -> "You stopped the loop."
-```
-
-That's why `You typed: stop` still printed — the lap was already underway when
-the box changed. The gate isn't checked mid-lap, only at the top. Knowing this
-saves you from many "why did it run one extra time?!" mysteries.
-
-This ask-inside-a-loop shape has a name — the **conversation loop** — and it
-is EXACTLY how the Magic Number Game will keep asking for guesses, how ATMs
-keep showing menus, and how chat apps wait for messages. Learn this shape
-once, recognise it everywhere.
+- `clicks = 0` — memory that survives between clicks (it lives OUTSIDE the
+  function).
+- `global clicks` — lets the function change that outside box.
+- `clicks = clicks + 1` — one more click each press.
+- The window sits patiently between clicks — that waiting IS the loop, handled by
+  `mainloop()` for us.
 
 ### Do It in VS Code 🛠️
-1. Type the five lines — note which are inside (indented) and which outside.
-2. Save, run, chat with your program. Type at least 3 things, then `stop`.
-3. Run again and type `STOP` (capitals) — the loop does NOT stop! Why?
-   Because `"STOP" != "stop"` is True (capitals matter, Lesson 11!). Type
-   lowercase `stop` to exit. Remember this gotcha — we'll fix it properly
-   later with `.lower()`.
+1. New file `clicker.py`. Type the code.
+2. Save, run. Click many times and watch the number climb.
 
 ### Your Turn
-1. Build the loop above and run it. Type a few things, then `stop`.
-2. Change the magic stop word from `stop` to `quit`.
-3. Count how many times the player typed something: add `count = 0` before the
-   loop, `count = count + 1` inside, and after the loop print
-   `f"You typed {count} things!"`. (Two skills — counters and loops — now
-   working together.)
-4. Make an echo robot with attitude: instead of "You typed: ...", reply
-   `f"{answer}?? How interesting!"` — suddenly it has personality.
+1. Add 5 per click instead of 1.
+2. Show a different message when `clicks` reaches 10 (use an `if`).
+3. Predict the count after 7 clicks.
 
 ### 📸 Show Emrys
-Paste a full conversation with your counting loop to Emrys — including the
-final count line. Did the count include the "stop" itself? Tell Emrys why
-(hint: the gate-checks-at-the-top story).
+Screenshot your counter after several clicks. Tell Emrys how many times you
+clicked.
 
 ### Check Your Brain
-- What does `!=` mean?
-- Why did we set `answer = ""` before the loop?
-- Why does "You typed: stop" still print before the loop ends?
-- Why doesn't typing `STOP` in capitals stop the loop?
+- Why don't we use a `while True` loop to keep asking in a window?
+- Where must `clicks` live so it remembers between clicks?
+- What does each button click do?
 
 ### More Examples
-A patient quiz that repeats the question until it's right — this is half of our game already:
+Two buttons, one counter up, one down:
 
 ```python
-answer = ""
-while answer != "Accra":
-    answer = input("Capital of Ghana? ")
-print("Correct! You may pass. 🎉")
-```
-
-A polite parrot that repeats whatever you say until you say goodbye:
-
-```python
-words = ""
-while words != "bye":
-    words = input("Say something: ")
-    print(f"Polly says: {words}!")
-print("Polly flies away. 🦜")
-```
-
-Add a counter to know how many tries it took (Lesson 5 + 13 together!):
-
-```python
-answer = ""
-tries = 0
-while answer != "python":
-    answer = input("Which language are we learning? ")
-    tries = tries + 1
-print(f"Yes! And it only took you {tries} tries.")
+def up():
+    global n
+    n = n + 1
+    show()
+def down():
+    global n
+    n = n - 1
+    show()
 ```
 
 ### Common Mistakes
-- **Starting box equals the stop word:** `answer = "stop"` before the loop → the condition is false immediately and the loop NEVER runs. Start with something different, like `""`.
-- **Asking outside the loop:** putting `input(...)` before the `while` only asks ONCE — the loop then spins with the same old answer forever. The `input` must be INSIDE so each lap asks again.
-- **Capital letters:** the player types `Stop` but your check is `!= "stop"` — they don't match, the loop keeps going! (You'll fix this like a pro in Lesson 22 with `.lower()`.)
+- **Putting the count inside the function:** `def press(): clicks = 0` resets to 0
+  every time. **Fix:** define `clicks = 0` OUTSIDE and use `global`.
+- **A `while True` loop in a window app:** it freezes the window. **Fix:** use
+  button clicks (the event model).
 
 ### Level Up 🚀
-Make a "guard at the gate": the guard keeps asking "What's the password?" until the player types `mango`. Count their tries. If they got it in 1 try, print "Suspiciously fast... 🤨" — otherwise welcome them in. You've now built the exact skeleton of the Magic Number Game!
+Add a "Reset" button that sets `clicks` back to 0 and redraws.
 
 ---
 
 ## Lesson 14: Random Numbers
 
 ### Big Idea
-The `random` tool lets the computer pick a surprise number we can't predict.
+`random` lets the computer pick a surprise number we can't predict.
 
 ### Kid Meaning
-Like rolling a dice or drawing a name from a hat — even the computer doesn't know
-in advance.
+Like rolling a dice — you don't know what you'll get. `random.randint(1, 100)`
+rolls a number from 1 to 100.
 
 ### Game Connection
-This is how the computer picks its SECRET number for you to guess.
+This is the SECRET of the Magic Number Game: the computer picks a random secret
+number each game so it's different every time.
 
 ### The Code
 ```python
+import tkinter as tk
 import random
-secret = random.randint(1, 100)
-print(f"Secret picked! (Shhh, it's {secret})")
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=200, bg="black")
+canvas.pack()
+
+def roll():
+    number = random.randint(1, 100)
+    canvas.delete("all")
+    canvas.create_text(200, 100, text=str(number), fill="gold",
+                       font=("Arial", 60, "bold"))
+
+tk.Button(root, text="Roll!", command=roll).pack()
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL might show:**
-
-```text
-Secret picked! (Shhh, it's 73)
-```
-
-Run it again: a different number. Again: different again! For the first time,
-your program does something even YOU can't predict.
+### What You'll See
+Press **Roll!** and a big random number from 1 to 100 flashes up — a new surprise
+each click.
 
 ### Line by Line
-- `import random` — bring in Python's random-number helper. We do this once,
-  at the very top of the file.
-- `random.randint(1, 100)` — pick a whole number from 1 to 100 (BOTH ends
-  included — 1 can come out, and so can 100).
-- We store it in `secret`. In the real game we will NOT print it — that would
-  be cheating! Here we print it just to learn.
-
-### Slow Motion 🔬 — what is `import`, really?
-Python comes with a giant TOOLSHED of extra powers, kept outside your program
-so it stays fast and tidy. Each toolbox in the shed has a name: `random`
-(chance and dice), `time` (clocks and waiting), `math` (advanced maths)...
-
-- `import random` — walk to the shed, fetch the toolbox named `random`, put
-  it on your desk. Done once, at the top.
-- `random.randint(1, 100)` — open that toolbox (`random`), take out the tool
-  called `randint` (RANDom INTeger), and use it with your settings (1, 100).
-  The dot means "look inside": *toolbox DOT tool*.
-
-If you forget the import and use the tool anyway, Python says
-`NameError: name 'random' is not defined` — "I don't see that toolbox on your
-desk!" The fix is always the same: import at the top.
-
-One mind-tickler: computers actually CAN'T do true randomness — they follow
-instructions perfectly, remember? `randint` uses clever maths on things like
-the exact microsecond of your click to produce numbers so unpredictable they
-count as random. Computer scientists call it *pseudo-random* — "fake random
-that's good enough to fool everyone."
+- `import random` — brings in Python's dice kit.
+- `random.randint(1, 100)` — picks a whole number from 1 to 100 (both ends
+  included).
+- Each click calls `roll` again, so you get a fresh number every time.
 
 ### Do It in VS Code 🛠️
-1. Type the three lines (import FIRST, at the top), save, run.
-2. Run it five times in a row — collect five different secrets. (Same number
-   twice in a row is possible and fair, like rolling doubles with dice!)
-3. Delete the import line, save, run — meet the `NameError`. Put it back.
-   Another error met, another error beaten.
+1. New file `dice.py`. Type the code.
+2. Save, run. Click Roll a bunch — different numbers each time.
+3. Change the range to `random.randint(1, 6)` for a real dice.
 
 ### Your Turn
-1. Pick a random number from 1 to 6 (like a dice) and print it. Run it 5
-   times — different each time?
-2. Pick a random number from 1 to 10.
-3. Why is `random` perfect for a guessing game? (Say it out loud: even the
-   PROGRAMMER can't cheat!)
-4. Build a two-dice roller: roll two `randint(1, 6)` into `die1` and `die2`,
-   then print `f"You rolled {die1} and {die2} — total {die1 + die2}!"`.
-   Ludo night will never be the same.
-5. Make a coin flipper: `flip = random.randint(1, 2)`, then an if/else prints
-   "HEADS" or "TAILS". Run it ten times and tally the results — roughly half
-   and half?
+1. Make it roll 1 to 10.
+2. Pick a random COLOUR too: `random.choice(["red","lime","cyan","gold"])`.
+3. Predict: can `randint(1, 100)` ever give 100? (Yes!)
 
 ### 📸 Show Emrys
-Paste your dice roller AND coin flipper outputs to Emrys (run each a few
-times). Tell Emrys your heads-vs-tails tally — Emrys may explain why 7-3 in
-ten flips is still perfectly fair randomness.
+Screenshot a random roll. Tell Emrys the range you used.
 
 ### Check Your Brain
-- What does `random.randint(1, 100)` give you?
-- Why must we `import random` first?
-- What does the dot in `random.randint` mean?
-- Can 100 itself come out of `randint(1, 100)`?
+- What does `random.randint(1, 100)` do?
+- Why does the number change each click?
+- What does `random.choice([...])` pick from?
 
 ### More Examples
-Roll two dice at once — like a board game:
+A random position for a star:
 
 ```python
-import random
-die1 = random.randint(1, 6)
-die2 = random.randint(1, 6)
-print(f"You rolled {die1} and {die2} - total {die1 + die2}!")
-```
-
-A coin flip using an `if` (random + decisions = instant games):
-
-```python
-import random
-coin = random.randint(1, 2)
-if coin == 1:
-    print("HEADS")
-else:
-    print("TAILS")
-```
-
-The computer can even pick a random word from a list using `random.choice` — a sneak peek of something Class 5 uses a lot:
-
-```python
-import random
-prize = random.choice(["sticker", "pencil", "high five", "song"])
-print(f"Today's lucky prize: a {prize}!")
+x = random.randint(0, 400)
+y = random.randint(0, 400)
+canvas.create_text(x, y, text="⭐")
 ```
 
 ### Common Mistakes
-- **Forgetting the import:** using `random.randint(...)` without `import random` at the top → `NameError: name 'random' is not defined`. The import is like borrowing the dice from the cupboard — you must fetch it before rolling.
-- **Spelling it `randInt` or `Randint`:** Python is exact: it's `randint`, all lowercase.
-- **Thinking the same number is a bug:** rolling a 4 twice in a row is normal — real dice do that too! Random means *any* number can come up, even repeats.
+- **Forgetting `import random`:** `NameError: name 'random' is not defined`. **Fix:**
+  add the import at the top.
+- **Expecting 0:** `randint(1, 100)` never gives 0. **Fix:** use `randint(0, 100)`
+  if you want 0 possible.
 
 ### Level Up 🚀
-Build a "weather fortune teller": roll `random.randint(1, 3)`. 1 → "Sunny tomorrow ☀️", 2 → "Rain is coming 🌧", 3 → "Harmattan winds! 🌬". Run it three mornings in a row this week — keep score of how often your program was actually right. (That's data collection — real scientist behaviour!)
+Roll a random number AND draw a circle whose size is that number, so bigger rolls
+draw bigger circles.
 
 ---
 
 ## Lesson 15: Functions — Reusable Machines
 
 ### Big Idea
-A function is a named machine that does a job whenever we call its name.
+A function is a named machine: define it once, then run it whenever you like.
 
 ### Kid Meaning
-Like a kettle: you don't rebuild it each time — you just press the button. A
-function is code you can re-use by name.
+A blender is a machine — you don't rebuild it each time, you just press the
+button. A function is code you name once and reuse by "pressing its button"
+(calling it).
 
 ### Game Connection
-We can make a `cheer()` function that celebrates the player, and call it whenever
-they win.
+We'll make machines like `draw_thermometer()` and `celebrate()` and call them
+whenever we need them — instead of copying the same drawing code over and over.
 
 ### The Code
 ```python
-def cheer():
-    print("Well done!")
-    print("You are a star!")
+import tkinter as tk
 
-cheer()
-cheer()
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="black")
+canvas.pack()
+
+def draw_star_burst():
+    canvas.delete("all")
+    canvas.create_text(200, 200, text="⭐⭐⭐", font=("Arial", 40))
+    canvas.create_text(200, 260, text="Winner!", fill="lime",
+                       font=("Arial", 24))
+
+tk.Button(root, text="Celebrate!", command=draw_star_burst).pack()
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-Well done!
-You are a star!
-Well done!
-You are a star!
-```
-
-Two prints written, four lines shown — because the machine ran twice.
+### What You'll See
+Press **Celebrate!** and stars plus "Winner!" appear. The machine `draw_star_burst`
+does the work every time it's called.
 
 ### Line by Line
-- `def cheer():` — `def` means "define a machine called cheer". Note the empty
-  brackets `()` and the colon `:` — both required.
-- The indented lines are the machine's job — what it does when switched on.
-- `cheer()` — press the button: it runs both prints. We called it twice, so it
-  ran twice.
-
-### Slow Motion 🔬 — defining is NOT running
-Here's the part that surprises everyone. When Python reads the `def` block, it
-does **NOTHING visible**. No printing. It just *memorises the recipe*:
-
-```text
-Python reads:  def cheer(): ...     -> "Noted. A machine called cheer exists.
-                                        I'll remember what it does."
-Python reads:  cheer()              -> "Ah, RUN it!" -> Well done! / You are a star!
-Python reads:  cheer()              -> runs it again
-```
-
-Two separate moments, just like writing vs running a file (Lesson 2):
-**defining** stores the recipe, **calling** cooks it. A function nobody calls
-never runs at all — a recipe nobody cooks.
-
-Why bother? Three professional reasons:
-1. **Write once, use everywhere** — fix a typo in the function, and EVERY call
-   gets the fix instantly.
-2. **Names that explain themselves** — `cheer()` tells you what it does
-   without reading its insides.
-3. **Programs become Lego** — big apps are hundreds of small named machines
-   snapped together. You're learning the snapping today.
-
-And: you've ALREADY been calling functions all course! `print()`, `input()`,
-`int()`, `random.randint()` — all machines someone else defined. Today you
-built your own. Welcome to the makers' side.
+- `def draw_star_burst():` — defines the machine. Nothing happens yet — we're just
+  building it.
+- The indented lines are what the machine DOES when called.
+- `command=draw_star_burst` — the button "presses the machine's button" on click.
 
 ### Do It in VS Code 🛠️
-1. Type the function (watch the auto-indent after `:`), then a blank line,
-   then the two calls — calls start at the LEFT edge, not indented.
-2. Save, run — count four lines.
-3. Delete both calls, save, run: total silence. The recipe exists but nobody
-   cooked it. Put one call back.
-4. Add a third `cheer()` — six lines now. One machine, any number of presses.
+1. New file `machine.py`. Type the code.
+2. Save, run. Click Celebrate — the burst appears.
+3. Call the machine yourself at the bottom before `mainloop()`:
+   `draw_star_burst()` — now it also runs once at startup.
 
 ### Your Turn
-1. Make a function `welcome()` that prints a two-line welcome message.
-2. Call it.
-3. Make a function `goodbye()` and call it at the end of a program.
-4. Build a `drumroll()` function that prints "DRRRR..." three times, and use
-   it before announcing anything dramatic:
-   `drumroll()` then `print("...the winner is YOU!")`.
-5. Order experiment: try CALLING `welcome()` ABOVE its `def` block, save,
-   run — `NameError`! Python reads top-to-bottom and hadn't memorised the
-   recipe yet. Rule learned: **define first, call after.** Fix it back.
+1. Add more to the machine (a coloured rectangle behind the stars).
+2. Make a SECOND machine `clear_all()` that wipes the canvas, and a button for it.
+3. Predict what happens if you call `draw_star_burst()` twice.
 
 ### 📸 Show Emrys
-Paste your program with at least two functions and their output to Emrys.
-Tell Emrys which line DEFINES and which line CALLS — if you can say that
-clearly, you've truly got it.
+Screenshot your celebration. Tell Emrys the name of your function.
 
 ### Check Your Brain
-- What word defines a function?
-- What does it mean to "call" a function?
-- What does Python do when it reads a `def` block — run it or remember it?
-- Name two functions you'd already used before today without knowing it.
+- What does `def` do?
+- What is the difference between DEFINING a function and CALLING it?
+- Why are functions better than copying the same code twice?
 
 ### More Examples
-A drum machine — define once, play many times:
+A function you call by name:
 
 ```python
-def drum_roll():
-    print("Brrrrrrrr...")
-    print("BOOM! 🥁")
+def hello():
+    print("Hi there!")
 
-drum_roll()
-drum_roll()
-drum_roll()
-```
-
-Functions can use loops INSIDE them — your tools combine:
-
-```python
-def count_to_three():
-    n = 1
-    while n <= 3:
-        print(n)
-        n = n + 1
-
-count_to_three()
-```
-
-A program can have several functions, like a toolbox with many tools:
-
-```python
-def morning():
-    print("Good morning! Time for school.")
-
-def evening():
-    print("Good evening! Time for homework.")
-
-morning()
-evening()
-morning()
+hello()   # runs it
+hello()   # runs it again
 ```
 
 ### Common Mistakes
-- **Defining but never calling:** you write `def cheer():` and the prints... and nothing shows when you run it! Defining builds the machine; only `cheer()` presses the button.
-- **Calling before defining:** `cheer()` ABOVE the `def cheer():` lines → `NameError`. Python reads top to bottom — build the machine first, press the button after.
-- **Forgetting the brackets when calling:** writing just `cheer` (no `()`) does nothing visible. The `()` is the actual button-press.
+- **Defining but never calling:** the machine exists but nothing runs it. **Fix:**
+  call it (`draw_star_burst()`) or wire it to a button.
+- **Wrong indenting inside `def`:** lines must be indented under it. **Fix:** 4
+  spaces.
 
 ### Level Up 🚀
-Make a "school bell" program: a function `bell()` that prints "RING RING RING! 🔔". Then call it three times with a print between each, like "Time for maths", "Time for break", "Time for Python!". One machine, three moments — feel how much typing the function saved you.
+Make a `draw_face()` function and call it from two different buttons that draw the
+face in two different spots (peek: parameters in Lesson 16 make this cleaner!).
 
 ---
 
-## Lesson 16: Functions That Take Information
+## Lesson 16: Functions That Take Information (Parameters)
 
 ### Big Idea
-Functions can accept inputs (called parameters) so they do their job with
-different values.
+Parameters let us hand information INTO a function so it can do different things.
 
 ### Kid Meaning
-A toaster works on whatever bread you give it. A function works on whatever value
-you hand it.
+A vending machine does different things depending on which button you press. A
+parameter is the "which button" — you give the function a value and it uses it.
 
 ### Game Connection
-A `greet(name)` function can welcome ANY player by name, not just one.
+Our `draw_thermometer(level, color)` will take how HIGH to fill and what COLOUR
+to use — one machine that draws red-too-high or blue-too-low depending on what we
+pass it.
 
 ### The Code
 ```python
-def greet(name):
-    print(f"Hello {name}! Welcome to the game.")
+import tkinter as tk
 
-greet("Akua")
-greet("Yaw")
+root = tk.Tk()
+canvas = tk.Canvas(root, width=200, height=440, bg="black")
+canvas.pack()
+
+def draw_bar(level, color):
+    canvas.delete("all")
+    top = 420 - level * 4          # higher level → taller bar
+    canvas.create_rectangle(70, top, 130, 420, fill=color)
+    canvas.create_text(100, 30, text=str(level), fill="white",
+                       font=("Arial", 20))
+
+draw_bar(30, "cyan")
+
+root.mainloop()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-Hello Akua! Welcome to the game.
-Hello Yaw! Welcome to the game.
-```
-
-ONE machine, TWO different outputs — because we fed it different ingredients.
+### What You'll See
+A cyan bar filled to level 30, with "30" written at the top. Change the call to
+`draw_bar(80, "red")` and it fills higher in red.
 
 ### Line by Line
-- `def greet(name):` — this machine needs one ingredient: a `name`. The word
-  in the brackets is called a **parameter** — an ingredient slot.
-- Inside, `name` stands for whatever we hand over — it's a temporary variable
-  that exists only while the machine runs.
-- `greet("Akua")` — run it with "Akua". Then again with "Yaw". The value you
-  hand over is called an **argument** — the actual ingredient.
-
-### Slow Motion 🔬 — how the ingredient travels
-Watch the journey of "Akua" through the machine, step by step:
-
-```text
-1. Python reads greet("Akua")
-2. It finds the greet recipe it memorised earlier
-3. It pours "Akua" into the slot called name      <- name = "Akua" happens invisibly!
-4. It runs the body: print(f"Hello {name}!...")   <- {name} is "Akua" right now
-5. Output: Hello Akua! Welcome to the game.
-6. Machine finishes; the temporary name box vanishes
-7. Next call pours "Yaw" in -> same steps, new result
-```
-
-Think of a toaster: the toaster (function) stays the same; the bread
-(argument) changes; the slot (parameter) is where bread goes. You don't build
-a new toaster for every slice — and you don't write a new print for every
-player. THIS is why functions with parameters are the most useful idea in
-programming: one recipe, infinite variations.
-
-The remote-control test: parameters even work with variables and maths —
-`greet(input("Who are you? "))` pipes the player's typed name straight into
-the machine!
+- `def draw_bar(level, color):` — `level` and `color` are parameters — empty
+  boxes waiting to be filled when we call the function.
+- Inside, we USE `level` and `color` like normal variables.
+- `draw_bar(30, "cyan")` — calls the machine and fills `level` with 30 and
+  `color` with "cyan".
 
 ### Do It in VS Code 🛠️
-1. Type the function and the two calls. Save, run, confirm both greetings.
-2. Add a third call with YOUR name.
-3. Try calling `greet()` with EMPTY brackets — Python refuses:
-   `TypeError: greet() missing 1 required positional argument: 'name'`.
-   The machine won't run without its ingredient. Give it one.
+1. New file `param.py`. Type the code.
+2. Save, run — cyan bar to 30.
+3. Change the call to `draw_bar(90, "red")`. Save, run — tall red bar.
+4. Add a second call `draw_bar(10, "gold")` and see which one wins (the last one,
+   because we `delete("all")` first!).
 
 ### Your Turn
-1. Make a function `double(number)` that prints the number times 2.
-2. Call it with 5, then with 50.
-3. Make a `cheer(name)` that says "Well done, NAME!" using the player's name.
-4. Two-slot machine: `def introduce(name, age):` printing
-   `f"{name} is {age} years old"`. Call it twice with different people. (Two
-   parameters = two ingredients, in order: first goes to first slot.)
-5. Connect to input: ask the player's name with `input`, then `cheer` them
-   with it. Input → function → output: a full pipeline, built by you.
+1. Call `draw_bar` with three different levels and colours (one at a time).
+2. Add a THIRD parameter for the bar's width.
+3. Predict the bar height for `draw_bar(50, ...)`.
 
 ### 📸 Show Emrys
-Paste your `double`, `cheer`, and `introduce` outputs to Emrys. Then answer
-Emrys's favourite quiz: in `greet("Akua")`, which is the parameter and which
-is the argument?
+Screenshot a red bar filled high and a blue bar filled low (two shots). Tell
+Emrys the levels you passed.
 
 ### Check Your Brain
-- What is a parameter? What is an argument?
-- Why is `greet(name)` better than writing a new print for every player?
-- What happens to the `name` box when the machine finishes?
-- In `introduce("Ama", 9)`, which slot does 9 land in?
+- What is a parameter?
+- How do the values get INTO the parameters?
+- Why is one `draw_bar` better than writing separate red-bar and blue-bar code?
 
 ### More Examples
-A function can take a NUMBER and work with it:
+A greet function with a parameter:
 
 ```python
-def birthday(age):
-    print(f"Happy birthday! Now you are {age}! 🎂")
-    print(f"Next year you'll be {age + 1}.")
+def greet(name):
+    print(f"Hello, {name}!")
 
-birthday(9)
-birthday(10)
+greet("Ama")
+greet("Kofi")
 ```
-
-A function can take TWO things at once:
-
-```python
-def add(a, b):
-    print(f"{a} + {b} = {a + b}")
-
-add(3, 4)
-add(100, 250)
-```
-
-Mix a parameter with a loop — a chant machine for any name and any count:
-
-```python
-def chant(name, times):
-    count = 0
-    while count < times:
-        print(f"{name}! ", end="")
-        count = count + 1
-    print()
-
-chant("Ghana", 3)     # Ghana! Ghana! Ghana!
-```
-
-(`end=""` is a tiny trick that keeps the prints on ONE line — try removing it to see the difference.)
 
 ### Common Mistakes
-- **Calling with nothing:** `greet()` when the function needs a name → `TypeError: greet() missing 1 required positional argument: 'name'`. The machine needs its ingredient!
-- **Wrong order with two parameters:** `add(b, a)` style mix-ups don't error, but give the wrong story. Order matters: first value goes into the first parameter.
-- **Using the parameter outside the function:** trying `print(name)` at the bottom of the file → `NameError`. Parameters only live INSIDE their function — like ingredients that exist only in the kitchen.
+- **Wrong number of values:** `draw_bar(30)` when it expects two → error. **Fix:**
+  pass both, e.g. `draw_bar(30, "cyan")`.
+- **Order matters:** `draw_bar("red", 30)` mixes them up. **Fix:** level first,
+  colour second — match the `def` order.
 
 ### Level Up 🚀
-Write `times_table(number)` that prints that number's times table from 1 to 12 using a loop. Then call `times_table(7)` and `times_table(9)`. Two complete tables from ONE machine — show your teacher; this is genuinely how real software is built.
+Write `draw_bar(level, color)` so that if `level` is over 100 it CAPS at 100 (hint:
+an `if level > 100:` at the top of the function).
 
 ---
 
 # PART 3 — BUILDING THE GAME
 
----
-
 ## Lesson 17: The Secret Number and the First Guess
 
 ### Big Idea
-We start the real game: pick a secret, then take one guess and compare it.
+Start the real game: draw the thermometer tube, pick a secret, and read the
+player's first guess.
 
 ### Kid Meaning
-Now we glue our tools together into the beginning of a real game.
+Now we glue our pieces together. The window has a thermometer. The computer hides
+a secret. The player types a guess and we fill the mercury to it.
 
 ### Game Connection
-This is the opening of the Magic Number Game.
+This IS the game's opening — everything from here builds the finished Magic
+Number Game.
 
 ### The Code
 ```python
+import tkinter as tk
 import random
+
+WIDTH, HEIGHT = 320, 560
+root = tk.Tk()
+root.title("Magic Number Game")
+root.resizable(False, False)          # keep the window its proper size so the buttons always show
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0b1020")
+canvas.pack()
 
 secret = random.randint(1, 100)
-print("I am thinking of a number between 1 and 100.")
 
-guess = int(input("Your guess: "))
-if guess == secret:
-    print("Amazing! First try!")
-elif guess > secret:
-    print("Too high!")
-else:
-    print("Too low!")
+def draw_tube():
+    canvas.create_rectangle(120, 80, 200, 480, outline="white", width=3)
+
+def fill_mercury(level, color):
+    canvas.delete("mercury")
+    top = 480 - (480 - 80) * level / 100
+    canvas.create_rectangle(122, top, 198, 478, fill=color,
+                            outline="", tags="mercury")
+
+def guess():
+    number = int(entry.get())
+    fill_mercury(number, "cyan")
+
+draw_tube()
+entry = tk.Entry(root, font=("Arial", 18), justify="center")
+entry.pack(pady=6)
+tk.Button(root, text="Guess!", command=guess).pack()
+
+root.mainloop()
 ```
 
-**A real run might look like:**
-
-```text
-I am thinking of a number between 1 and 100.
-Your guess: 50
-Too high!
-```
-
-The computer is HIDING something from you and judging your guess. That's a
-real game — and you built it.
+### What You'll See
+A thermometer tube. Type a number and press **Guess!** — the mercury fills up to
+that level in cyan.
 
 ### Line by Line
-- `import random` then pick the `secret` (we do NOT print it — no cheating!).
-  The secret sits invisibly in memory; only the comparisons reveal clues.
-- Ask for a guess and `int()` it — the guess must be a real number to compare
-  against the secret.
-- Compare with `if / elif / else` — the decision ladder from Lesson 10, now
-  with a real job.
-
-### Slow Motion 🔬 — your lessons, assembled
-This is the moment the bricks become a building. Label each line with the
-lesson that taught it:
-
-```text
-import random                       <- Lesson 14 (toolboxes)
-secret = random.randint(1, 100)     <- Lesson 14 + Lesson 3 (variables)
-print("I am thinking...")           <- Lesson 1 (print)
-guess = int(input("Your guess: "))  <- Lessons 6 + 7 (input + int)
-if guess == secret:                 <- Lessons 9-11 (decisions, ==)
-elif guess > secret:                <- Lesson 10 (the ladder)
-else:                               <- Lesson 10
-```
-
-NOTHING in this game is new. Every single line is a skill you already own —
-arranged in a new order. That's the deepest secret of programming: big things
-are small things, combined. When you see an app with thousands of features,
-it's this same trick at giant scale.
-
-One design detail worth noticing: the program picks the secret BEFORE asking
-for your guess. Order matters — you can't compare against a secret that
-doesn't exist yet. Programs are stories; events must happen in sequence.
+- `secret = random.randint(1, 100)` — the hidden number for this game.
+- `draw_tube()` — draws the empty glass tube once.
+- `fill_mercury(level, color)` — our parameter function from Lesson 16: fills the
+  tube to `level`. The maths turns 0–100 into a screen height.
+- `tags="mercury"` + `canvas.delete("mercury")` — a label so we can erase ONLY the
+  old mercury, not the tube.
+- `guess()` reads the Entry, turns it into a number, and fills the mercury.
 
 ### Do It in VS Code 🛠️
-1. New file: `number_game.py` — THE project file. From now on, this game grows
-   inside it, lesson by lesson, until Lesson 24.
-2. Type the whole program. Save (**Ctrl+S**), run (**▶**).
-3. Play three rounds (run it three times). Score any "Amazing!"?
+1. Create your real project file `number_game.py`. Type the code.
+2. Save, run. Try guesses — watch the mercury rise to each one.
 
 ### Your Turn
-1. Build this and play it a few times. Can you win on the first try? (It's
-   hard — about a 1-in-100 chance. That's WHY we add loops next lesson!)
-2. Change the range to 1–20 to make it easier for testing. (Two places to
-   think about: the `randint` AND the welcome message — keep them telling the
-   same story!)
-3. Add a fourth message of pure style: after the if/elif/else, print
-   `f"(My secret was {secret} — see you next round!)"` — revealing the answer
-   AFTER judging is fair play and makes losing less sour.
+1. Add `print(secret)` inside `guess` so you can peek while testing.
+2. Change the mercury colour.
+3. Predict the mercury height for a guess of 50 (half way!).
 
 ### 📸 Show Emrys
-Paste a full round to Emrys — welcome, your guess, and the verdict. Tell Emrys
-which lesson number each line of your game came from (the Slow Motion table
-helps). Proving you know WHERE each brick came from is what makes you a
-builder, not a copier.
+Screenshot your thermometer filled to a guess. Tell Emrys what you typed.
 
 ### Check Your Brain
-- Why don't we print the secret number before the guess?
-- Which earlier lessons does this combine? (Name at least four.)
-- Why must the secret be picked before the guess is asked?
+- What does `secret = random.randint(1, 100)` do?
+- Why do we use `tags="mercury"` and `delete("mercury")`?
+- Which function fills the tube, and what two things does it need?
 
 ### More Examples
-While testing, coders often add a secret "debug" line — print the answer ON PURPOSE, then remove it before anyone plays:
+Peek at the secret on screen while building (remove later):
 
 ```python
-import random
-
-secret = random.randint(1, 20)
-print(f"(debug: secret is {secret})")   # remove me before showing friends!
-
-guess = int(input("Your guess (1-20): "))
-if guess == secret:
-    print("Amazing!")
-elif guess > secret:
-    print("Too high!")
-else:
-    print("Too low!")
-```
-
-Tell the player HOW FAR off they were — a kinder single-guess game:
-
-```python
-import random
-
-secret = random.randint(1, 10)
-guess = int(input("Guess 1-10: "))
-distance = secret - guess
-if distance == 0:
-    print("PERFECT!")
-else:
-    print(f"Missed! The number was {secret}.")
+canvas.create_text(WIDTH/2, 520, text=f"(secret is {secret})", fill="gray")
 ```
 
 ### Common Mistakes
-- **Printing the secret in the real game:** fun for testing, but it ruins the game — make removing the debug line part of finishing.
-- **Forgetting `int(...)` on the guess:** then `guess > secret` compares TEXT with a NUMBER → `TypeError: '>' not supported between instances of 'str' and 'int'`. This is the #1 game-building error — now you know exactly what it means!
-- **`import random` in the middle:** it works at the top only ONCE per file; keep all imports as the very first lines, like packing your bag before the trip.
+- **Erasing the tube too:** `canvas.delete("all")` wipes the tube. **Fix:** delete
+  only `"mercury"`.
+- **Mercury upside down:** if it fills from the top, check the `top` maths. **Fix:**
+  bigger level → smaller `top` value.
 
 ### Level Up 🚀
-A "warmer or colder" single guess: after a wrong guess, also print whether they were within 10 ("So close — you can almost touch it!") or far ("Miles away! ❄️"). Hint: `abs(guess - secret)` gives the distance ignoring minus signs. You're now writing game feel — what designers call "juice".
+Make the tube have a round "bulb" at the bottom using `create_oval` under the
+rectangle, like a real thermometer.
 
 ---
 
-## Lesson 18: Keep Guessing with a Loop
+## Lesson 18: Keep Guessing — Hot or Cold Colours
 
 ### Big Idea
-Wrap the guessing in a `while` loop so the player keeps trying until correct.
+Each Guess click compares to the secret and paints red (too high) or blue (too
+low) or green (win).
 
 ### Kid Meaning
-One guess isn't a game. Now we let the player try again and again until they win.
+This is the hot-and-cold heart of the game: the colour tells you which way to go,
+and you keep clicking Guess until you win.
 
 ### Game Connection
-This turns our single guess into the real, replayable game.
+Now the game is truly playable — guess after guess, the thermometer guides you
+toward the secret.
 
 ### The Code
 ```python
-import random
+def guess():
+    number = int(entry.get())
+    if number > secret:
+        fill_mercury(number, "red")
+        show("Too high!", "red")
+    elif number < secret:
+        fill_mercury(number, "deepskyblue")
+        show("Too low!", "deepskyblue")
+    else:
+        fill_mercury(number, "lime")
+        show("YOU GOT IT!", "lime")
+    entry.delete(0, tk.END)
 
-secret = random.randint(1, 100)
-guess = 0
-
-while guess != secret:
-    guess = int(input("Your guess: "))
-    if guess > secret:
-        print("Too high!")
-    elif guess < secret:
-        print("Too low!")
-
-print(f"You got it! The number was {secret}")
+def show(text, color):
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 40, text=text, fill=color,
+                       font=("Arial", 22, "bold"), tags="msg")
 ```
 
-**A real game (secret was 42) plays like this:**
-
-```text
-Your guess: 50
-Too high!
-Your guess: 25
-Too low!
-Your guess: 40
-Too low!
-Your guess: 42
-You got it! The number was 42
-```
-
-THE GAME LIVES. It answers back, it keeps going, it ends in victory. This is
-the lesson where students gasp.
+### What You'll See
+Guess too high → red mercury + "Too high!". Too low → blue + "Too low!". Correct →
+green + "YOU GOT IT!". The Entry clears itself so you can type the next guess.
 
 ### Line by Line
-- `guess = 0` — a starting value so the loop's gatekeeper has something to
-  check (and 0 can never be the secret in 1–100, so the loop always begins).
-- `while guess != secret:` — keep looping AS LONG AS the guess is wrong. The
-  conversation loop from Lesson 13, now powering a game.
-- Inside: ask, then say too high or too low — the brain from Lesson 17, now
-  running once per lap.
-- When correct, the `while` condition becomes false at the next gate-check →
-  loop ends → the celebration line (outside the loop) finally runs.
-
-### Slow Motion 🔬 — why there's no "Correct!" inside
-Sharp eyes noticed: the if/elif has no "Correct!" branch anymore. Watch why,
-lap by lap (secret = 42):
-
-```text
-Lap 1: gate: 0 != 42? YES, enter -> guess becomes 50 -> "Too high!"
-Lap 2: gate: 50 != 42? YES, enter -> guess becomes 25 -> "Too low!"
-Lap 3: gate: 25 != 42? YES, enter -> guess becomes 42 -> (not >, not <... nothing prints)
-Lap 4: gate: 42 != 42? NO -> loop OVER
-       -> "You got it! The number was 42"
-```
-
-The winning itself is what KILLS the loop — so the line right after the loop
-can only ever be reached by a winner. The loop's exit IS the victory door.
-This is elegant program design: instead of checking "did they win?" inside,
-we let the loop's own condition do that job for free.
-
-Also notice what happens to `guess` each lap: the same box is refilled with
-each new guess (Lesson 3 — one label, latest value). The whole game runs on
-just TWO variables.
+- The `if / elif / else` from Lesson 10 now drives the colours.
+- `show(text, color)` — a small parameter machine that draws the message at the
+  top, erasing the old one via the `"msg"` tag.
+- `entry.delete(0, tk.END)` — clears the typing box from start (0) to end so it's
+  ready for the next guess.
 
 ### Do It in VS Code 🛠️
-1. Update `number_game.py` to this version. Mind the indentation: four lines
-   inside the loop, the celebration OUTSIDE (left edge).
-2. Save, run, and PLAY TO THE WIN. However many guesses it takes.
-3. Play again with the smart strategy: always guess the MIDDLE of what's
-   possible (50 → 25 or 75 → ...). Count your guesses. Seven or fewer is
-   mathematically guaranteed — this strategy has a famous name, *binary
-   search*, and it's taught in university. You just used it in Class 4.
+1. In `number_game.py`, replace your old `guess` with this and add `show`.
+2. Save, run. Play until you win — watch the colours guide you.
 
 ### Your Turn
-1. Build this and play until you win. Feels like a real game now!
-2. Notice we removed the "Correct!" from inside — why can the win message live
-   after the loop instead? (Say the answer out loud — the Slow Motion table
-   has it.)
-3. Challenge a classmate: they pick the strategy (random guesses vs
-   halve-the-middle) — who wins in fewer tries?
+1. Change the three colours to your own hot/cold palette.
+2. Change the win message.
+3. Predict the colour for a guess just 1 above the secret.
 
 ### 📸 Show Emrys
-Paste your full winning game to Emrys — every guess, every clue, the victory
-line. Tell Emrys how many guesses you took and whether you used the
-halving strategy. Emrys keeps an eye out for 7-or-under wins. 🏆
+Screenshot a "Too high!" (red) and a win (green). Tell Emrys how many guesses your
+win took.
 
 ### Check Your Brain
-- What makes the loop finally stop?
-- Why did we set `guess = 0` at the start?
-- Why can the win message live AFTER the loop?
-- What's the guaranteed-win strategy called, and how does it work?
+- Which branch runs when the guess equals the secret?
+- What does `entry.delete(0, tk.END)` do?
+- Why give the message its own `"msg"` tag?
 
 ### More Examples
-The same loop pattern works for a WORD game too — same skeleton, different skin:
+Add an arrow hint to the message:
 
 ```python
-secret_word = "mango"
-guess = ""
-while guess != secret_word:
-    guess = input("Guess the fruit I'm thinking of: ")
-print("Yes! Sweet, juicy mango! 🥭")
-```
-
-Make the range easy to change by keeping it in variables at the top — change ONE line to make the game easier or harder:
-
-```python
-import random
-
-lowest = 1
-highest = 20    # change to 100 for hard mode!
-
-secret = random.randint(lowest, highest)
-guess = 0
-while guess != secret:
-    guess = int(input(f"Guess ({lowest}-{highest}): "))
-    if guess > secret:
-        print("Too high!")
-    elif guess < secret:
-        print("Too low!")
-print("You found it!")
+show("Too high! ⬇", "red")
+show("Too low! ⬆", "deepskyblue")
 ```
 
 ### Common Mistakes
-- **New secret every lap:** putting `secret = random.randint(...)` INSIDE the while loop means the answer CHANGES after every guess — an impossible, maddening game! The secret must be picked once, BEFORE the loop.
-- **Hints flipped:** writing "Too high!" under `guess < secret` confuses every player. Read it out loud to check: "if the guess is bigger than the secret… it's too HIGH."
-- **Win message inside the loop:** if `print("You got it!")` is indented into the loop, it never prints (the loop ends the moment the guess is right). After-the-loop lines start at the left edge.
+- **Entry not clearing:** you retype over the old guess. **Fix:** add
+  `entry.delete(0, tk.END)` at the end of `guess`.
+- **Messages stacking:** forgetting the `"msg"` delete. **Fix:** delete `"msg"`
+  before drawing the new one.
 
 ### Level Up 🚀
-Add a "give up" escape: if the player types `0`, stop the game and reveal the secret. Hint: right after reading the guess, check `if guess == 0:` then print the reveal and use `break` — a new word that means "smash out of the loop right now". You just learned a tool most adults find on page 200 of Python books!
+Make the RED get darker the closer you are when too high (hint: use different
+colour words for `distance` under 10 vs over 10 — full version in Lesson 23).
 
 ---
 
 ## Lesson 19: Counting the Guesses
 
 ### Big Idea
-Add a counter that goes up by one each guess, then show the total.
+Keep a `tries` variable that goes up by one each guess and show it on screen.
 
 ### Kid Meaning
-We keep a tally, like counting how many throws to hit the target.
+Good games keep score. We count how many guesses it took, so the player can try
+to beat their record.
 
 ### Game Connection
-Players love a score — "You did it in 6 guesses!" makes them want to beat it.
+"You won in 6 tries!" is way more fun than just "You won." Counting adds the
+challenge.
 
 ### The Code
 ```python
-import random
-
-secret = random.randint(1, 100)
-guess = 0
 tries = 0
 
-while guess != secret:
-    guess = int(input("Your guess: "))
+def guess():
+    global tries
+    number = int(entry.get())
     tries = tries + 1
-    if guess > secret:
-        print("Too high!")
-    elif guess < secret:
-        print("Too low!")
-
-print(f"You got it in {tries} tries!")
+    if number > secret:
+        fill_mercury(number, "red")
+        show("Too high!", "red")
+    elif number < secret:
+        fill_mercury(number, "deepskyblue")
+        show("Too low!", "deepskyblue")
+    else:
+        fill_mercury(number, "lime")
+        show(f"WON in {tries} tries!", "lime")
+    canvas.delete("count")
+    canvas.create_text(WIDTH/2, 520, text=f"Guesses: {tries}",
+                       fill="white", tags="count")
+    entry.delete(0, tk.END)
 ```
 
-**The end of a game now looks like:**
-
-```text
-Your guess: 42
-You got it in 4 tries!
-```
-
-A score! Suddenly there's something to BEAT. Watch what happens to your
-classmates the moment a number appears — everyone wants a rematch. That's
-game design psychology, and you just used it.
+### What You'll See
+A "Guesses: 3" counter at the bottom climbs with every guess, and the win message
+now brags "WON in 6 tries!".
 
 ### Line by Line
-- `tries = 0` — start the counter BEFORE the loop (a counter must be born
-  before it can grow — Lesson 5).
-- `tries = tries + 1` — add one for every guess, INSIDE the loop, right after
-  the input. Each lap = each guess = one tick.
-- At the end we print the total with an f-string — `{tries}` drops the number
-  into the sentence.
-
-### Slow Motion 🔬 — placement is everything
-The counter line could physically go in four places. Watch how only one is
-right:
-
-```text
-BEFORE the loop:        counts... once, ever.   Final answer: always 1. ❌
-INSIDE, after input:    one tick per guess.     CORRECT! ✅
-INSIDE, after the ifs:  also works — same lap.  ✅ (style choice)
-AFTER the loop:         ticks once at the end.  Always says 1. ❌
-```
-
-WHERE a line lives decides WHEN and HOW OFTEN it runs. Same line, different
-homes, completely different programs. This placement-thinking is the #1 skill
-that separates "I can type code" from "I can build programs."
-
-Three variables now run your game, each with one clear job:
-`secret` (never changes after birth), `guess` (refilled every lap),
-`tries` (grows by one every lap). Give each variable ONE job and a name that
-says it — your future self will thank you.
+- `tries = 0` — starts the count OUTSIDE the function so it remembers (Lesson 13's
+  lesson!).
+- `global tries` — lets `guess` change it.
+- `tries = tries + 1` — one more guess.
+- The `"count"` text is redrawn each guess with its own tag.
 
 ### Do It in VS Code 🛠️
-1. Add the two `tries` lines to `number_game.py` — one before the loop, one
-   inside it. Update the final print to the f-string with `{tries}`.
-2. Save, run, play to the win, read your score.
-3. Experiment: move `tries = tries + 1` to ABOVE the input line, save, play.
-   Same count? (Yes — anywhere inside the lap works once per lap. Placement
-   within the lap is style; inside-vs-outside is correctness!)
+1. Add `tries = 0` near the top and update `guess` as shown.
+2. Save, run. Play and watch the counter climb; win to see your total.
 
 ### Your Turn
-1. Add the counter and play. How few tries can you manage?
-2. Add a message: if `tries` is less than 8, print "You're a guessing genius!"
-   (use an `if` after the loop).
-3. Personal best tracker (paper edition): play three full games, write down
-   each score, circle your best. Next lesson block we'll teach the GAME to
-   remember things like this.
-4. Stretch: change the final line to also reveal the secret —
-   `f"You got it in {tries} tries! The number was {secret}."` Two boxes, one
-   sentence.
+1. Show "Great!" if they win in under 8 tries (use an `if tries < 8:`).
+2. Change the counter's colour and position.
+3. Predict the counter after 4 guesses.
 
 ### 📸 Show Emrys
-Paste your full game (all guesses + the score line) to Emrys. Report your best
-score out of three games — Emrys is keeping a class leaderboard in spirit.
-Under 7 with the halving strategy? Tell Emrys; that's the certified-genius
-zone. 🧠
+Screenshot a win showing your try count. Tell Emrys your best score so far.
 
 ### Check Your Brain
-- Where must `tries = tries + 1` go — inside or outside the loop? Why?
-- Why is an f-string easier here than joining with `+` and `str()`?
-- What are the three variables in the game, and what is each one's single job?
+- Where must `tries` be defined so it remembers?
+- What does `global tries` allow?
+- What does `tries = tries + 1` do each guess?
 
 ### More Examples
-Show the try number AS they play — players love seeing the count tick up:
+A simple best-score check:
 
 ```python
-while guess != secret:
-    guess = int(input(f"Try #{tries + 1} - your guess: "))
-    tries = tries + 1
+if tries < best:
+    best = tries
+    print("New record!")
 ```
-
-Give the player a guess BUDGET — a limited number of tries makes it exciting:
-
-```python
-import random
-
-secret = random.randint(1, 20)
-tries = 0
-guess = 0
-
-while guess != secret and tries < 5:
-    guess = int(input("Your guess: "))
-    tries = tries + 1
-    if guess > secret:
-        print("Too high!")
-    elif guess < secret:
-        print("Too low!")
-
-if guess == secret:
-    print(f"You win in {tries} tries! 🏆")
-else:
-    print(f"Out of tries! It was {secret}.")
-```
-
-Notice the new trick: `while guess != secret and tries < 5` — the loop continues only while BOTH things are true (Lesson 11's `and`!).
 
 ### Common Mistakes
-- **Counter outside the loop:** `tries = tries + 1` after the loop counts… once, ever. Inside the loop = counts every guess.
-- **Resetting inside the loop:** `tries = 0` INSIDE the while wipes the count every lap — final answer is always 1. Starting values go BEFORE the loop.
-- **Counting bad input:** later, when you add letter-checking (Lesson 20), make sure `tries` only counts real number guesses — count AFTER the safety check passes.
+- **Resetting inside the function:** `tries = 0` inside `guess` never counts up.
+  **Fix:** define it outside and use `global`.
+- **Counting wrong guesses only:** put `tries = tries + 1` at the top so EVERY
+  guess counts.
 
 ### Level Up 🚀
-A best-score memory: add `best = 999` before the play-again loop you'll build in Lesson 22. After each win, check `if tries < best:` then `best = tries` and print "NEW RECORD! 🎉". You're now tracking a high score — the feature that makes players come back.
+Track the FEWEST tries across games in a `best` variable and show "Best: 4" on
+screen.
 
 ---
 
 ## Lesson 20: Being Kind to Wrong Typing
 
 ### Big Idea
-Players sometimes type letters by mistake; we can guide them instead of crashing.
+`try / except` catches mistakes (like typing letters) so the game doesn't crash.
 
 ### Kid Meaning
-If someone types "five" instead of "5", a kind game says "please type a number"
-rather than breaking.
+If the player types "hello" instead of a number, `int()` breaks. We politely
+catch that and ask again, instead of the red-error crash.
 
 ### Game Connection
-A polished game doesn't crash — it helps the player.
+Real players mistype. A good game gently says "please type a number" and keeps
+going — never crashes.
 
 ### The Code
 ```python
-guess_text = input("Your guess: ")
-if guess_text.isdigit():
-    guess = int(guess_text)
-    print("Thanks! You guessed " + str(guess))
-else:
-    print("Please type a number, like 42.")
+def guess():
+    global tries
+    text = entry.get()
+    try:
+        number = int(text)
+    except ValueError:
+        show("Type a number 1-100!", "orange")
+        return
+    if number < 1 or number > 100:
+        show("Only 1 to 100!", "orange")
+        return
+    tries = tries + 1
+    # ... the hot/cold checks from Lesson 19 go here ...
+    entry.delete(0, tk.END)
 ```
 
-**Two runs, two behaviours:**
-
-```text
-Your guess: 42
-Thanks! You guessed 42
-```
-
-```text
-Your guess: hello
-Please type a number, like 42.
-```
-
-No red error. No crash. The program PROTECTED itself — like a goalkeeper
-catching a bad ball instead of letting it smash the net.
+### What You'll See
+Type "abc" → an orange "Type a number 1-100!" instead of a crash. Type 500 → an
+orange "Only 1 to 100!". Good numbers play as normal.
 
 ### Line by Line
-- `guess_text.isdigit()` — asks the text "are you made ONLY of digits?" and
-  gets True or False (a boolean — Lesson 11 paying off!). `"42"` → True.
-  `"hello"` → False. `"4x2"` → False too — ONE letter spoils it.
-- If True, it's safe to `int()` it — no surprise ValueError possible.
-- If False (they typed letters), we politely guide them instead of crashing.
-
-### Slow Motion 🔬 — check BEFORE you convert
-Remember Lesson 7's experiment: `int("nine")` explodes with `ValueError`. In
-your own practice that's fine — read the error, fix, rerun. But imagine your
-little cousin playing your game, typing "fifty", and the whole game DIES with
-red text. Heartbreaking!
-
-The professional rule: **never trust input — check it first.** The pattern is
-called *validation*, and it reads like airport security:
-
-```text
-1. Receive the text       (input)
-2. Inspect it             (.isdigit() -> True/False)
-3. Safe? -> convert & continue    Suspicious? -> reject politely & re-ask
-```
-
-`.isdigit()` is something the TEXT ITSELF can do — notice the dot:
-`guess_text.isdigit()`, like `random.randint` — "ask the thing for one of its
-own tricks." Text has many built-in tricks; you'll meet `.lower()` soon.
-
-### Using it inside the game (the safe pattern)
-Here is how the check fits INSIDE the guessing loop. If the player types
-letters, we say so and use `continue`, which means "skip the rest and ask
-again":
-
-```python
-while guess != secret:
-    guess_text = input("Your guess: ")
-    if not guess_text.isdigit():
-        print("Please type a number, like 42.")
-        continue          # go back to the top of the loop and ask again
-    guess = int(guess_text)
-    tries = tries + 1
-    if guess > secret:
-        print("Too high!")
-    elif guess < secret:
-        print("Too low!")
-```
-
-- `if not guess_text.isdigit():` — `not` flips True/False, so this means "if
-  it is NOT all digits". Reads like English!
-- `continue` — jump straight back to the loop's gate (don't run the rest of
-  this lap). The player gets asked again, and the game never crashes.
-- Sharp detail: because `continue` skips `tries = tries + 1`, typo laps don't
-  count against the player's score. Kind AND fair.
+- `try:` — "attempt this risky line."
+- `number = int(text)` — the risky bit: it breaks if `text` isn't a number.
+- `except ValueError:` — "if that broke, do this instead" — show a kind message.
+- `return` — leaves the function early so a bad guess doesn't count or continue.
+- `if number < 1 or number > 100:` — also block out-of-range numbers. `or` means
+  "either one true."
 
 ### Do It in VS Code 🛠️
-1. Try the small top version in a practice file first: run twice — once
-   typing `42`, once `hello`.
-2. Now upgrade `number_game.py` with the safe loop pattern.
-3. The crash test: run the game and type `abc`, `4x2`, an EMPTY Enter, then
-   a real guess. The game should sail through all of it, politely re-asking.
-   If it survives, your game is officially crash-proof.
+1. Wrap your `int()` in `try/except` as shown and add the range check.
+2. Save, run. Type letters, then 999 — both handled kindly.
 
 ### Your Turn
-1. Try the small code at the top; type `42`, then type `hello`. See the
-   difference.
-2. Copy the safe pattern into your game loop. Test it by typing `abc` — the
-   game should politely ask again instead of crashing.
-3. Make the rejection message friendlier and YOURS — maybe
-   `"Numbers only, champion! Try something like 50."` Kind software has a
-   personality.
-4. Think like a tester: what's the WEIRDEST thing someone could type at your
-   game? Try it. (Spaces? Emoji? A minus number? `-5` fails `.isdigit()` —
-   the minus sign isn't a digit — so your goalkeeper catches that too!)
+1. Change the two orange messages to your own friendly wording.
+2. Test empty input (press Guess with nothing typed).
+3. Predict what `return` does after a bad guess (it stops early — count doesn't go
+   up).
 
 ### 📸 Show Emrys
-Paste a run showing your game surviving at least two bad inputs and then
-winning. That survival is the proof. Tell Emrys your weirdest test input —
-Emrys collects those. 😄
+Screenshot the orange "type a number" message. Tell Emrys what you typed to
+trigger it.
 
 ### Check Your Brain
-- What does `.isdigit()` tell you?
-- What does `not` do to True or False?
-- What does `continue` do inside a loop?
-- Why doesn't a typo lap increase `tries` in our pattern?
+- What does `try/except` protect against?
+- What does `return` do here?
+- What does `or` mean in the range check?
 
 ### More Examples
-See `.isdigit()` think — run this truth-table on different inputs:
+Catching a different mistake:
 
 ```python
-print("42".isdigit())      # True
-print("hello".isdigit())   # False
-print("4 2".isdigit())     # False - the space ruins it
-print("".isdigit())        # False - empty is not a number
-```
-
-The same kindness works anywhere players type numbers — an age checker:
-
-```python
-age_text = input("How old are you? ")
-if age_text.isdigit():
-    age = int(age_text)
-    print(f"Great! {age} is a wonderful age.")
-else:
-    print("Numbers only, please - like 9 or 10.")
-```
-
-Keep asking until the typing is good — a loop that only lets numbers through:
-
-```python
-number_text = ""
-while not number_text.isdigit():
-    number_text = input("Type a number: ")
-number = int(number_text)
-print(f"Thank you! You typed {number}.")
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Can't divide by zero!")
 ```
 
 ### Common Mistakes
-- **`int()` first, check second:** `int(guess_text)` BEFORE `.isdigit()` defeats the whole point — the crash happens before the check! Always check, THEN convert.
-- **`.isdigit` without brackets:** `if guess_text.isdigit:` (no `()`) is always counted as True — silently wrong! The brackets actually ASK the question: `.isdigit()`.
-- **`continue` outside a loop:** using it in plain code → `SyntaxError: 'continue' not properly in loop`. It only means something inside a loop.
+- **No `return` after the message:** the code keeps going with a broken number.
+  **Fix:** `return` right after showing the error.
+- **Catching everything with bare `except`:** be specific — `except ValueError`.
 
 ### Level Up 🚀
-Polish your game like a released product: combine the safe pattern with the try counter so letters do NOT count as a try. Then hand your game to the naughtiest tester in class and challenge them to crash it. If they can't — you've written *robust software*, which is what companies pay real money for.
+Give three chances of "hints" for repeated bad typing (count bad tries and change
+the message on the third).
 
 ---
 
 ## Lesson 21: A Friendly Welcome and Rules
 
 ### Big Idea
-Good games greet the player and explain the rules before starting.
+Draw a title screen so players know what to do before they start.
 
 ### Kid Meaning
-Like a host welcoming you to a party and telling you the game's rules.
+Every good game greets you and explains the rules. We draw a welcome message and
+simple instructions on the canvas.
 
 ### Game Connection
-We add a warm opening so the game feels finished and friendly.
+First impressions matter. A clear "Guess 1 to 100! Red = too high, Blue = too
+low" makes the game friendly for anyone.
 
 ### The Code
 ```python
-def welcome():
-    print("=" * 30)
-    print(" THE MAGIC NUMBER GAME ")
-    print("=" * 30)
-    print("I will think of a number from 1 to 100.")
-    print("Try to guess it. I'll say higher or lower!")
+def show_welcome():
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 30, text="Magic Number Game",
+                       fill="gold", font=("Arial", 20, "bold"), tags="msg")
+    canvas.create_text(WIDTH/2, 55, text="Guess 1 to 100!",
+                       fill="white", font=("Arial", 13), tags="msg")
+    canvas.create_text(WIDTH/2, 72, text="Red = too high · Blue = too low",
+                       fill="#88ccff", font=("Arial", 11), tags="msg")
 
-welcome()
+draw_tube()
+show_welcome()
 ```
 
-**When you run it, the TERMINAL shows:**
-
-```text
-==============================
- THE MAGIC NUMBER GAME 
-==============================
-I will think of a number from 1 to 100.
-Try to guess it. I'll say higher or lower!
-```
-
-A title screen! Compare the feeling: a game that just barks "Your guess:" at
-you, versus one that rolls out a banner and explains itself. Same engine —
-totally different welcome. Players feel the difference instantly.
+### What You'll See
+Before the first guess, the window shows the title, "Guess 1 to 100!", and the
+colour rules — so any new player understands instantly.
 
 ### Line by Line
-- `def welcome():` — a function (Lesson 15) holding our intro. The whole
-  opening ceremony has ONE name now.
-- `"=" * 30` — a neat trick: text times a number repeats the text. Thirty `=`
-  signs make a clean banner line without typing them all.
-- We call `welcome()` once at the very start of the game.
-
-### Slow Motion 🔬 — multiplying text?!
-You knew `5 * 3` = 15. But `"=" * 30`?! In Python, multiplying TEXT by a
-NUMBER means "repeat it that many times":
-
-```python
-print("=" * 30)     # ==============================
-print("ab" * 3)     # ababab
-print("🎉" * 5)     # 🎉🎉🎉🎉🎉
-print("-=" * 15)    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-```
-
-One symbol, two meanings: between two numbers `*` is maths; between text and a
-number it's a repeater. Python looks at WHAT you're multiplying and picks the
-right meaning. (But `"=" + 30` crashes — you can't ADD text and a number.
-Repeating makes sense; adding doesn't.)
-
-Why a FUNCTION for the welcome? Organisation. Your game file is growing, and
-top-of-file functions act like a table of contents: the program's "main story"
-at the bottom stays short and readable —
-`welcome()` ... loop ... celebrate — while the details live in their named
-boxes above. Real codebases with millions of lines survive ONLY because of
-this habit. You're learning it at 24 lines. Perfect timing.
+- `show_welcome()` — a machine that draws three lines of intro text, all tagged
+  `"msg"` so the first guess replaces them.
+- We call it right after `draw_tube()` so it's there at startup.
 
 ### Do It in VS Code 🛠️
-1. Add the `welcome()` function at the TOP of `number_game.py` (right under
-   `import random`), and the `welcome()` call as the first line of the main
-   program.
-2. Save, run — admire your title screen, then play through.
-3. Experiment in a practice file: print your name times 3, and a `"~"` banner
-   exactly as wide as your title (count the characters!).
+1. Add `show_welcome` and call it at startup.
+2. Save, run. The welcome greets you; your first guess replaces it.
 
 ### Your Turn
-1. Add the `welcome()` function to your game and call it first.
-2. Change the title and the decoration line to your own style — different
-   symbols (`*`, `~`, `🎲`), different width. Make it YOURS.
-3. Add a line telling the player your name as the game-maker — every artist
-   signs their work.
-4. Add a `rules()` function too, with 2–3 lines explaining how to win, and
-   call it right after `welcome()`. Two ceremonies, two named machines.
+1. Add a fourth line with your name as "Game by ___".
+2. Change the title colour.
+3. Predict what covers the welcome text when you guess (the `show` message, same
+   tag).
 
 ### 📸 Show Emrys
-Screenshot your title screen (banners look best as pictures!) or paste it,
-and send it to Emrys. Style points are real points today — Emrys will judge
-the banner like an art teacher. 🎨
+Screenshot your welcome screen. Tell Emrys what your title says.
 
 ### Check Your Brain
-- What does `"=" * 30` do?
-- Why put the welcome in a function instead of just printing?
-- What's the difference between `"=" * 30` and `"=" + 30`?
+- Why give the welcome text the `"msg"` tag?
+- When does the welcome disappear?
+- Why is a rules screen helpful?
 
 ### More Examples
-Different border styles — pick your favourite:
+Center-anchored multi-line text in one call:
 
 ```python
-print("*" * 30)
-print("-" * 30)
-print("~" * 30)
-print("=*" * 15)    # patterns work too!
-```
-
-A fancier welcome with the player's name in it (function + parameter — Lesson 16 pays off):
-
-```python
-def welcome(player):
-    print("=" * 34)
-    print(f"  WELCOME, {player.upper()}!")
-    print("  THE MAGIC NUMBER GAME")
-    print("=" * 34)
-
-name = input("Your name? ")
-welcome(name)
-```
-
-A matching `goodbye()` so the game ends as politely as it starts:
-
-```python
-def goodbye():
-    print("-" * 30)
-    print("Thanks for playing. Come back soon!")
-    print("-" * 30)
+canvas.create_text(WIDTH/2, 60, text="Line one\nLine two", fill="white",
+                   justify="center")
 ```
 
 ### Common Mistakes
-- **`30 * "="` vs `"=" * 30`:** actually BOTH work — but `"=" + 30` crashes (`TypeError`)! You can multiply text, but you can't ADD a number to text.
-- **Defining welcome at the bottom:** if `welcome()` is called on line 2 but defined on line 50 → `NameError`. Function definitions live at the TOP of your file, like a table of contents.
-- **Uneven borders:** title is 20 letters but the line is 30 `=` — looks scruffy. Count, or just make the line generous.
+- **Welcome never leaves:** if it uses a different tag than `show`, it stays
+  forever. **Fix:** use the same `"msg"` tag so guesses replace it.
+- **Text off-screen:** keep y values small (near the top). **Fix:** use y under 80.
 
 ### Level Up 🚀
-Design a complete "game poster" welcome: borders top and bottom, the title, one line of rules, AND a difficulty announcement like "Today's range: 1 to 100". Make the range a variable so the poster always tells the truth when you change the difficulty. Truthful screens = professional screens.
+Add a big "START" button that hides the welcome and shows the first "Guess 1 to
+100!" prompt.
 
 ---
 
-## Lesson 22: Play Again? — A Bigger Loop
+## Lesson 22: Play Again? — A New Game Button
 
 ### Big Idea
-We wrap the whole game so the player can choose to play again.
+A "New Game" button resets the secret, the tries, and the drawing.
 
 ### Kid Meaning
-After one round, the game asks "Again?" — like a fairground ride you can re-ride.
+When the game ends, players want another go. One button gives them a brand-new
+secret and a clean thermometer.
 
 ### Game Connection
-Real games don't quit after one round. This makes ours replayable.
+This turns one-and-done into endless replay — the mark of a real game.
 
 ### The Code
 ```python
-import random
-
-playing = "yes"
-while playing == "yes":
+def new_game():
+    global secret, tries
     secret = random.randint(1, 100)
-    guess = 0
     tries = 0
-    while guess != secret:
-        guess = int(input("Your guess: "))
-        tries = tries + 1
-        if guess > secret:
-            print("Too high!")
-        elif guess < secret:
-            print("Too low!")
-    print(f"Correct! It took {tries} tries.")
-    playing = input("Play again? (yes/no): ")
+    canvas.delete("mercury")
+    canvas.delete("count")
+    canvas.delete("stars")
+    show_welcome()
+    entry.delete(0, tk.END)
 
-print("Thanks for playing!")
+tk.Button(root, text="New Game", command=new_game).pack(pady=4)
 ```
 
-**A two-round session looks like:**
-
-```text
-Your guess: 50
-Too low!
-Your guess: 75
-Correct! It took 2 tries.
-Play again? (yes/no): yes
-Your guess: 30
-Too high!
-Your guess: 15
-Correct! It took 2 tries.
-Play again? (yes/no): no
-Thanks for playing!
-```
-
-A NEW secret each round, fresh scores, and the player decides when the fun
-ends. This is a complete game session — like a real arcade machine.
+### What You'll See
+Press **New Game** and everything resets: fresh secret, mercury gone, counter at
+zero, welcome back on screen — ready to play again.
 
 ### Line by Line
-- An OUTER loop `while playing == "yes":` holds a whole round — everything
-  indented under it happens once per round.
-- Inside it we pick a NEW secret and reset `guess` and `tries` each round —
-  fresh game, fresh state.
-- The INNER loop is the guessing we already built — a loop inside a loop!
-  (Indented TWICE: the inner loop's body is inside the inner loop which is
-  inside the outer loop.)
-- At the end of a round we ask "Play again?"; any answer except exactly "yes"
-  ends the outer loop.
-
-### Slow Motion 🔬 — loops inside loops (and where variables live)
-Zoom out and see the two wheels turning:
-
-```text
-OUTER LOOP (rounds)                 spins once per ROUND
-   pick new secret, reset scores
-   INNER LOOP (guesses)             spins once per GUESS
-      ask, count, judge
-   celebrate + ask "again?"
-```
-
-Like a clock: the inner loop is the fast second-hand (many guesses), the outer
-loop the slow minute-hand (ticks one round forward after the inner finishes).
-The inner loop must completely finish before the outer takes its next step.
-
-Now the most valuable map in this whole course — WHERE a variable is created
-decides WHEN it resets:
-
-```text
-BEFORE the outer loop   -> survives the whole session   (playing)
-INSIDE outer, before inner -> fresh every ROUND         (secret, guess, tries)
-INSIDE the inner loop   -> fresh every GUESS            (guess_text, if you add it)
-```
-
-Move `tries = 0` ABOVE the outer loop and watch the bug: round 2 would START
-at round 1's count — "Correct! It took 9 tries" when you guessed in 2. Wrong
-shelf, wrong story. When a variable behaves strangely, check WHERE it lives
-first. This map answers 90% of "why is my variable weird?!" questions you'll
-ever have — in any program, forever.
+- `global secret, tries` — we're changing BOTH outside boxes.
+- `secret = random.randint(1, 100)` — a new hidden number.
+- `tries = 0` — reset the count.
+- The `delete` lines clear mercury, counter, and any win stars — but NOT the tube.
+- `show_welcome()` — bring the intro back.
 
 ### Do It in VS Code 🛠️
-1. Rebuild `number_game.py` to this full version (keep your `welcome()` from
-   Lesson 21 at the top — call it once, ABOVE the outer loop... or inside it
-   to greet every round. Try both; which feels right?).
-2. Watch the double indentation carefully — VS Code shows faint vertical
-   guide-lines connecting each level. Use them!
-3. Save, run, play exactly two rounds then `no`. Confirm round 2 got a fresh
-   tries count.
+1. Add `new_game` and its button below the Guess button.
+2. Save, run. Win a game, press New Game, and play a totally fresh round.
 
 ### Your Turn
-1. Build this full version and play two rounds.
-2. Why must `secret`, `guess`, and `tries` be reset INSIDE the outer loop?
-   (Answer with the shelf map!)
-3. Accept "Yes", "YES", and "y" as yes: change the last line to
-   `playing = input("Play again? (yes/no): ").lower()` — the `.lower()` trick
-   makes every answer lowercase before checking. Then add after it:
-   `if playing == "y": playing = "yes"`. Test all three spellings!
-4. Add a round counter: `round_number = 0` BEFORE the outer loop (it must
-   survive rounds — check the map!), `+ 1` inside, and announce
-   `f"--- Round {round_number} ---"` at each round's start.
+1. Make New Game also show a short "New round!" flash.
+2. Change the button's text to "Play Again".
+3. Predict what stays on screen after New Game (the tube).
 
 ### 📸 Show Emrys
-Paste a full two-round session to Emrys — including the fresh tries count in
-round 2 and your round announcements. Then answer Emrys's map quiz: where
-would you create a variable that counts TOTAL guesses across ALL rounds?
+Screenshot the game right after pressing New Game (clean tube + welcome). Tell
+Emrys it reset correctly.
 
 ### Check Your Brain
-- What is a "loop inside a loop"?
-- What resets at the start of each new round — and what survives all rounds?
-- Where would a "total guesses across the whole session" variable live?
+- Which variables does New Game reset?
+- Why must we NOT delete the tube?
+- What does `global secret, tries` allow?
 
 ### More Examples
-The friendly yes-checker — `.lower()` turns ANY typing style into lowercase, so one check handles `YES`, `Yes`, and `yes`:
+Reset several values in one function:
 
 ```python
-answer = input("Play again? ")
-answer = answer.lower()
-if answer == "yes" or answer == "y":
-    print("Round two!")
-else:
-    print("Goodbye!")
+def reset():
+    global score, lives
+    score = 0
+    lives = 3
 ```
-
-Count the rounds across the whole session — a counter OUTSIDE the outer loop survives every round:
-
-```python
-rounds = 0
-playing = "yes"
-while playing == "yes":
-    rounds = rounds + 1
-    print(f"--- Round {rounds} ---")
-    # ... the game goes here ...
-    playing = input("Play again? (yes/no): ").lower()
-print(f"You played {rounds} rounds today!")
-```
-
-See where a variable lives: `rounds` is outside (remembers everything), `tries` is inside (fresh each round). Where you create a variable decides what it remembers.
 
 ### Common Mistakes
-- **Forgetting to reset the round:** if `guess` isn't reset, round 2 starts with last round's winning guess — the new round ends instantly! Everything per-round resets INSIDE the outer loop.
-- **Asking "play again" inside the INNER loop:** then it asks after every single guess — infuriating! The question belongs after the inner loop ends, still inside the outer one. Indentation is the map.
-- **`playing` never changing:** if you forget the `playing = input(...)` line, the outer loop never stops. Every loop needs its escape hatch.
+- **Forgetting to reset `tries`:** the new game starts with the old count. **Fix:**
+  set `tries = 0` in `new_game`.
+- **Deleting the tube:** don't `delete("all")` — clear items by their tags.
 
 ### Level Up 🚀
-A session scoreboard: track `total_tries` and `rounds` across all rounds, and when the player finally quits, print their average — `f"Average: {total_tries / rounds:.1f} tries per round"`. The `:.1f` inside the f-string rounds to 1 decimal place — a tiny pro formatting trick that makes reports look sharp.
+Add a difficulty: an "Easy" button sets the range to 1–20 and a "Hard" button to
+1–100 (store the range in variables).
 
 ---
 
-## Lesson 23: Making It Cooler — Hints and Encouragement
+## Lesson 23: Making It Cooler — Hints, Glow, and Encouragement
 
 ### Big Idea
-Small extra touches (hints, kind words) make a game feel great.
+Use the DISTANCE from the secret to give warmer/colder hints and a celebration.
 
 ### Kid Meaning
-Like a friend cheering you on and giving a little hint when you're stuck.
+"You're getting warmer!" is more fun than just "too high." We measure how close
+the guess is and cheer the player on, then burst stars when they win.
 
 ### Game Connection
-We reward good play and gently help struggling players.
+This is the polish that makes the game delightful — glowing hints and a
+star-shower victory.
 
 ### The Code
 ```python
-if tries == 1:
-    print("INCREDIBLE — first try!")
-elif tries <= 5:
-    print("Wow, that was fast!")
-elif tries <= 10:
-    print("Nice guessing!")
-else:
-    print("You got there in the end — well done!")
+def guess():
+    global tries
+    text = entry.get()
+    try:
+        number = int(text)
+    except ValueError:
+        show("Type a number 1-100!", "orange"); return
+    if number < 1 or number > 100:
+        show("Only 1 to 100!", "orange"); return
+    tries = tries + 1
+    distance = abs(secret - number)
+    if number == secret:
+        fill_mercury(number, "lime")
+        show(f"WON in {tries} tries!", "lime")
+        celebrate()
+    elif number > secret:
+        color = "red" if distance < 10 else "#ff9999"
+        fill_mercury(number, color)
+        show("Too high — " + warmth(distance), color)
+    else:
+        color = "deepskyblue" if distance < 10 else "#a9d6ff"
+        fill_mercury(number, color)
+        show("Too low — " + warmth(distance), "#66aaff")
+    entry.delete(0, tk.END)
+
+def warmth(distance):
+    if distance < 5:
+        return "🔥 boiling!"
+    elif distance < 15:
+        return "warm"
+    else:
+        return "cold"
+
+def celebrate():
+    for i in range(30):
+        x = random.randint(0, WIDTH)
+        y = random.randint(0, HEIGHT)
+        canvas.create_text(x, y, text="⭐", font=("Arial", 16), tags="stars")
 ```
 
-**A win in 4 tries now ends like:**
-
-```text
-Correct! It took 4 tries.
-Wow, that was fast!
-```
-
-Same victory, warmer feeling. Small words, big difference.
+### What You'll See
+Close guesses glow bright and say "🔥 boiling!"; far ones say "cold". When you win,
+30 stars scatter across the window in celebration.
 
 ### Line by Line
-- After a win, we look at `tries` and choose ONE encouraging message — the
-  decision ladder from Lesson 10, now used for kindness.
-- `elif tries <= 5:` — "5 or fewer". The checks go from best score to
-  gentlest.
-- Everyone gets a kind message no matter how many tries — the `else` catches
-  all remaining players. Nobody leaves empty-handed.
-
-### Slow Motion 🔬 — why the ORDER of the ladder matters
-Try mentally swapping the ladder: what if `tries <= 10` came FIRST? A player
-who won in 1 try hits `1 <= 10` → YES → gets "Nice guessing!" — and the
-ladder STOPS (first yes wins, remember?). They never reach their deserved
-"INCREDIBLE"! The champion got the bronze message. 😱
-
-The rule: **when ladder ranges overlap, put the most specific/most special
-check first.** `== 1` is inside `<= 5` is inside `<= 10` — so we check
-narrowest to widest. Trace each of these through the ladder to prove the
-order works: tries = 1, 3, 7, 15 → INCREDIBLE / fast / Nice / got there.
-
-And the hint feature uses a tiny maths gem: `abs(guess - secret)` measures
-DISTANCE. If secret is 42: guess 45 → 45-42 = 3. Guess 39 → 39-42 = **-3**,
-but `abs(-3)` = 3 — `abs` throws away the minus sign, because being 3 below
-is just as CLOSE as 3 above. Distance has no direction!
-
-```python
-if abs(guess - secret) <= 5:
-    print("🔥 You're VERY close!")
-```
-
-This goes INSIDE the inner loop, after the too-high/too-low lines — the
-"warmer/colder" from hide-and-seek, in three lines of Python.
+- `distance = abs(secret - number)` — `abs` makes the difference positive so it's
+  a true "how far away."
+- `color = "red" if distance < 10 else "#ff9999"` — a one-line choice: bright red
+  when close, soft red when far.
+- `warmth(distance)` — a function that returns a hint WORD based on distance
+  (functions can hand back a value with `return`).
+- `celebrate()` — a `for` loop (Lesson 12) that scatters 30 random stars
+  (Lesson 14).
 
 ### Do It in VS Code 🛠️
-1. Add the encouragement ladder right after the `Correct!` line, INSIDE the
-   outer loop (it should run every round — check your shelf map!).
-2. Add the 🔥 close-hint inside the inner loop.
-3. Save, run, and deliberately fish for each message: try to win fast once,
-   then guess badly on purpose once. All four messages reachable?
+1. Update `guess`, and add `warmth` and `celebrate`.
+2. Save, run. Feel the hints get hotter as you close in; win to see the stars.
 
 ### Your Turn
-1. Add these messages right after the player wins.
-2. Write your OWN four encouragement messages — your humour, your style. (A
-   game's personality is its writer's personality.)
-3. Add the 🔥 hint: if a guess is within 5 of the secret, print "You're very
-   close!" using `abs(guess - secret) <= 5`.
-4. Extra spice: a SECOND hint tier — within 15 prints "Getting warm...",
-   within 5 prints "🔥 VERY close!". Mind the ladder order — which check must
-   come first, and why? (You know this now!)
+1. Add a "🥶 freezing" level for distances over 40.
+2. Make `celebrate` draw 60 stars.
+3. Predict the warmth word for a guess 3 away from the secret.
 
 ### 📸 Show Emrys
-Paste a round where a 🔥 hint appeared AND the final encouragement message.
-Tell Emrys your four custom messages — best set in the class gets Emrys's
-applause. Then answer: why must the `== 1` check be first on the ladder?
+Screenshot a "🔥 boiling!" hint and your star-shower win. Tell Emrys your winning
+try count.
 
 ### Check Your Brain
-- Why do we order the checks from fewest tries to most?
-- What makes a game feel "friendly"?
-- What does `abs(guess - secret)` measure, and why ignore the minus sign?
+- What does `abs()` do and why do we need it?
+- How does `warmth` hand a word back to `guess`?
+- Which earlier lessons power `celebrate` (loops + random)?
 
 ### More Examples
-The "you're close!" hint using `abs` — distance ignoring the minus sign:
+Return a value from a function:
 
 ```python
-distance = abs(guess - secret)
-if distance != 0 and distance <= 5:
-    print("🔥 You're VERY close!")
-elif distance != 0 and distance <= 15:
-    print("Getting warm...")
-```
+def square(n):
+    return n * n
 
-A random cheer so wins never feel the same twice (Lesson 14's `random.choice`):
-
-```python
-import random
-cheers = ["Champion!", "Superstar!", "Legend!", "Genius at work!"]
-print(random.choice(cheers))
-```
-
-A progress bar of guesses — silly, but players love it:
-
-```python
-print("Tries used: " + "🟦" * tries)
+print(square(5))   # 25
 ```
 
 ### Common Mistakes
-- **Hints that give it away:** "You're close" within 5 is fun; printing the actual distance ("You're 3 away!") makes the game too easy. Good hints tease, not tell.
-- **`abs` misunderstanding:** `guess - secret` can be negative (guess 40, secret 45 → -5). Checking `<= 5` on a negative is ALWAYS true — every wrong guess says "close"! That's why `abs(...)` matters.
-- **Unkind else:** ending with "Too slow!" feels mean. The last message should still feel like winning — kind games get replayed.
+- **Forgetting `abs`:** distance goes negative when the guess is low, breaking the
+  hints. **Fix:** wrap it in `abs()`.
+- **Stars never clear:** they pile up across games. **Fix:** `canvas.delete("stars")`
+  in `new_game` (Lesson 22).
 
 ### Level Up 🚀
-Difficulty levels! Before the round starts, ask "easy, normal or hard?" — easy = 1–20, normal = 1–100, hard = 1–500. Set `highest` from their choice with if/elif/else, then use it in `random.randint(1, highest)` AND in the welcome poster. One question, and your game now has game-menu energy. 😎
+Make the stars ANIMATE (fall or twinkle) using `root.after` like the moving ball
+in Lesson 5.
 
 ---
 
 ## Lesson 24: Showcase and Reflection
 
 ### Big Idea
-A finished project is something to be proud of and to show others.
+Assemble the complete Magic Number Game and show it off — you built a real
+graphical game!
 
 ### Kid Meaning
-You built a real, working game from nothing. Time to celebrate and share it!
+Every piece you learned — windows, shapes, variables, maths, input, if/elif,
+loops, random, functions, and try/except — comes together into one game you can
+play and share.
 
 ### Game Connection
-This is your complete Magic Number Game — welcome, secret number, guessing loop,
-counter, kind messages, and play-again.
+This is the finished product. Read it, run it, and be proud.
 
 ### The Code
 ```python
+import tkinter as tk
 import random
 
-def welcome():
-    print("=" * 30)
-    print(" THE MAGIC NUMBER GAME ")
-    print("=" * 30)
-    print("I will think of a number from 1 to 100.")
-    print("Try to guess it. I'll say higher or lower!")
+WIDTH, HEIGHT = 320, 620
+root = tk.Tk()
+root.title("Magic Number Game")
+root.resizable(False, False)          # keep the window its proper size so the buttons always show
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#0b1020")
+canvas.pack()
 
-welcome()
+secret = random.randint(1, 100)
+tries = 0
 
-playing = "yes"
+def draw_tube():
+    canvas.create_rectangle(120, 100, 200, 500, outline="white", width=3)
+    for n in range(0, 101, 10):
+        y = 500 - (500 - 100) * n / 100
+        canvas.create_line(200, y, 214, y, fill="white")
+        canvas.create_text(232, y, text=str(n), fill="white",
+                           font=("Arial", 9))
 
-while playing == "yes":
-    secret = random.randint(1, 100)
-    guess = 0
-    tries = 0
+def fill_mercury(level, color):
+    canvas.delete("mercury")
+    top = 500 - (500 - 100) * level / 100
+    canvas.create_rectangle(122, top, 198, 498, fill=color, outline="",
+                            tags="mercury")
 
-    print()
-    print("I picked a new secret number!")
+def show(text, color):
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 55, text=text, fill=color,
+                       font=("Arial", 20, "bold"), tags="msg")
 
-    while guess != secret:
-        guess_text = input("Your guess: ")
+def show_welcome():
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 30, text="Magic Number Game", fill="gold",
+                       font=("Arial", 18, "bold"), tags="msg")
+    canvas.create_text(WIDTH/2, 55, text="Guess 1 to 100!", fill="white",
+                       font=("Arial", 13), tags="msg")
 
-        if not guess_text.isdigit():
-            print("Please type a number, like 42.")
-            continue
-
-        guess = int(guess_text)
-        tries = tries + 1
-
-        if guess > secret:
-            print("Too high!")
-        elif guess < secret:
-            print("Too low!")
-
-    print(f"Correct! The number was {secret}.")
-    print(f"It took you {tries} tries.")
-
-    if tries == 1:
-        print("INCREDIBLE - first try!")
-    elif tries <= 5:
-        print("Wow, that was fast!")
-    elif tries <= 10:
-        print("Nice guessing!")
+def warmth(distance):
+    if distance < 5:
+        return "🔥 boiling!"
+    elif distance < 15:
+        return "warm"
     else:
-        print("You got there in the end - well done!")
+        return "cold"
 
-    playing = input("Play again? Type yes or no: ").lower()
-    if playing == "y":
-        playing = "yes"
+def celebrate():
+    for i in range(30):
+        x = random.randint(0, WIDTH)
+        y = random.randint(0, HEIGHT)
+        canvas.create_text(x, y, text="⭐", font=("Arial", 16), tags="stars")
 
-print("Thanks for playing!")
+def update_count():
+    canvas.delete("count")
+    canvas.create_text(WIDTH/2, 540, text=f"Guesses: {tries}", fill="white",
+                       tags="count")
+
+def guess():
+    global tries
+    text = entry.get()
+    try:
+        number = int(text)
+    except ValueError:
+        show("Type a number 1-100!", "orange"); return
+    if number < 1 or number > 100:
+        show("Only 1 to 100!", "orange"); return
+    tries = tries + 1
+    distance = abs(secret - number)
+    if number == secret:
+        fill_mercury(number, "lime")
+        show(f"WON in {tries} tries!", "lime")
+        celebrate()
+    elif number > secret:
+        color = "red" if distance < 10 else "#ff9999"
+        fill_mercury(number, color)
+        show("Too high — " + warmth(distance), color)
+    else:
+        color = "deepskyblue" if distance < 10 else "#a9d6ff"
+        fill_mercury(number, color)
+        show("Too low — " + warmth(distance), "#66aaff")
+    update_count()
+    entry.delete(0, tk.END)
+
+def new_game():
+    global secret, tries
+    secret = random.randint(1, 100)
+    tries = 0
+    canvas.delete("mercury"); canvas.delete("count"); canvas.delete("stars")
+    show_welcome()
+    entry.delete(0, tk.END)
+
+draw_tube()
+show_welcome()
+entry = tk.Entry(root, font=("Arial", 18), justify="center")
+entry.pack(pady=6)
+entry.bind("<Return>", lambda event: guess())   # pressing Enter guesses too
+entry.focus()                                    # cursor starts in the box, ready to type
+tk.Button(root, text="Guess!", font=("Arial", 13), command=guess).pack()
+tk.Button(root, text="New Game", command=new_game).pack(pady=4)
+
+root.mainloop()
 ```
+
+### What You'll See
+The full game: a scaled thermometer, hot/cold colours and warmth hints, a live
+guess counter, star-shower wins, kind handling of typos, and a New Game button.
 
 ### Line by Line
-- `import random` lets Python pick the secret number.
-- `def welcome():` stores the welcome message in a function, then `welcome()` runs it.
-- `playing = "yes"` starts the play-again loop.
-- `while playing == "yes":` keeps the whole game running for another round.
-- `secret`, `guess`, and `tries` are reset at the start of each new round.
-- `while guess != secret:` keeps asking until the player finds the number.
-- `guess_text = input(...)` gets what the player typed as text first.
-- `if not guess_text.isdigit():` checks for wrong typing, like letters.
-- `continue` jumps back to ask again, so the game does not crash.
-- `guess = int(guess_text)` changes safe text like `"42"` into the number `42`.
-- `tries = tries + 1` counts only real number guesses.
-- The `if / elif` lines say whether the guess is too high or too low.
-- After the loop ends, the game prints the answer, the number of tries, and a kind
-  message.
-- `.lower()` lets the player type `YES`, `Yes`, or `yes`.
-- If the player types `y`, the game changes it to `yes` so another round starts.
+- Every function is one you built across the course. Read each name — you know
+  exactly what it does now.
+- Notice how `main` setup at the bottom draws the tube, shows the welcome, and
+  wires the two buttons — then `mainloop()` waits for the player.
+- `root.resizable(False, False)` locks the window to its proper size, so the
+  **Guess!** and **New Game** buttons are always visible (a maximized window can
+  otherwise push them off the bottom of the screen).
+- `entry.bind("<Return>", lambda event: guess())` lets the player press **Enter**
+  to guess instead of hunting for the button, and `entry.focus()` puts the cursor
+  in the box so they can start typing straight away.
 
-### Build Checklist
-1. Open your game file `number_game.py` in VS Code.
-2. Type the full code above (or check your grown file matches it piece by
-   piece — you BUILT this across eight lessons!).
-3. Save (**Ctrl+S**), run (**▶**), and play until you win.
-4. Test a mistake: type `hello`. The game should say to type a number and keep
-   going.
-5. Test play-again: after you win, type `yes`, `YES`, and `y` in different
-   rounds.
-6. Type `no` when you want to stop. You should see "Thanks for playing!"
+### Do It in VS Code 🛠️
+1. Make sure your `number_game.py` matches this complete version.
+2. Save, run. Play several rounds. Try to beat your best score!
+3. Show it to a friend or family member and let them play.
 
-### Read Your Own Program Like a Pro 🔬
-Before the showcase, do the professional's final ritual: scroll to the top of
-`number_game.py` and read EVERY line out loud, saying what it does — like
-giving a tour of a house you built. Imports → welcome function → outer loop →
-fresh secrets → inner loop → guard → judge → counter → celebration → again?
-If any line makes you hesitate, that's the lesson to glance back at. When you
-can tour the whole file without stopping... you don't just have a game. You
-UNDERSTAND a game.
+### Your Turn — Reflection
+1. Which lesson was the hardest, and what finally made it click?
+2. Add ONE personal touch (your own colours, a title, an extra hint level).
+3. Write two sentences: what are you proudest of building?
 
-### 📸 Show Emrys — Graduation Run
-This one is special. Play one complete session (at least two rounds, one typo
-test, one win under 10) and paste the WHOLE terminal transcript to Emrys —
-or screenshot it in pieces. Say: **"Emrys, this is my graduation run!"**
-Emrys will review it like an examiner: checking the welcome banner, the crash
-protection, the fresh rounds, the kind messages — and then say the words every
-builder waits for. 🎓
-
-### Your Turn (Showcase)
-1. Play your finished game in front of the class or your family.
-2. Explain THREE lines of your code to them.
-3. Change the welcome title to make the game feel like yours.
-4. Pick ONE new feature you'd love to add next (a high score, two players, or
-   harder levels) and describe how it might work.
-5. Well done — you are now a beginner Python game-maker! 🎉
+### 📸 Show Emrys
+Screenshot your finished game mid-play AND a win with stars. Tell Emrys: "Course
+complete!" and share your best score and your one personal touch.
 
 ### Check Your Brain
-- Which part of the game was your favourite to build?
-- What is one thing you understand now that you didn't 4 months ago?
-- Can you explain to a friend what a variable, an `if`, and a loop each do?
+- Name three different concepts this game uses (there are many!).
+- Which function picks the secret, and which one celebrates a win?
+- How would you explain "hot and cold" to a friend using your game?
 
-### Look How Far You've Come 🏆
-Four months ago you had never written a line of code. Today your game uses ALL of this — read the list out loud and feel proud:
-
-- **print & f-strings** — the game talks (Lessons 1, 7)
-- **variables** — it remembers the secret and the score (Lessons 3, 5)
-- **input & int()** — it listens and understands numbers (Lessons 6, 7)
-- **if / elif / else** — it makes decisions (Lessons 9, 10)
-- **while loops** — it keeps playing, inside AND outside (Lessons 12, 18, 22)
-- **random** — it surprises you (Lesson 14)
-- **functions** — it's organised like a pro's code (Lessons 15, 21)
-- **isdigit & continue** — it never crashes on wrong typing (Lesson 20)
-
-That is a REAL program, with the same building blocks used in banking apps, games, and the software on this very computer.
-
-### More Examples (Showcase ideas)
-Three quick make-it-yours touches for presentation day:
+### More Examples
+Ideas to keep growing your game:
 
 ```python
-# 1. A signed title
-print("THE MAGIC NUMBER GAME - by Ama, Class 4")
+# Sound-like flash: briefly change the background on a win
+canvas.config(bg="#103010")
+root.after(400, lambda: canvas.config(bg="#0b1020"))
 ```
 
-```python
-# 2. A round timer feel: show the range shrinking
-print(f"Hint zone: somewhere between 1 and 100...")
-```
+### Common Mistakes
+- **Copy-paste errors:** if it won't run, read the terminal's red line number and
+  check that exact line. **Fix:** compare it to the code above, character by
+  character.
+- **Indentation drift:** mixed spaces break Python. **Fix:** keep 4 spaces per
+  level everywhere.
 
-```python
-# 3. Goodbye with stats
-print(f"Today: {rounds} rounds, best score {best} tries. See you tomorrow!")
-```
-
-### Common Mistakes (on showcase day!)
-- **Changing code 2 minutes before presenting:** if it worked, freeze it! Pros call this a "code freeze" before a launch.
-- **Explaining too fast:** pick your three lines, breathe, and explain like the listener has never coded — because four months ago, neither had you.
-- **Forgetting to test once more:** run the game ONE full time before the audience arrives — win a round, type a letter, play again, quit.
-
-### Level Up 🚀 (your next adventure)
-You're ready for bigger quests. Pick one and ask your teacher to cheer you on:
-1. **Two-player mode** — player 1 types a secret (use `input`), screen scrolls away, player 2 guesses it.
-2. **High-score file** — Class 5 learns to SAVE things so the best score survives switching the computer off.
-3. **The reverse game** — YOU think of a number, and the COMPUTER guesses it with "too high/too low" from you. (Mind-bending and brilliant.)
-
-Welcome to coding. You're not starting anymore — you're *building*. 🚀
+### Level Up 🚀
+Publish your game: add a scoreboard that remembers the best score in a file (peek
+at file saving), or add difficulty buttons. You are officially a game maker! 🎮

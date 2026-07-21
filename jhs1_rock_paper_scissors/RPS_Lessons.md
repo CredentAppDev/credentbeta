@@ -1,12 +1,17 @@
-# Rock Paper Scissors Lessons: JHS 1 Edition
+# Rock Paper Scissors Arena Lessons: JHS 1 Edition (Graphics Version)
 
-Build your own **Rock-Paper-Scissors game** — play against the computer! It makes a
-secret choice, compares it with yours, tells you who won, keeps score over several
-rounds, and crowns a champion at the end.
+Build your very own **Rock Paper Scissors Arena** — but this time you can WATCH
+the battle! Two giant hands face each other in a real arena window. You pick your
+move, both hands **shake up and down** just like the real game — "Rock… Paper…
+Scissors…" — and then they **snap open** to reveal what each player threw. The
+winner is announced, the scoreboard updates, and **live statistics bars** show
+your win rate. First to 3 wins the match, and victory comes with a shower of
+stars.
 
-This project is for **JHS 1**, and it assumes you have **never coded before**. We
-start from absolutely zero and explain every line in simple words, so you truly
-understand it — not just copy it. By the end you'll have built a real, working game.
+This project is for **JHS 1** (beginners, around 12–13 years old). It uses Python
+with **tkinter**, the drawing kit that comes free inside Python — nothing to
+install. You start from absolutely zero — no experience needed. Every single line
+of code is explained in simple words so you truly understand it, not just copy it.
 
 ---
 
@@ -14,12 +19,15 @@ understand it — not just copy it. By the end you'll have built a real, working
 
 Each lesson has the same shape:
 
-- **Big Idea** — the one thing this lesson teaches.
-- **Kid Meaning** — the idea in very simple words.
-- **Game Connection** — how this fits our Rock-Paper-Scissors game.
-- **The Code** — the actual Python to type.
+- **Big Idea** — the one core thing this lesson teaches.
+- **Kid Meaning** — the same idea explained with a real-life analogy.
+- **Arena Connection** — how this fits our Rock Paper Scissors Arena.
+- **The Code** — the actual Python to type (it draws something you can see!).
+- **What You'll See** — the picture or motion that appears in the window.
 - **Line by Line** — every important line explained.
-- **Your Turn** — a small task YOU do to practise (the most important part!).
+- **Do It in VS Code 🛠️** — the exact steps to type, save, and run it.
+- **Your Turn** — a small task YOU do to practise (this is the most important part!).
+- **📸 Show Emrys** — send a screenshot of your window so Emrys can check it.
 - **Check Your Brain** — quick questions to make sure it stuck.
 - **More Examples** — extra runnable programs that stretch the idea further.
 - **Common Mistakes** — the real errors beginners hit, with the exact fix.
@@ -28,1877 +36,2578 @@ Each lesson has the same shape:
 ### Your Workshop Is VS Code 🛠️
 
 All code in this course is typed, saved, and run in **Visual Studio Code
-(VS Code)** with the Python extension — the same editor professional
-programmers use every day. The rhythm for every piece of code is always:
+(VS Code)** with the Python extension — the same editor professional programmers
+use every day. The rhythm for every piece of code is always:
 
 1. Open your project file in VS Code (or **File → New File**, saved as `name.py`).
 2. Type the code in the editor.
 3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
-4. Run: press the **▶ Run** button at the top-right, and read the result in
-   the **TERMINAL** panel at the bottom.
+4. Run: press the **▶ Run** button at the top-right.
+5. A **window pops up** showing your arena. Play in it! (When you're done, click
+   the window's **X** to close it.)
 
-You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
-your workbench.
+Because our programs draw pictures, the exciting part is the **window**, not the
+terminal. But keep an eye on the terminal too — if something goes wrong, Python
+prints a red error message there, and errors are just clues.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is your
+workbench.
 
 ### Show Emrys Your Work 📸
 
-After EVERY "Your Turn" task, show Emrys the proof: **copy what the terminal
-printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
-celebrate what's right, and help fix anything that isn't. If something errored,
-paste the red error message too — errors are clues, and Emrys reads them like
-a detective. No skipping this step: real coders always show their output.
+After EVERY "Your Turn" task, show Emrys the proof: **take a screenshot of the
+window your program drew** and send it to Emrys. Emrys will check it, celebrate
+what's right, and help fix anything that isn't. If something errored, paste the
+red error message from the terminal too — errors are clues, and Emrys reads them
+like a detective. No skipping this step: real coders always show their output.
 
-Teach one lesson at a time: idea, code, then type and run it. **Always do "Your
-Turn."** Understanding one lesson fully beats copying five.
+Teach one lesson at a time. Explain the idea first, then the code, then let
+students type it and run it themselves. **Always do "Your Turn" — that is where
+the learning happens.** Do not rush; it is better to truly understand one lesson
+than to copy five.
 
-**This course takes about 4 months** (about two lessons a week), in three parts:
+**This course takes about 4 months** (roughly two lessons a week). It has three
+parts:
 
-- **Part 1 — First Steps (Lessons 1–8):** what code is, printing, variables, input,
-  and f-strings, from zero.
-- **Part 2 — Making Choices (Lessons 9–16):** decisions, comparing choices, random,
-  loops, and functions.
-- **Part 3 — Building the Game (Lessons 17–24):** assemble the real game, add
-  scoring and rounds, then polish.
+- **Part 1 — First Pictures (Lessons 1–8):** open a window, draw the arena and
+  the hands, use variables and maths, and make things MOVE.
+- **Part 2 — Making Choices (Lessons 9–16):** decide who wins with `if`, use
+  `random` for the computer's move, and package everything into functions.
+- **Part 3 — Building the Arena (Lessons 17–24):** the shake animation, the
+  score dictionary, best-of matches, win statistics, and the victory screen.
 
 Works on **Windows, Mac, and Linux**.
 
 ---
 
-# PART 1 — FIRST STEPS
+# PART 1 — FIRST PICTURES
 
----
-
-## Lesson 1: What Is Code? Saying Hello
+## Lesson 1: What Is Code? Drawing the Arena
 
 ### Big Idea
-Code is a list of instructions we give the computer, one line at a time.
+Code is a list of instructions we give the computer, one line at a time — and
+those instructions can draw a battle arena.
 
 ### Kid Meaning
-A recipe tells a cook each step. Code tells the computer each step. It does EXACTLY
-what you say.
+A recipe tells a cook what to do step by step. Code tells the computer what to do
+step by step. The computer does EXACTLY what you say — nothing more, nothing less.
+Today we tell it: "Build me an arena."
 
-### Game Connection
-Our game "says" who won each round — it all starts with `print`.
+### Arena Connection
+Our whole game lives inside a window with two hands facing each other. Before the
+battle, we need the arena.
 
 ### The Code
 ```python
-print("Welcome to Rock, Paper, Scissors!")
-print("Can you beat the computer?")
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Rock Paper Scissors Arena")
+canvas = tk.Canvas(root, width=700, height=400, bg="#141428")
+canvas.pack()
+
+canvas.create_text(350, 60, text="ROCK PAPER SCISSORS ARENA", fill="#ffd54a",
+                   font=("Arial", 22, "bold"))
+canvas.create_text(180, 150, text="YOU", fill="#ffd54a",
+                   font=("Arial", 16, "bold"))
+canvas.create_text(520, 150, text="COMPUTER", fill="#7db4ff",
+                   font=("Arial", 16, "bold"))
+canvas.create_text(350, 250, text="VS", fill="#5a5ac0",
+                   font=("Arial", 30, "bold"))
+
+root.mainloop()
 ```
+
+### What You'll See
+A dark arena window with a gold title, **YOU** on the left, **COMPUTER** on the
+right, and a big purple **VS** in the middle. The stage is set!
 
 ### Line by Line
-- `print(...)` shows whatever is inside on the screen.
-- Text in quotes `" "` is shown exactly.
-- Each `print` is its own line.
+- `import tkinter as tk` — brings in Python's drawing kit and gives it the short
+  nickname `tk` so we type less. Think of it as opening your box of crayons.
+- `root = tk.Tk()` — makes the window itself. `root` is the name we use to talk
+  to that window.
+- `root.title(...)` — writes the title in the window's bar.
+- `canvas = tk.Canvas(root, width=700, height=400, bg="#141428")` — puts a dark
+  drawing sheet, 700 wide and 400 tall, inside the window. `canvas` is our paper.
+- `canvas.pack()` — actually places the canvas into the window (without this, the
+  paper stays hidden).
+- `create_text(350, 60, ...)` — writes words centred 350 across and 60 down.
+- `font=("Arial", 22, "bold")` — the font name, the size, and the style.
+- `#141428` — a colour code. The `#` means "a colour written in computer code."
+  You can also write plain names like `"navy"`.
+- `root.mainloop()` — the magic word that keeps the window open and waiting.
+  Without it, the window would blink and vanish.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `arena.py` → save it on your Desktop.
+2. Type the code above yourself (don't copy-paste — typing teaches your fingers).
+3. Save: **Ctrl+S** (make the white "unsaved" dot on the tab disappear).
+4. Press the **▶ Run** button. Your arena should pop up!
+5. Look at it. Then close it by clicking the **X**.
 
 ### Your Turn
-1. Print your own two-line welcome to the game.
-2. Add a line with an emoji, like `print("Let's play! ✊✋✌️")`.
-3. Run it.
+1. Change "COMPUTER" to a rival name, like `"THE MACHINE"`.
+2. Change the arena background colour.
+3. Add a subtitle under the title saying "Best of 5!".
+4. BEFORE you run: predict what will be different. Then run. Were you right?
+
+### 📸 Show Emrys
+Take a screenshot of your arena with YOUR rival's name and **send it to Emrys**.
+Say: "Lesson 1 done!" Emrys will give you your first ✅ of the course.
 
 ### Check Your Brain
-- What does `print` do?
-- What do the quotes mark?
+- What does `import tkinter as tk` bring us?
+- Which line makes the window actually appear and stay open?
+- What do the two numbers in `create_text(350, 60, ...)` mean?
+- What do the three parts of `font=("Arial", 22, "bold")` control?
 
 ### More Examples
-Predict each output BEFORE you run — reading code is half of coding:
+A simpler arena:
 
 ```python
-print("Best of three rounds.")
-print("Winner takes the glory! 🏆")
-```
-
-The computer follows your order exactly — try rearranging these lines and see the story change:
-
-```python
-print("You step into the arena...")
-print("The computer cracks its robot knuckles...")
-print("FIGHT! ✊✋✌️")
-```
-
-`print()` with nothing makes an empty line — spacing is style:
-
-```python
-print("ROCK PAPER SCISSORS")
-print()
-print("...the ancient game of champions.")
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=500, height=300, bg="black")
+canvas.pack()
+canvas.create_text(250, 100, text="FIGHT!", fill="red", font=("Arial", 40, "bold"))
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **Missing quotes:** `print(Welcome)` → `NameError: name 'Welcome' is not defined`. Python thought Welcome was a variable. **Fix:** `print("Welcome")`.
-- **Unclosed bracket:** `print("Hi"` → `SyntaxError: '(' was never closed`.
-- **Capital P:** `Print("Hi")` → `NameError`. Python is case-sensitive — only `print` works.
+- **Forgetting `root.mainloop()`:** the window flashes and disappears. **Fix:** add
+  it as the LAST line.
+- **Forgetting `canvas.pack()`:** the window opens but is empty. **Fix:** add
+  `canvas.pack()` after making the canvas.
+- **Capital letters wrong:** `Import` or `canvas.Create_text()` → an error. Python
+  is picky — copy the spelling exactly.
 
 ### Level Up 🚀
-Write a dramatic 6-line arena intro for your game — title banner, a challenger announcement (your name), and a taunt from the computer. Make someone laugh with the taunt. Code with personality gets played more.
+Add a horizontal line across the middle of the arena using
+`canvas.create_line(0, 320, 700, 320, fill="#3a4a90", width=3)` to make a floor.
 
 ---
 
-## Lesson 2: How to Run Python
+## Lesson 2: How to Run Python (and the Screen Map)
 
 ### Big Idea
-We write code in a `.py` file and run it to see it work.
+We type code in a file, save it, and then "run" it — and every drawing lands at
+a spot described by two numbers.
 
 ### Kid Meaning
-Writing is like penning a letter; running is reading it aloud.
+Writing code is like writing a letter. Running it is like reading the letter out
+loud — that is when the window pops up. And every shape needs an address on the
+screen: how far across, and how far down.
 
-### Game Connection
-You'll run your game again and again as you build it.
+### Arena Connection
+Our two hands must face each other at exactly the right heights. Getting that
+right means understanding the screen map.
 
 ### The Code
 ```python
-print("If you can see this, Python works!")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=600, height=400, bg="white")
+canvas.pack()
+
+canvas.create_oval(100, 150, 210, 260, fill="#ffd54a")
+canvas.create_text(155, 300, text="I am at 155, 205", fill="black")
+
+root.mainloop()
 ```
+
+### What You'll See
+A white window with a **yellow circle** (our first "hand"!) and a label under it.
 
 ### Line by Line
-- Save with a `.py` name, e.g. `rps.py`.
-- Run from the editor's Run button, or type `python rps.py`.
+- `create_oval(100, 150, 210, 260, ...)` — the first two numbers `(100, 150)` are
+  the **top-left corner** of an invisible box, and `(210, 260)` is the
+  **bottom-right corner**. The oval is drawn to fill that box.
+- Because the box is 110 wide and 110 tall, we get a perfect circle.
+- `create_text(155, 300, ...)` — words centred below the circle.
 
-### Your Turn
-1. Save `practice.py` with one print line and run it.
-2. Show a friend.
+### The Screen Map 🗺️ — where do the numbers point?
+Every spot on the canvas has two numbers: **x** (how far ACROSS) and **y** (how
+far DOWN). Here is the big surprise that trips up almost everyone:
 
-### Check Your Brain
-- What ending must a Python file have?
-- What does "running" mean?
+- The corner **(0, 0) is the TOP-LEFT**, not the middle and not the bottom.
+- **x** gets bigger as you go **right** → (like normal).
+- **y** gets bigger as you go **DOWN** ↓ — this is BACKWARDS from maths class,
+  where up is the big direction! On the screen, **down is the big direction.**
 
-### More Examples
-Each `.py` file is a complete program. Make a couple:
+Picture the canvas like reading a book: you start at the top-left and your eyes
+travel right and then down. So:
 
-```python
-# file: countdown.py
-print("3...")
-print("2...")
-print("1...")
-print("SHOOT! ✊")
+```text
+(0,0) ─────────► x gets bigger →
+  │  •(100,50)  ← a bit right, near the top
+  │
+  ▼            •(300,200) ← the middle of a 600×400 canvas
+y gets
+bigger        •(50,350) ← near the bottom-left
+  ↓
 ```
 
-`#` lines are **comments** — notes the computer ignores. Sign your work like an engineer:
+Remember this and your hands sit exactly where you expect. Forget it and they end
+up above or below each other — that's not a bug, it's just the screen map. (This
+matters a LOT in Lesson 5, when we make the hands SHAKE: moving a hand **up**
+means making its y **smaller**.)
+
+### Slow Motion 🔬 — writing vs running
+There are TWO different moments, and mixing them up confuses every beginner:
+
+- **Writing** = typing the code into the editor. Nothing happens yet.
+- **Saving** = Ctrl+S. Your words are safely on the disk. STILL nothing happens.
+- **Running** = pressing **▶**. NOW Python reads your file and the window pops up.
+
+The biggest trap: changing the code and running WITHOUT saving — the computer runs
+the OLD version and you wonder why nothing changed. Burn this rhythm into your
+fingers: **type → Ctrl+S → ▶ → look at the window.** Every time. Forever.
+
+### Do It in VS Code 🛠️
+1. **File → New File** → name it `hand_map.py` → save on your Desktop.
+2. Type the code above.
+3. **Ctrl+S**, then press **▶ Run**.
+4. Change the oval to `create_oval(390, 150, 500, 260, ...)`. Predict where it
+   moves BEFORE you run. (Answer: to the right — the opponent's side!)
+
+### Your Turn
+1. Draw a SECOND circle on the right side, so two hands face each other.
+2. Move one circle HIGHER. Which number do you make smaller?
+3. Draw a dot at `(0, 0)` — where does it land? (Try
+   `create_oval(0, 0, 20, 20, fill="red")`.)
+
+### 📸 Show Emrys
+Screenshot your window with two circles facing each other. Tell Emrys which number
+you changed to move one up.
+
+### Check Your Brain
+- Where is the point `(0, 0)` on the canvas?
+- Which direction does **y** get bigger — up or down?
+- To move a hand UP, do you make y bigger or smaller?
+- Why must you SAVE before you run?
+
+### More Examples
+Three circles marching down (watch y grow):
 
 ```python
-# Rock Paper Scissors - built by Kwame, JHS 1
-print("Game loading...")   # this part still shows
+import tkinter as tk
+root = tk.Tk()
+canvas = tk.Canvas(root, width=200, height=400, bg="white")
+canvas.pack()
+canvas.create_oval(60, 40, 140, 120, fill="red")
+canvas.create_oval(60, 150, 140, 230, fill="green")
+canvas.create_oval(60, 260, 140, 340, fill="blue")
+root.mainloop()
 ```
 
 ### Common Mistakes
-- **Wrong extension:** `rps.txt` won't run as Python. Always `.py`.
-- **Running without saving:** you'll see the OLD version's output. Ctrl+S then Run, every time — make it muscle memory.
-- **Editing the wrong window:** code goes in the editor pane, not the output/terminal pane.
+- **Thinking up is bigger:** using a big y to go "up" sends the hand DOWN. **Fix:**
+  smaller y = higher.
+- **Corners backwards:** if the second corner is smaller than the first, the shape
+  can vanish. **Fix:** first pair = top-left, second pair = bottom-right.
 
 ### Level Up 🚀
-Create `rules.py` printing the three rules of RPS, each numbered. Then the edit-save-run cycle: change rule wording, save, run, repeat — three times fast. That cycle is the actual day-to-day life of every software developer on Earth.
+Draw a shape in each of the four corners and label each with its coordinates.
 
 ---
 
 ## Lesson 3: Variables — Boxes That Remember
 
 ### Big Idea
-A variable is a named box that stores a value for later.
+A variable is a named box that remembers a value so we can use it again.
 
 ### Kid Meaning
-A box with a name sticker; say the name and the computer uses what's inside.
+A box with a label. You write `wins = 0` and now the box called `wins` holds 0.
+Whenever you say `wins`, the computer looks in the box and uses what's inside.
 
-### Game Connection
-The game remembers YOUR score and the COMPUTER's score in variables.
+### Arena Connection
+Our arena must remember the score, where each hand sits, and what each player
+chose. Variables are how the computer remembers.
 
 ### The Code
 ```python
-you_score = 0
-computer_score = 0
-print(you_score)
-print(computer_score)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=700, height=400, bg="#141428")
+canvas.pack()
+
+LEFT_X = 180
+RIGHT_X = 520
+HAND_Y = 240
+SIZE = 55
+YELLOW = "#ffd54a"
+BLUE = "#7db4ff"
+
+canvas.create_oval(LEFT_X - SIZE, HAND_Y - SIZE,
+                   LEFT_X + SIZE, HAND_Y + SIZE, fill=YELLOW)
+canvas.create_oval(RIGHT_X - SIZE, HAND_Y - SIZE,
+                   RIGHT_X + SIZE, HAND_Y + SIZE, fill=BLUE)
+canvas.create_text(350, HAND_Y, text="VS", fill="#5a5ac0",
+                   font=("Arial", 30, "bold"))
+
+root.mainloop()
 ```
 
+### What You'll See
+Two big fists — a yellow one on the left and a blue one on the right — facing
+each other across a purple **VS**.
+
 ### Line by Line
-- Two boxes, each holding 0.
-- `print(you_score)` shows what's inside (0).
-- Numbers need no quotes.
+- `LEFT_X = 180` — where the left hand's CENTRE sits, across the screen.
+- `HAND_Y = 240` — how far DOWN both hands sit. Sharing one variable means they're
+  always perfectly level with each other.
+- `SIZE = 55` — how far each hand reaches from its centre (its radius).
+- `YELLOW = "#ffd54a"` — a box holding a colour, so we write the name instead of
+  the code each time.
+- `LEFT_X - SIZE, HAND_Y - SIZE` — the top-left of the hand's box;
+  `LEFT_X + SIZE, HAND_Y + SIZE` is the bottom-right. Centre-and-radius maths.
+- **CAPITAL names** like `LEFT_X` are a coder's habit for values that never change
+  ("constants"). Python doesn't force it — it's a message to other humans.
+
+### Do It in VS Code 🛠️
+1. New file `hands.py`. Type the code.
+2. Save and run — two fists face off.
+3. Change `SIZE = 55` to `SIZE = 90`. Save, run. BOTH hands got bigger at once!
+4. Change `HAND_Y = 240` to `HAND_Y = 150`. Both hands rose together.
 
 ### Your Turn
-1. Make a `player` variable with your name and print it.
-2. Make a `rounds` variable set to 5 and print it.
-3. Change `you_score` to 2 and print it.
+1. Move the hands further apart (smaller `LEFT_X`, bigger `RIGHT_X`).
+2. Change both hand colours to your own.
+3. Predict what happens if `LEFT_X` and `RIGHT_X` are the same number.
+
+### 📸 Show Emrys
+Send a screenshot of your two hands in YOUR colours and sizes. Tell Emrys which
+variables you changed.
 
 ### Check Your Brain
 - What is a variable?
-- Do numbers need quotes?
+- Why do both hands share one `HAND_Y`?
+- Why is `SIZE` better than typing the number four times?
+- Why do coders write some names in CAPITALS?
 
 ### More Examples
-A match needs a full set of state boxes:
+One box feeding another:
 
 ```python
-player = "Kwame"
-you_score = 0
-computer_score = 0
-rounds_to_play = 3
-print(player)
-print(rounds_to_play)
-```
-
-Boxes refill — the newest value wins:
-
-```python
-you_score = 0
-print(you_score)    # 0
-you_score = 2
-print(you_score)    # 2 - the 0 is history
-```
-
-A box can copy another box — useful later for records:
-
-```python
-you_score = 5
-best_ever = you_score
-print(best_ever)    # 5
+LEFT_X = 180
+RIGHT_X = 520
+middle = (LEFT_X + RIGHT_X) / 2
+print(middle)      # 350 — exactly where VS goes!
 ```
 
 ### Common Mistakes
-- **Using before creating:** `print(you_score)` with no assignment above → `NameError: name 'you_score' is not defined`.
-- **Inconsistent spelling:** `you_score` then `You_Score` → `NameError`. Exact match required, capitals included.
-- **Quoted numbers:** `you_score = "0"` is a word; `"0" + 1` crashes with `TypeError`. Scores are numbers — no quotes.
+- **Using a box before filling it:** using `SIZE` before `SIZE = 55` → `NameError`.
+  **Fix:** create the box first, above where you use it.
+- **Spelling the name differently:** `HAND_Y` vs `hand_y` are two different boxes.
+  **Fix:** keep names exactly the same everywhere.
 
 ### Level Up 🚀
-Set up your game's complete opening state: `player`, `computer_name` (give the bot a menacing name!), `you_score = 0`, `computer_score = 0`, `rounds_to_play = 3`. Print a pre-match announcement using all five. Every esports broadcast starts with this exact info — yours now does too.
+Add a `GAP` variable and work out `LEFT_X` and `RIGHT_X` from it, so one number
+controls how far apart the fighters stand.
 
 ---
 
-## Lesson 4: Numbers and Simple Maths
+## Lesson 4: Numbers and Maths
 
 ### Big Idea
-The computer does maths fast and correctly.
+Python can do maths, and we use maths to place shapes and work out percentages.
 
 ### Kid Meaning
-The computer is a super calculator.
+Python is a super-fast calculator. `+ - * /` mean add, subtract, multiply, divide.
+We use them to space fingers evenly and to work out win rates.
 
-### Game Connection
-The game adds points to scores — that's maths.
+### Arena Connection
+Our hands grow fingers that must be evenly spaced. And our stats screen shows
+"You win 60% of rounds" — that's division.
 
 ### The Code
 ```python
-you_score = 0
-print(you_score + 1)
-print(3 + 2)
-print(3 * 2)
-```
+import tkinter as tk
 
-### Line by Line
-- `+` adds, `-` subtracts, `*` multiplies (use `*`, not `x`).
-- The computer works it out, then `print` shows it.
+WIDTH = 700
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=400, bg="#141428")
+canvas.pack()
 
-### Your Turn
-1. Start `you_score = 0`, print it plus 3.
-2. Print `10 - 4` and `4 * 5`.
-3. Predict each first, then run.
-
-### Check Your Brain
-- Which symbol means "times"?
-- What is `10 - 4`?
-
-### More Examples
-Match maths you'll really use — total rounds played:
-
-```python
-wins = 4
-losses = 2
-ties = 1
-print(wins + losses + ties)    # 7 rounds played
-```
-
-Win percentage — the stat every gamer checks:
-
-```python
 wins = 3
-rounds = 4
-print(wins / rounds * 100)     # 75.0 percent!
+rounds = 5
+percent = wins / rounds * 100
+
+canvas.create_text(WIDTH/2, 60, text=f"You won {wins} of {rounds} rounds",
+                   fill="white", font=("Arial", 18))
+canvas.create_text(WIDTH/2, 100, text=f"That is {percent:.0f}%",
+                   fill="#ffd54a", font=("Arial", 22, "bold"))
+
+# A bar showing that percentage
+canvas.create_rectangle(150, 160, 550, 190, outline="#3a4a90")
+canvas.create_rectangle(150, 160, 150 + 400 * percent / 100, 190,
+                        fill="#ffd54a", outline="")
+
+root.mainloop()
 ```
 
-Operator order: `*` and `/` before `+` and `-`; brackets overrule everything:
+### What You'll See
+"You won 3 of 5 rounds", "That is 60%", and a gold **bar filled exactly 60% of
+the way** across its track.
+
+### Line by Line
+- `percent = wins / rounds * 100` — divide, then multiply by 100. Python works
+  through `/` and `*` from left to right.
+- `f"{percent:.0f}%"` — the `:.0f` means "show this number with **0** digits after
+  the dot", so `60.0` becomes a clean `60`.
+- `150 + 400 * percent / 100` — the bar's right edge. The track is 400 wide, so
+  60% of 400 is 240, and `150 + 240 = 390`. Change the percent and the bar length
+  follows automatically.
+- Two rectangles: the **outline** is the empty track, the **filled** one is the
+  progress drawn on top.
+
+### Do It in VS Code 🛠️
+1. New file `stats_maths.py`. Type the code.
+2. Save, run — a 60% bar.
+3. Change `wins = 5` and run. A full bar and 100%.
+4. Change `wins = 0`. An empty bar and 0%.
+
+### Your Turn
+1. Add a second bar for LOSSES in a different colour.
+2. Make the track longer (change 400 to 500) and check the maths still works.
+3. Print maths to the terminal: `print(10 + 5, 10 * 5, 10 / 5)`.
+
+### 📸 Show Emrys
+Screenshot your percentage bar at two different win counts. Tell Emrys the maths
+that sets the bar's width.
+
+### Check Your Brain
+- What does `wins / rounds * 100` work out?
+- What does `:.0f` do to a number?
+- Why do we draw TWO rectangles for one bar?
+- What is 60% of a 400-wide track?
+
+### More Examples
+Whole division and remainder (used for spacing later):
 
 ```python
-print(1 + 2 * 3)        # 7
-print((1 + 2) * 3)      # 9
+print(7 // 2)   # 3  (how many whole 2s fit in 7)
+print(7 % 2)    # 1  (what's left over)
 ```
 
 ### Common Mistakes
-- **`x` for multiply:** `3 x 2` → `SyntaxError`. It's `*`.
-- **Quoting the maths:** `print("3 + 2")` shows `3 + 2` — quotes mean "display literally".
-- **Decimal surprise:** `print(7 / 2)` gives `3.5`, not 3. For whole-number division use `7 // 2` → `3`. Both have their uses — know which you want.
+- **Dividing by zero:** `wins / 0` → `ZeroDivisionError`. **Fix:** check that
+  `rounds` is not 0 before dividing (we do this in Lesson 22!).
+- **Long decimals:** `60.00000001` looks messy. **Fix:** use `:.0f`.
 
 ### Level Up 🚀
-Tournament prize calculator: winning a round earns 10 points, a tie earns 3. Set `wins = 5` and `ties = 2`, then print the total prize points in one line. Add a "champion bonus" of 25 if it was a perfect run — calculate the perfect-run total too. (56 and 75 — did your code agree?)
+Draw THREE bars (wins, losses, draws) stacked under each other, each with its own
+colour and percentage label.
 
 ---
 
-## Lesson 5: Counting Score by Adding to a Variable
+## Lesson 5: Counting and Moving — Changing a Variable
 
 ### Big Idea
-Update a variable using its own value: `you_score = you_score + 1`.
+Changing a number and redrawing is how a score climbs — and how a hand moves.
 
 ### Kid Meaning
-"Take what's in the box, add one, put it back" — like adding a point.
+`wins = wins + 1` means "take what's in the box, add one, put it back." Do the
+same to a hand's y position and the hand JUMPS. That's the secret of animation.
 
-### Game Connection
-Winning a round does `you_score = you_score + 1`.
+### Arena Connection
+The shake animation is just this: move the hands up, redraw, move them down,
+redraw — over and over.
 
 ### The Code
 ```python
-you_score = 0
-you_score = you_score + 1
-print(you_score)
-you_score = you_score + 1
-print(you_score)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=400, height=400, bg="#141428")
+canvas.pack()
+
+hand_y = 200
+wins = 0
+
+def bump():
+    global hand_y, wins
+    wins = wins + 1
+    hand_y = hand_y - 20          # smaller y = HIGHER up
+    canvas.delete("all")
+    canvas.create_oval(150, hand_y - 50, 250, hand_y + 50, fill="#ffd54a")
+    canvas.create_text(200, 360, text=f"Bumps: {wins}", fill="white",
+                       font=("Arial", 16))
+
+bump()
+tk.Button(root, text="Move the hand up!", command=bump).pack(pady=8)
+
+root.mainloop()
 ```
+
+### What You'll See
+A yellow hand. Every click moves it **20 pixels higher** and the counter goes up.
+Click enough times and it leaves the top of the window!
 
 ### Line by Line
-- Start at 0, then add 1 each time.
-- The box keeps the latest total.
+- `hand_y = 200` and `wins = 0` — both boxes live OUTSIDE the function so they
+  survive between clicks.
+- `global hand_y, wins` — tells Python "use the OUTSIDE boxes, don't make new ones
+  inside." Without this, nothing would move or count.
+- `wins = wins + 1` — the counting step. Read it right-to-left: work out
+  `wins + 1`, then store the answer back in `wins`.
+- `hand_y = hand_y - 20` — **subtract** to go UP, because y grows downward
+  (Lesson 2's screen map in action!).
+- `canvas.delete("all")` — wipe the old drawing before drawing the new one,
+  otherwise you get a trail of hands.
+
+### Do It in VS Code 🛠️
+1. New file `moving.py`. Type the code.
+2. Save, run. Click several times and watch the hand climb.
+3. Change `- 20` to `+ 20` and click — now it sinks. Screen map confirmed!
+4. Remove `global hand_y, wins`, run, and click. Nothing moves! Now you've SEEN
+   why `global` matters. Put it back.
 
 ### Your Turn
-1. Start `you_score = 0`, add 1 three times, printing each time.
-2. Do the same for `computer_score`.
+1. Make each click move the hand by 50 instead of 20.
+2. Add a second button that moves it back DOWN.
+3. Predict `hand_y` after three clicks starting from 200. (Answer: 140.)
+
+### 📸 Show Emrys
+Screenshot the hand after several clicks with the counter showing. Tell Emrys
+which direction subtracting moves it.
 
 ### Check Your Brain
-- What does `you_score = you_score + 1` do?
-- If it's 2 and you add 1, what is it?
+- What does `wins = wins + 1` do?
+- Why does `hand_y - 20` move the hand UP?
+- Why must the boxes live outside the function?
+- What does `canvas.delete("all")` prevent?
 
 ### More Examples
-Both scoreboards moving — a match in fast-forward:
+Counting in the terminal:
 
 ```python
-you_score = 0
-computer_score = 0
-you_score = you_score + 1        # you take round 1!
-computer_score = computer_score + 1   # bot strikes back
-you_score = you_score + 1        # you again!
-print(f"You {you_score} - {computer_score} Computer")
-```
-
-The `+=` shortcut — pros type this instead:
-
-```python
-you_score = 0
-you_score += 1     # exactly the same as you_score = you_score + 1
-you_score += 1
-print(you_score)   # 2
-```
-
-Streak counters reset with plain `=`:
-
-```python
-streak = 3
-streak = 0      # lost a round - streak over!
-print(streak)
+count = 0
+count = count + 1
+count = count + 1
+print(count)   # shows 2
 ```
 
 ### Common Mistakes
-- **No starting zero:** `you_score += 1` before `you_score = 0` exists → `NameError`.
-- **Adding to the wrong score:** the bot wins but you typed `you_score += 1` — no error, just a quietly cheating game! Variable names matter; read them back.
-- **Reversed assignment:** `you_score + 1 = you_score` → `SyntaxError`. Box on the LEFT.
+- **Forgetting `global`:** `UnboundLocalError`, or nothing changes. **Fix:** add
+  `global` for every outside box you change.
+- **Trail of shapes:** forgetting `canvas.delete("all")`. **Fix:** wipe first.
 
 ### Level Up 🚀
-Trace this without running it — write the final values of both boxes, then run to check:
-
-```python
-a = 0
-b = 0
-a += 2
-b = a + 1
-a = a * b
-b -= 1
-print(a, b)
-```
-
-Got both right? You're tracing like a debugger — the skill that finds bugs before they find you.
+Make the hand move automatically using `root.after(100, bump)` at the end of
+`bump` — your first real animation! (Full lesson in Lesson 20.)
 
 ---
 
-## Lesson 6: Asking the Player with input()
+## Lesson 6: Choosing a Move with Buttons
 
 ### Big Idea
-`input()` asks a question and waits for the player to type.
+Buttons let the player choose rock, paper, or scissors with a single click.
 
 ### Kid Meaning
-The computer asks, listens, and keeps your answer in a box.
+In a real game you don't type "rock" — you throw it. Three buttons make choosing
+instant.
 
-### Game Connection
-Each round, the game asks you to choose rock, paper, or scissors.
+### Arena Connection
+This is how the player makes every move in our game.
 
 ### The Code
 ```python
-choice = input("Rock, paper, or scissors? ")
-print("You chose:")
-print(choice)
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=460, height=280, bg="#141428")
+canvas.pack()
+
+def pick(choice):
+    canvas.delete("all")
+    canvas.create_text(230, 120, text=f"You chose {choice}!", fill="#ffd54a",
+                       font=("Arial", 22, "bold"))
+
+buttons = tk.Frame(root)
+buttons.pack(pady=8)
+tk.Button(buttons, text="Rock", width=9,
+          command=lambda: pick("rock")).pack(side="left", padx=4)
+tk.Button(buttons, text="Paper", width=9,
+          command=lambda: pick("paper")).pack(side="left", padx=4)
+tk.Button(buttons, text="Scissors", width=9,
+          command=lambda: pick("scissors")).pack(side="left", padx=4)
+
+root.mainloop()
 ```
+
+### What You'll See
+Three buttons in a neat row. Click any one and the arena announces your choice in
+big gold letters.
 
 ### Line by Line
-- `input("...")` shows the question and waits.
-- The typed answer is stored in `choice`.
+- `def pick(choice):` — ONE machine handles all three buttons. The `choice`
+  parameter tells it which move was thrown.
+- `command=lambda: pick("rock")` — buttons normally call a function with NO
+  information. `lambda:` builds a tiny throwaway function that calls `pick` WITH
+  the word "rock". That's how three buttons share one machine.
+- `buttons = tk.Frame(root)` — a **Frame** is an invisible tray that holds other
+  widgets. It lets us line the buttons up side by side.
+- `.pack(side="left", padx=4)` — pack them LEFT to right instead of stacked, with
+  4 pixels of space between.
+- `width=9` — makes all three buttons the same width so the row looks tidy.
+
+### Do It in VS Code 🛠️
+1. New file `choose.py`. Type the code.
+2. Save, run. Click each button in turn.
+3. Remove `side="left"` from one button and run — see it drop below. Put it back.
 
 ### Your Turn
-1. Ask the player's name and store it.
-2. Ask their choice and print it.
-3. Print both.
+1. Change the announcement to include an emoji or extra words.
+2. Add a fourth button called "Lizard" that picks `"lizard"`.
+3. Predict what shows when you click Paper.
+
+### 📸 Show Emrys
+Screenshot your arena after clicking a move. Tell Emrys which move you chose.
 
 ### Check Your Brain
-- What does `input()` do after showing the question?
-- Where does the answer go?
+- Why do all three buttons call the SAME function?
+- What does `lambda:` do here?
+- What is a `Frame` for?
+- What does `side="left"` change?
 
 ### More Examples
-Several questions, several boxes — a pre-match interview:
+Two buttons sharing one machine:
 
 ```python
-name = input("Challenger name? ")
-catchphrase = input("Your battle cry? ")
-print("Entering the arena: " + name + "!")
-print('"' + catchphrase + '!!!"')
-```
+def greet(name):
+    print(f"Hello {name}!")
 
-One answer reused:
-
-```python
-move = input("Practice move? ")
-print("You played " + move)
-print("And again: " + move + "!")
+tk.Button(root, text="Ama", command=lambda: greet("Ama")).pack()
+tk.Button(root, text="Kofi", command=lambda: greet("Kofi")).pack()
 ```
 
 ### Common Mistakes
-- **The vanishing answer:** `input("Move? ")` without `move =` — the typing disappears into nothing. Always assign.
-- **Squashed prompts:** end your question with a space inside the quotes so typing doesn't touch the `?`.
-- **Glued joins:** `print("Hi" + name)` → `HiKwame`. Spaces live inside the quotes.
+- **Adding brackets:** `command=pick("rock")` runs it INSTANTLY at startup and the
+  button does nothing after. **Fix:** wrap it — `command=lambda: pick("rock")`.
+- **Forgetting `.pack()`:** the button never appears. **Fix:** pack every widget.
 
 ### Level Up 🚀
-Stage a "weigh-in": ask the challenger's name, town, and signature move — then print a three-line boxing-style announcement ("From KUMASI... wielding the legendary PAPER... it's KWAME!"). `.upper()` makes it shout.
+Give each button its own colour with `bg="#ffd54a"` so Rock, Paper and Scissors
+look different.
 
 ---
 
-## Lesson 7: f-strings — Dropping Values Into Sentences
+## Lesson 7: f-strings — Mixing Words and Values
 
 ### Big Idea
-An **f-string** puts a variable's value right inside your words using `{ }`.
+An f-string lets us build a sentence with values dropped inside it.
 
 ### Kid Meaning
-A magic sentence with blanks; `{choice}` is filled with the real choice.
+Instead of gluing words and numbers together awkwardly, put an `f` before the
+quotes and drop any box inside `{ }`. Python fills in the value for you.
 
-### Game Connection
-The game says "You chose rock, computer chose scissors" with f-strings.
+### Arena Connection
+"You win! rock beats scissors." and "You 2 - 1 Computer" are sentences with values
+dropped in. f-strings write every announcement in our arena.
 
 ### The Code
 ```python
-choice = input("Your move? ")
-print(f"You played {choice}.")
-score = 2
-print(f"Your score is {score}.")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=560, height=300, bg="#141428")
+canvas.pack()
+
+you = 2
+computer = 1
+draws = 1
+my_move = "rock"
+their_move = "scissors"
+
+canvas.create_text(280, 60, text=f"You {you}  -  {computer} Computer",
+                   fill="white", font=("Arial", 20))
+canvas.create_text(280, 100, text=f"(draws: {draws})", fill="#8fa0d8",
+                   font=("Arial", 12))
+canvas.create_text(280, 170,
+                   text=f"You win! {my_move} beats {their_move}.",
+                   fill="#7CFC00", font=("Arial", 18, "bold"))
+canvas.create_text(280, 230, text=f"Rounds played: {you + computer + draws}",
+                   fill="#ffd54a", font=("Arial", 14))
+
+root.mainloop()
 ```
+
+### What You'll See
+A full scoreboard: "You 2 - 1 Computer", the draw count, a green victory line, and
+the total rounds — that last number **worked out by maths inside the f-string**.
 
 ### Line by Line
-- The `f` before the quotes makes it an f-string.
-- `{choice}` and `{score}` are filled with what's in those boxes.
-- Numbers drop in fine too.
+- `f"You {you}  -  {computer} Computer"` — the `f` before the quotes turns on the
+  magic. Anything inside `{ }` is a box name, and Python drops its value in.
+- `f"You win! {my_move} beats {their_move}."` — two boxes make one natural
+  sentence. This is exactly how our arena will announce results.
+- `f"Rounds played: {you + computer + draws}"` — you can do **maths** inside the
+  braces, not just names. Python works it out first, then drops the answer in.
+
+### Do It in VS Code 🛠️
+1. New file `announce.py`. Type the code.
+2. Save, run. Read all four lines.
+3. Change `my_move` and `their_move` and run — the sentence rewrites itself.
 
 ### Your Turn
-1. Ask the player's name; print an f-string greeting.
-2. Make `score = 5` and print `f"Score: {score}"`.
-3. Use both name and score in one f-string.
+1. Add a line showing your win percentage using `:.0f` (from Lesson 4).
+2. Show your move in CAPITALS: `f"{my_move.upper()}"`.
+3. Predict the total when you is 3, computer is 2, draws is 0.
+
+### 📸 Show Emrys
+Screenshot your scoreboard with your own numbers. Tell Emrys which line uses maths
+inside the braces.
 
 ### Check Your Brain
-- What does the `f` do?
-- What goes inside `{ }`?
+- What does the `f` before the quotes do?
+- What can go inside the `{ }` — just names?
+- What does `.upper()` do to text?
 
 ### More Examples
-The classic round-report line — multiple blanks:
+f-strings in the terminal:
 
 ```python
-you = "rock"
-computer = "scissors"
-print(f"You played {you}, computer played {computer}.")
+name = "Kofi"
+score = 5
+print(f"{name} has {score} wins.")
+print(f"Two more and {name} reaches {score + 2}.")
 ```
-
-Maths inside the braces:
-
-```python
-wins = 3
-rounds = 4
-print(f"Win rate: {wins / rounds * 100}%")
-```
-
-Text vs numbers — the eternal trap, demonstrated:
-
-```python
-text = "2"
-num = 2
-print(text + text)    # 22 - glued text!
-print(num + num)      # 4  - real maths
-```
-
-`input()` always gives TEXT — wrap with `int(...)` when you need a number.
 
 ### Common Mistakes
-- **No `f`:** `print("Score: {score}")` prints the braces literally. The `f` activates the blanks.
-- **Maths on raw input:** `rounds = input(...)` then `{rounds + 1}` → `TypeError`. Use `int(input(...))`.
-- **Wrong bracket type:** `f"Score: (score)"` shows `(score)`. Only `{ }` are magic.
+- **Forgetting the `f`:** `"{you}"` prints the braces literally as `{you}`. **Fix:**
+  put `f` right before the opening quote.
+- **Wrong box name inside braces:** `{yuo}` → `NameError`. **Fix:** spell it
+  exactly as you named it.
 
 ### Level Up 🚀
-Build the post-match stats card: with `you_score = 2`, `computer_score = 1`, print three f-string lines — the scoreline, total rounds (`{you_score + computer_score}`), and your win percentage. Format the percentage to one decimal with `{...:.1f}` — instant professional polish.
+Build a single "match report" f-string that includes both scores, the draws, the
+rounds played, and your win percentage.
 
 ---
 
-## Lesson 8: Tidying Choices — .lower() and .strip()
+## Lesson 8: Mini-Project — Fighter Registration Card
 
 ### Big Idea
-`.lower()` makes text small; `.strip()` trims spaces — so we read choices fairly.
+Put together windows, Entry, buttons, variables, and f-strings into one small
+finished program.
 
 ### Kid Meaning
-A player might type "Rock", "ROCK", or " rock ". We tidy it so all count the same.
+This is your first real mini-app: the fighter signs in and gets a proper arena
+card. You already know every piece — now we assemble them.
 
-### Game Connection
-The game must understand the player's choice however they type it.
+### Arena Connection
+This is the sign-in screen of the real game, and a rehearsal for the whole thing:
+take input, store it, redraw the screen.
 
 ### The Code
 ```python
-choice = input("Rock, paper, or scissors? ").lower().strip()
-print(f"Tidied choice: {choice}")
+import tkinter as tk
+
+WIDTH, HEIGHT = 560, 380
+root = tk.Tk()
+root.title("Fighter Registration")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#141428")
+canvas.pack()
+
+def register():
+    fighter = entry.get().strip().title()
+    if fighter == "":
+        fighter = "Mystery Fighter"
+    canvas.delete("all")
+    canvas.create_text(WIDTH/2, 55, text="FIGHTER CARD", fill="#ffd54a",
+                       font=("Arial", 24, "bold"))
+    canvas.create_rectangle(80, 90, WIDTH-80, 300, outline="#5a5ac0", width=3)
+    canvas.create_oval(WIDTH/2-45, 115, WIDTH/2+45, 205, fill="#ffd54a")
+    canvas.create_text(WIDTH/2, 235, text=fighter, fill="white",
+                       font=("Arial", 22, "bold"))
+    canvas.create_text(WIDTH/2, 270, text="Ready to fight - best of 5!",
+                       fill="#8fa0d8", font=("Arial", 12))
+    entry.delete(0, tk.END)
+
+canvas.create_text(WIDTH/2, 120, text="Enter your fighter name",
+                   fill="white", font=("Arial", 16))
+entry = tk.Entry(root, font=("Arial", 16), justify="center")
+entry.pack(pady=8)
+entry.bind("<Return>", lambda event: register())
+entry.focus()
+tk.Button(root, text="Register", font=("Arial", 13), command=register).pack()
+
+root.mainloop()
 ```
+
+### What You'll See
+A sign-in screen. Type your fighter name, press **Register** (or **Enter**), and
+the whole screen becomes a bordered fighter card with a yellow fist and your name.
 
 ### Line by Line
-- `.lower()` → "Rock" becomes "rock".
-- `.strip()` → removes surrounding spaces.
-- Now `choice` is clean and easy to compare.
+- `entry.get().strip().title()` — read what they typed, remove spare spaces, and
+  capitalise it neatly. Three little jobs **chained** together.
+- `if fighter == "":` — if they typed nothing, give a fun default instead of an
+  empty card. (Your first `if` — full lesson next!)
+- `root.resizable(False, False)` — locks the window size so buttons can never get
+  pushed off the screen.
+- `entry.bind("<Return>", ...)` — the **Enter** key registers too, like a real app.
+- `entry.focus()` — puts the typing cursor in the box automatically.
+- `create_rectangle(..., outline="#5a5ac0", width=3)` with no `fill` — draws just
+  the border, so the card looks like a frame.
+
+### Do It in VS Code 🛠️
+1. New file `registration.py`. Type the whole program.
+2. Save, run. Type your fighter name, press Enter, admire your card!
+3. Try registering with an EMPTY box — meet "Mystery Fighter".
 
 ### Your Turn
-1. Ask for a choice, tidy it, and print it.
-2. Type it with CAPITALS and spaces — does it come out tidy?
-3. Why does tidying make the game fair?
+1. Change the card colours and the tagline.
+2. Add your fighter's "special move" as another line.
+3. Add a second fist to the card so it looks like a fighting stance.
+
+### 📸 Show Emrys
+Screenshot your finished fighter card. Tell Emrys: "Part 1 mini-project done!"
 
 ### Check Your Brain
-- What does `.lower()` do? `.strip()`?
-- Why tidy the player's choice?
+- Which line reads what the player typed?
+- What do `.strip()` and `.title()` each do?
+- Why lock the window size?
+- How do you draw a rectangle with only a border?
 
 ### More Examples
-The transformation, step by step:
+Chaining text jobs:
 
 ```python
-messy = "  RoCk  "
-print(messy.lower())          # "  rock  "
-print(messy.strip())          # "RoCk"
-print(messy.lower().strip())  # "rock" - match-ready
-```
-
-Proof that tidying makes all typing styles equal:
-
-```python
-print("ROCK".lower().strip() == "rock")     # True
-print(" Rock ".lower().strip() == "rock")   # True
-print("rOcK".lower().strip() == "rock")     # True
-```
-
-`.upper()` for the announcer voice:
-
-```python
-move = "paper"
-print(f"{move.upper()}!!! WHAT A CHOICE!")
+messy = "   kofi  "
+print(messy.strip().title())   # "Kofi"
 ```
 
 ### Common Mistakes
-- **No brackets:** `choice.lower` doesn't run the method — silently does nothing useful. `()` always.
-- **Tidy-and-forget:** `choice.lower()` alone changes nothing — it returns a COPY. Chain it at input time: `input(...).lower().strip()`.
-- **Comparing untidied:** check `"Rock" == "rock"` → False. Untidied comparisons are how games "eat" valid moves.
+- **Widgets not showing:** every Entry and Button needs `.pack()`. **Fix:** add it.
+- **Old screen stays:** clear with `canvas.delete("all")` at the start.
 
 ### Level Up 🚀
-Write a "tidying torture test": a list of horrible inputs — `"ROCK"`, `"  paper "`, `"ScIsSoRs"`, `" PAPER"` — loop through, print each before-and-after tidying. If all four come out clean, your input pipeline is tournament-grade.
+Add a "New fighter" button that brings the sign-in screen back so a friend can
+register too.
 
 ---
 
 # PART 2 — MAKING CHOICES
 
----
-
 ## Lesson 9: Making Decisions with if
 
 ### Big Idea
-`if` runs code only when a condition is True.
+`if` lets the program CHOOSE what to do — like reacting to the move you threw.
 
 ### Kid Meaning
-"IF you chose rock, remember that." The computer checks, then acts only if true.
+"IF you threw rock, show a fist." The computer checks — is it true? — and only
+then does the action.
 
-### Game Connection
-The game uses `if` to work out who won.
+### Arena Connection
+Deciding what to draw and who won is all `if`.
 
 ### The Code
 ```python
-choice = "rock"
-if choice == "rock":
-    print("You picked rock! 🪨")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=460, height=320, bg="#141428")
+canvas.pack()
+
+def pick(choice):
+    canvas.delete("all")
+    canvas.create_oval(180, 90, 280, 190, fill="#ffd54a")
+    if choice == "paper":
+        # four fingers stretching out to the right
+        for k in range(4):
+            y = 98 + k * 24
+            canvas.create_rectangle(270, y, 350, y + 14, fill="#ffd54a",
+                                    outline="")
+    canvas.create_text(230, 250, text=f"You threw {choice}", fill="white",
+                       font=("Arial", 16))
+
+buttons = tk.Frame(root)
+buttons.pack(pady=8)
+tk.Button(buttons, text="Rock", width=9,
+          command=lambda: pick("rock")).pack(side="left", padx=4)
+tk.Button(buttons, text="Paper", width=9,
+          command=lambda: pick("paper")).pack(side="left", padx=4)
+
+root.mainloop()
 ```
+
+### What You'll See
+Click **Rock** → just a fist. Click **Paper** → the same fist but with **four
+fingers** stretching out. The `if` decided whether to draw fingers.
 
 ### Line by Line
-- `if choice == "rock":` — check IF choice equals "rock" (`==` compares).
-- The `:` and indented line run only when true.
-- Indentation tells Python which line belongs to the `if`.
+- `if choice == "paper":` — checks whether the thrown move is paper. `==` means
+  "is exactly equal to" (two equals signs!).
+- The `:` starts the "then do this" block, and the indented lines ONLY run when
+  the check is true.
+- `for k in range(4):` — a loop drawing four fingers (full loop lesson coming).
+- `y = 98 + k * 24` — each finger sits 24 pixels below the last, so they're evenly
+  spaced without typing four sets of numbers.
+
+### Do It in VS Code 🛠️
+1. New file `first_if.py`. Type the code.
+2. Save, run. Click Rock, then Paper — spot the difference.
+3. Change `range(4)` to `range(2)` and click Paper — now it looks like scissors!
 
 ### Your Turn
-1. Set `choice = "paper"`. Write an `if` that prints a paper message.
-2. Change it to "rock" — does the paper message show? Why not?
+1. Add a Scissors button and an `if choice == "scissors":` that draws 2 fingers.
+2. Change the finger length (the `350`).
+3. Predict what shows if you click Rock. (No fingers — the `if` was false.)
+
+### 📸 Show Emrys
+Screenshot a rock hand AND a paper hand. Tell Emrys what the `if` decides.
 
 ### Check Your Brain
-- Difference between `=` and `==`?
-- Why does indentation matter?
+- What does `if` do?
+- What is the difference between `=` and `==`?
+- When do the indented lines under `if` run?
+- What does `98 + k * 24` work out?
 
 ### More Examples
-Several lines inside one `if` — the indented block moves together:
+A simple if in the terminal:
 
 ```python
-choice = input("Your move? ").lower().strip()
-if choice == "rock":
-    print("Solid choice! 🪨")
-    print("Rock is the most popular opening move.")
-print("(This line shows whatever you chose.)")
-```
-
-`if` on numbers — score milestones:
-
-```python
-you_score = 3
-if you_score >= 3:
-    print("Hat-trick! 🎩")
-```
-
-A secret cheat-code check (every game has one...):
-
-```python
-code = input("Enter code: ").lower().strip()
-if code == "konami":
-    print("🌟 SECRET MODE UNLOCKED!")
+score = 8
+if score > 5:
+    print("Winning!")
 ```
 
 ### Common Mistakes
-- **`=` in the condition:** `if choice = "rock":` → `SyntaxError`. Compare with `==`.
-- **Missing colon:** `if choice == "rock"` → `SyntaxError: expected ':'`.
-- **Flat indentation:** the action line at the left edge → `IndentationError: expected an indented block`. One Tab in.
+- **`=` instead of `==`:** `if choice = "paper":` → `SyntaxError`. **Fix:** use `==`.
+- **Forgetting the colon** after the `if` line. **Fix:** add `:` and indent below.
 
 ### Level Up 🚀
-Make a "move analyzer": ask for a move; if it's rock, print rock's strengths AND weaknesses (two indented lines). Notice nothing prints for paper/scissors yet — that silence is exactly what `elif`/`else` fix next lesson. Feeling the gap before learning the tool is how engineers think.
+Write one `draw_hand(choice)` function that handles all three moves (a preview of
+Lesson 14!).
 
 ---
 
-## Lesson 10: if / elif / else — Checking Each Choice
+## Lesson 10: if / elif / else — Who Wins?
 
 ### Big Idea
-`elif` checks more options; `else` is the catch-all.
+`if / elif / else` decides the three possible outcomes: you win, you lose, or it's
+a draw.
 
 ### Kid Meaning
-"IF rock... ELIF paper... ELIF scissors... ELSE that's not valid."
+"IF both threw the same, it's a draw. ELSE IF your move beats theirs, you win.
+ELSE, they win." Python checks top to bottom and does the FIRST true one.
 
-### Game Connection
-We check which of the three the player picked, and catch typos.
+### Arena Connection
+This is the referee of our whole game.
 
 ### The Code
 ```python
-choice = input("Rock, paper, or scissors? ").lower().strip()
-if choice == "rock":
-    print("Rock! 🪨")
-elif choice == "paper":
-    print("Paper! 📄")
-elif choice == "scissors":
-    print("Scissors! ✂️")
-else:
-    print("That's not a valid choice.")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=520, height=300, bg="#141428")
+canvas.pack()
+
+def judge(mine, theirs):
+    canvas.delete("all")
+    canvas.create_text(260, 70, text=f"You: {mine}   Computer: {theirs}",
+                       fill="white", font=("Arial", 15))
+    if mine == theirs:
+        result = "It's a draw!"
+        color = "#8fa0d8"
+    elif (mine == "rock" and theirs == "scissors") or \
+         (mine == "paper" and theirs == "rock") or \
+         (mine == "scissors" and theirs == "paper"):
+        result = "You win!"
+        color = "#7CFC00"
+    else:
+        result = "Computer wins!"
+        color = "#ff6b6b"
+    canvas.create_text(260, 160, text=result, fill=color,
+                       font=("Arial", 26, "bold"))
+
+judge("rock", "scissors")
+
+root.mainloop()
 ```
 
+### What You'll See
+"You: rock   Computer: scissors" and a big green **"You win!"**. Change the two
+words in `judge(...)` to test every combination.
+
 ### Line by Line
-- Tidy the choice first.
-- Each `elif` checks another valid option.
-- `else` catches anything invalid (like "banana").
+- `if mine == theirs:` — the easiest case first: same move means a draw.
+- `elif (...) or (...) or (...):` — the three ways YOU win, joined by `or`.
+  `or` means "any one of these being true is enough."
+- `and` inside each bracket means "BOTH parts must be true" — rock only beats
+  scissors if you threw rock **and** they threw scissors.
+- `\` at the end of a line — a **line continuation**: it lets one long condition
+  spread over three lines so humans can read it.
+- `else:` — if it wasn't a draw and you didn't win, there's only one option left.
+- We store `result` and `color` in boxes, then draw ONCE at the bottom — tidier
+  than repeating the drawing code in all three branches.
+
+### Do It in VS Code 🛠️
+1. New file `referee.py`. Type the code.
+2. Save, run — "You win!".
+3. Try `judge("paper", "scissors")` (you lose), `judge("rock", "rock")` (draw).
+4. Test all NINE combinations and check each answer is right.
 
 ### Your Turn
-1. Build this and try each choice, plus something invalid.
-2. Also accept short forms: "r", "p", "s" (add them with `or` — sneak peek:
-   `if choice == "rock" or choice == "r":`).
-3. Why is the `else` useful here?
+1. Change the three result messages to your own trash talk.
+2. Change the colours.
+3. Predict the result of `judge("scissors", "rock")`. (Computer wins!)
+
+### 📸 Show Emrys
+Screenshot a win, a loss, and a draw (three shots). Tell Emrys which combination
+you used for each.
 
 ### Check Your Brain
-- What does `elif` mean?
+- What is the difference between `if` and `elif`?
+- What does `and` mean? What does `or` mean?
 - When does `else` run?
+- Why check the draw FIRST?
 
 ### More Examples
-The short-form upgrade from Your Turn, fully written — `or` lets one branch accept several spellings:
+`and` and `or` in the terminal:
 
 ```python
-choice = input("rock/paper/scissors (or r/p/s)? ").lower().strip()
-if choice == "rock" or choice == "r":
-    print("Rock! 🪨")
-elif choice == "paper" or choice == "p":
-    print("Paper! 📄")
-elif choice == "scissors" or choice == "s":
-    print("Scissors! ✂️")
-else:
-    print(f"'{choice}' isn't a move I know!")
-```
-
-Echo the invalid input back (see the `{choice}` in the else) — players instantly see their typo. Small kindness, huge clarity.
-
-An elif chain on numbers — rank a score:
-
-```python
-wins = 2
-if wins == 3:
-    print("Perfect sweep!")
-elif wins == 2:
-    print("Strong showing!")
-elif wins == 1:
-    print("Got one on the board!")
-else:
-    print("The comeback begins next match!")
+print(True and False)   # False - both must be true
+print(True or False)    # True  - one is enough
 ```
 
 ### Common Mistakes
-- **`elif` first:** a chain must start with `if` → `SyntaxError` otherwise.
-- **Conditions on else:** `else choice == "x":` → `SyntaxError`. `else` is the catch-all, condition-free.
-- **Unreachable branches:** if two `elif`s check the same thing, the second NEVER runs — the chain stops at the first true. Keep each branch distinct.
+- **Using `and` where you need `or`:** no combination ever wins. **Fix:** the three
+  winning cases are alternatives, so join them with `or`.
+- **Forgetting brackets:** mixing `and`/`or` without brackets confuses the logic.
+  **Fix:** bracket each pair.
 
 ### Level Up 🚀
-Add a secret fourth move "fire" 🔥 that the else recognises specially: "Fire isn't in the rules... but I respect the ambition." Easter eggs in the else-branch are a real game-dev tradition — your future players will find it and grin.
+Rewrite this whole referee in THREE lines using a dictionary — that's exactly what
+Lesson 16 teaches!
 
 ---
 
-## Lesson 11: Comparing Two Choices (Who Wins?)
+## Lesson 11: True and False — Booleans
 
 ### Big Idea
-We compare the player's choice and the computer's choice to decide the winner.
+Every check is either True or False — those two values are called Booleans.
 
 ### Kid Meaning
-Rock beats scissors, scissors beats paper, paper beats rock. We teach the computer
-these rules with `if`.
+A light switch is on or off. A check is True or False. `mine == theirs` is a
+question Python answers with True or False.
 
-### Game Connection
-This is the heart of the game — the winning rules.
+### Arena Connection
+"Is the animation still running?" is a True/False fact we store in a box called
+`busy` — it stops players clicking mid-shake.
 
 ### The Code
 ```python
-you = "rock"
-computer = "scissors"
+import tkinter as tk
 
-if you == computer:
-    print("It's a tie!")
-elif you == "rock" and computer == "scissors":
-    print("You win! 🎉")
-elif you == "paper" and computer == "rock":
-    print("You win! 🎉")
-elif you == "scissors" and computer == "paper":
-    print("You win! 🎉")
-else:
-    print("Computer wins! 🤖")
+root = tk.Tk()
+canvas = tk.Canvas(root, width=480, height=300, bg="#141428")
+canvas.pack()
+
+busy = False
+
+def throw(mine):
+    global busy
+    if busy:
+        return
+    busy = True
+    is_rock = (mine == "rock")
+    canvas.delete("all")
+    canvas.create_text(240, 80, text=f"is_rock = {is_rock}", fill="white",
+                       font=("Arial", 16))
+    canvas.create_text(240, 130, text=f"busy = {busy}", fill="#ffd54a",
+                       font=("Arial", 16))
+    canvas.create_text(240, 200, text="Thinking...", fill="#8fa0d8",
+                       font=("Arial", 14))
+    root.after(1500, finish)
+
+def finish():
+    global busy
+    busy = False
+    canvas.create_text(240, 240, text="Ready again! busy = False",
+                       fill="#7CFC00", font=("Arial", 13))
+
+buttons = tk.Frame(root)
+buttons.pack(pady=8)
+tk.Button(buttons, text="Rock", width=9,
+          command=lambda: throw("rock")).pack(side="left", padx=4)
+tk.Button(buttons, text="Paper", width=9,
+          command=lambda: throw("paper")).pack(side="left", padx=4)
+
+root.mainloop()
 ```
+
+### What You'll See
+Click a button: you SEE `is_rock = True` (or False) and `busy = True`. For 1.5
+seconds extra clicks are **ignored**, then "Ready again!" appears.
 
 ### Line by Line
-- `if you == computer:` — same choice → tie.
-- `and` means BOTH parts must be true. `you == "rock" and computer == "scissors"`
-  is true only when you have rock AND the computer has scissors.
-- We list the three ways YOU win; `else` covers the rest (computer wins).
+- `busy = False` — a Boolean box: is an animation running right now?
+- `if busy: return` — the **guard**. If we're busy, leave the function immediately
+  and ignore the click. This stops players spamming buttons mid-animation.
+- `is_rock = (mine == "rock")` — Python answers the question and stores True or
+  False.
+- `if busy:` works directly because `busy` is ALREADY True or False — no need for
+  `if busy == True`.
+- `root.after(1500, finish)` — "in 1.5 seconds, run `finish`", which unlocks the
+  guard. The window stays responsive the whole time.
+
+### Do It in VS Code 🛠️
+1. New file `busy_flag.py`. Type the code.
+2. Save, run. Click once, then click again quickly — the second click does nothing.
+3. Wait for "Ready again!" then click — it works.
+4. Remove the `if busy: return` lines and spam-click. See the mess! Put them back.
 
 ### Your Turn
-1. Build this and change `you`/`computer` to test a tie, a win, and a loss.
-2. Say out loud the three ways you can win.
-3. What does `and` require?
+1. Make the wait 3 seconds instead of 1.5.
+2. Add `is_paper = (mine == "paper")` and show it too.
+3. Predict `is_rock` when you click Paper. (False.)
+
+### 📸 Show Emrys
+Screenshot the True/False values on screen. Tell Emrys what the `busy` guard
+prevents.
 
 ### Check Your Brain
-- What does `and` do?
-- How many ways can YOU win?
+- What two values can a Boolean be?
+- What does the `busy` guard stop?
+- Why can we write `if busy:` without `== True`?
+- What does `return` do inside the guard?
 
 ### More Examples
-Test the rules engine like a pro — all nine combinations:
+Booleans in the terminal:
 
 ```python
-# you, computer -> expected result
-# rock, rock -> tie        rock, paper -> computer    rock, scissors -> you
-# paper, rock -> you       paper, paper -> tie        paper, scissors -> computer
-# scissors, rock -> computer  scissors, paper -> you  scissors, scissors -> tie
-```
-
-Set `you` and `computer` to each pair and check your code agrees with the table. Nine quick runs = a fully verified game brain.
-
-`and` in slow motion:
-
-```python
-print(True and True)     # True
-print(True and False)    # False - BOTH must be true
-print(5 > 1 and 3 > 2)   # True
-```
-
-Say the rules while coding them — it cements both:
-
-```python
-# "rock CRUSHES scissors"     -> you == "rock" and computer == "scissors"
-# "paper COVERS rock"         -> you == "paper" and computer == "rock"
-# "scissors CUT paper"        -> you == "scissors" and computer == "paper"
+print(10 > 3)      # True
+print(5 == 5)      # True
+print(not True)    # False
 ```
 
 ### Common Mistakes
-- **`or` instead of `and`:** `you == "rock" or computer == "scissors"` wins whenever EITHER is true — way too generous! Winning needs BOTH facts: `and`.
-- **Tie check last:** if the tie check comes after the win checks... actually it still works here, but tie-first is clearest — equal moves exit immediately.
-- **Misreading the else:** the final `else` means "none of the above" = computer won. If you add a new move someday, that else needs rethinking!
+- **Forgetting to unlock:** if nothing ever sets `busy = False`, the game freezes
+  forever. **Fix:** always unlock at the end of the animation.
+- **Quoting True:** `busy = "False"` is a WORD, and a non-empty word counts as
+  True! **Fix:** no quotes.
 
 ### Level Up 🚀
-Add a "reason" to every outcome: instead of just "You win!", print `"Rock crushes scissors - you win! 🎉"`. Three win lines, three loss lines, each explaining WHY. Games that explain their rules teach their players — and you'll never forget the rules again either.
+Show a "Please wait…" message while `busy` is True, and hide it when it unlocks.
 
 ---
 
-## Lesson 12: Random — The Computer's Secret Move
+## Lesson 12: for Loops — Drawing Fingers
 
 ### Big Idea
-`random.choice` picks a surprise item from a list — perfect for the computer's move.
+A `for` loop repeats an action many times — perfect for drawing a hand's fingers.
 
 ### Kid Meaning
-Like the computer secretly picking from three cards. Even it doesn't know in
-advance.
+Instead of writing four almost-identical lines, a loop says "do this 4 times,
+counting as you go." The counter changes each time so each finger lands in a new
+spot.
 
-### Game Connection
-This is how the computer chooses rock, paper, or scissors fairly.
+### Arena Connection
+Rock has 0 fingers, scissors has 2, paper has 4. One loop draws them all — the
+number of fingers IS the move.
 
 ### The Code
 ```python
-import random
-moves = ["rock", "paper", "scissors"]
-computer = random.choice(moves)
-print(f"Computer chose: {computer}")
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=500, height=300, bg="#141428")
+canvas.pack()
+
+cx, cy = 160, 150
+fingers = 4
+spacing = 28
+
+canvas.create_oval(cx-55, cy-55, cx+55, cy+55, fill="#ffd54a", outline="")
+
+for k in range(fingers):
+    fy = cy - (fingers - 1) * spacing / 2 + k * spacing
+    canvas.create_rectangle(cx + 40, fy - 9, cx + 112, fy + 9,
+                            fill="#ffd54a", outline="")
+
+canvas.create_text(250, 260, text=f"{fingers} fingers = paper", fill="white",
+                   font=("Arial", 14))
+
+root.mainloop()
 ```
+
+### What You'll See
+A yellow palm with **four evenly spaced fingers** stretching to the right — an
+open hand. Change `fingers` to 2 and it becomes scissors; to 0 and it's a fist.
 
 ### Line by Line
-- `import random` — bring in the random helper (once, at the top).
-- `moves` is a **list** of the three options.
-- `random.choice(moves)` — picks one at random from the list.
+- `for k in range(fingers):` — count `k` from 0 up to (not including) `fingers`.
+  With `fingers = 4` that's 0, 1, 2, 3.
+- `cy - (fingers - 1) * spacing / 2` — this is the **centring trick**. It works out
+  where the TOP finger should start so the whole group sits centred on `cy`.
+  With 4 fingers 28 apart, the group is 84 tall, so we start 42 above centre.
+- `+ k * spacing` — then each finger steps down by 28 from there.
+- `create_rectangle(cx + 40, fy - 9, cx + 112, fy + 9, ...)` — a finger 72 long and
+  18 thick, starting 40 right of the palm's centre.
+- Change ONE number (`fingers`) and the whole hand changes shape. That's the power
+  of building drawings from variables.
+
+### Do It in VS Code 🛠️
+1. New file `fingers.py`. Type the code.
+2. Save, run — an open hand.
+3. Change `fingers = 2` and run. Scissors! Change to `0` — a fist.
+4. Change `spacing = 60` with 2 fingers — a wide scissors V.
 
 ### Your Turn
-1. Make the computer pick a random move and print it. Run 5 times — different?
-2. Make a list of 3 fruits and pick one randomly.
-3. Why is `random.choice` perfect here?
+1. Make the fingers longer and thicker.
+2. Draw the hand facing LEFT (use `cx - 40` and `cx - 112` instead).
+3. Predict where the fingers go if `fingers = 1`. (Exactly on `cy`!)
+
+### 📸 Show Emrys
+Screenshot a rock, a scissors, and a paper hand (three shots). Tell Emrys which
+single number you changed each time.
 
 ### Check Your Brain
-- What does `random.choice(moves)` do?
-- Why must we `import random` first?
+- What does a `for` loop do?
+- What numbers does `range(4)` produce?
+- What is the centring trick working out?
+- How does the number of fingers decide the move?
 
 ### More Examples
-`random.choice` works on any list — taunts, prizes, anything:
+Seeing the finger positions in the terminal:
 
 ```python
-import random
-taunts = ["Is that all you've got?", "Beep boop - too easy!", "My circuits are bored."]
-print(random.choice(taunts))
-```
-
-Its cousin `random.randint(a, b)` picks a number — dice for deciding who goes first:
-
-```python
-import random
-roll = random.randint(1, 6)
-print(f"You rolled a {roll}!")
-```
-
-Prove the fairness — let it choose 10 times and watch the spread:
-
-```python
-import random
-moves = ["rock", "paper", "scissors"]
-count = 1
-while count <= 10:
-    print(random.choice(moves))
-    count = count + 1
+fingers, spacing, cy = 4, 28, 150
+for k in range(fingers):
+    print(cy - (fingers - 1) * spacing / 2 + k * spacing)
 ```
 
 ### Common Mistakes
-- **No import:** `random.choice(...)` without `import random` at the top → `NameError: name 'random' is not defined`.
-- **Choice from a string:** `random.choice("rock")` picks a single LETTER like "o"! It needs the list: `random.choice(moves)`.
-- **Repeats feel broken:** the computer picking rock twice in a row is REAL randomness, not a bug. Coins land heads twice sometimes.
+- **Off-by-one:** `range(4)` gives 0–3, NOT 1–4. **Fix:** that's what we want for
+  spacing from zero.
+- **Fingers off-centre:** forgetting the `(fingers - 1) * spacing / 2` part makes
+  them hang below the palm. **Fix:** keep the centring maths.
 
 ### Level Up 🚀
-Give the computer a "personality mode": make a list where rock appears THREE times — `["rock", "rock", "rock", "paper", "scissors"]` — and the bot becomes a rock-lover you can exploit! Loaded lists = weighted randomness, a genuine technique in game AI design. Can a friend detect the bias by playing?
+Make the fingers slightly different lengths (like a real hand) by adding
+`+ k * 5` to the finger's end position.
 
 ---
 
-## Lesson 13: Repeating with while Loops
+## Lesson 13: random.choice — The Computer Picks
 
 ### Big Idea
-A `while` loop repeats while a condition stays True.
+`random.choice` lets the computer pick a move we can't predict.
 
 ### Kid Meaning
-"WHILE we haven't played 5 rounds, keep playing."
+Like your opponent hiding their hand behind their back. The computer chooses from
+a list, and you have no idea which one you'll face.
 
-### Game Connection
-The game plays several rounds in a loop.
+### Arena Connection
+This is the computer's brain. Without it there's no opponent — and no game.
 
 ### The Code
 ```python
-round_number = 1
-while round_number <= 5:
-    print(f"Round {round_number}")
-    round_number = round_number + 1
-print("All rounds done!")
+import tkinter as tk
+import random
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=480, height=300, bg="#141428")
+canvas.pack()
+
+CHOICES = ["rock", "paper", "scissors"]
+
+def computer_turn():
+    move = random.choice(CHOICES)
+    canvas.delete("all")
+    canvas.create_text(240, 100, text="The computer throws...", fill="#8fa0d8",
+                       font=("Arial", 14))
+    canvas.create_text(240, 160, text=move.upper(), fill="#7db4ff",
+                       font=("Arial", 32, "bold"))
+
+tk.Button(root, text="Computer, throw!", command=computer_turn).pack(pady=10)
+
+root.mainloop()
 ```
+
+### What You'll See
+Click the button and the computer throws **ROCK**, **PAPER**, or **SCISSORS** — a
+different surprise almost every click.
 
 ### Line by Line
-- `while round_number <= 5:` — loop while it's 5 or less.
-- `round_number = round_number + 1` — move it up so the loop ends.
-- Without that, it loops forever!
+- `import random` — brings in Python's dice-and-shuffle kit.
+- `CHOICES = ["rock", "paper", "scissors"]` — a **list** of the three legal moves.
+- `random.choice(CHOICES)` — picks ONE item from the list at random. Each has an
+  equal chance.
+- `move.upper()` — shows the word in CAPITALS for dramatic effect.
+- Using a list means adding a fourth move later needs only ONE change here.
+
+### Do It in VS Code 🛠️
+1. New file `computer_picks.py`. Type the code.
+2. Save, run. Click ten times and count how often each move appears.
+3. Add `print(move)` and watch the terminal fill up with random moves.
 
 ### Your Turn
-1. Loop to print "Round X" for 3 rounds.
-2. Count down from 5 to 1.
-3. Why must something change inside the loop?
+1. Add `"lizard"` to `CHOICES` and see it start appearing.
+2. Use `random.choice` to pick a random taunt from a list of three sentences.
+3. Predict: over 30 clicks, roughly how many times should each move appear?
+   (About 10 each — but randomness is lumpy!)
+
+### 📸 Show Emrys
+Screenshot two different computer throws. Tell Emrys how `random.choice` works.
 
 ### Check Your Brain
-- What does `while` do?
-- Why must the condition eventually become False?
+- What does `random.choice` do?
+- What must you `import` first?
+- Why store the moves in a list instead of three variables?
+- Does each move have an equal chance?
 
 ### More Examples
-A pre-match countdown:
+Random picks in the terminal:
 
 ```python
-n = 3
-while n > 0:
-    print(f"{n}...")
-    n = n - 1
-print("SHOOT! ✊✋✌️")
-```
-
-"First to 3 wins" — a loop that watches a SCORE instead of a round count (this is where your game is heading):
-
-```python
-you_score = 0
-while you_score < 3:
-    print("(imagine a round happens here)")
-    you_score = you_score + 1      # pretend you won each one
-print("You reached 3 - match over!")
-```
-
-A training montage:
-
-```python
-practice = 1
-while practice <= 5:
-    print(f"Practice swing {practice} 💪")
-    practice = practice + 1
-print("You're ready.")
+import random
+print(random.choice(["heads", "tails"]))
+print(random.randint(1, 6))     # a dice roll
 ```
 
 ### Common Mistakes
-- **Forever loop:** no `round_number = round_number + 1` → spins endlessly. Stop it (Ctrl+C / Stop button), add the increment. A rite of passage — welcome to the club.
-- **Off-by-one:** `while round_number < 5` runs rounds 1–4, `<= 5` runs 1–5. Count on your fingers when unsure — pros literally do this.
-- **Indented finale:** the "All rounds done!" inside the loop prints every round. Outdent it.
+- **Forgetting `import random`:** `NameError: name 'random' is not defined`.
+  **Fix:** add the import at the top.
+- **`random.choice("rock")`:** passing TEXT instead of a list picks a single
+  LETTER! **Fix:** pass a list — `random.choice(["rock", "paper"])`.
 
 ### Level Up 🚀
-Build "best of N": ask the player `rounds = int(input("Best of how many? "))` then loop that many times printing each round number. Odd numbers only would be smarter for avoiding draws — add a check that adds 1 if they pick an even number, with a cheeky message. Configurable games = real product thinking.
+Give the computer a personality: make it pick rock 50% of the time using
+`random.randint`, so it has a favourite move you can learn to beat.
 
 ---
 
-## Lesson 14: Functions — Reusable Machines
+## Lesson 14: Functions — Reusable Arena Tools
 
 ### Big Idea
-A function is named code you run by calling its name; it can take parameters.
+A function is a named machine: define it once, then run it whenever you like.
 
 ### Kid Meaning
-A machine with a button. Press it to do the job, with whatever you hand it.
+A blender is a machine — you don't rebuild it each time, you press its button. A
+function is code you name once and reuse by calling it.
 
-### Game Connection
-A function can show the score neatly whenever we want.
+### Arena Connection
+We'll build tools like `draw_hand()`, `show_msg()`, and `draw_score()` and call
+them every round — instead of copying the same drawing code over and over.
 
 ### The Code
 ```python
-def show_score(you, computer):
-    print(f"You: {you}  |  Computer: {computer}")
+import tkinter as tk
 
-show_score(2, 1)
-show_score(3, 3)
+WIDTH = 700
+root = tk.Tk()
+canvas = tk.Canvas(root, width=WIDTH, height=420, bg="#141428")
+canvas.pack()
+
+def show_msg(text, color):
+    canvas.delete("msg")
+    canvas.create_text(WIDTH/2, 350, text=text, fill=color,
+                       font=("Arial", 22, "bold"), tags="msg")
+
+def draw_score(you, computer):
+    canvas.delete("score")
+    canvas.create_text(WIDTH/2, 50, text=f"You {you}  -  {computer} Computer",
+                       fill="white", font=("Arial", 18), tags="score")
+
+draw_score(2, 1)
+show_msg("You win this round!", "#7CFC00")
+
+root.mainloop()
 ```
 
+### What You'll See
+A scoreboard reading "You 2 - 1 Computer" and a green announcement underneath —
+each drawn by its own little machine.
+
 ### Line by Line
-- `def show_score(you, computer):` — needs two numbers.
-- It prints them neatly with an f-string.
-- We call it with different scores.
+- `def show_msg(text, color):` — defines the machine. Nothing happens yet — we're
+  just building it.
+- `tags="msg"` / `tags="score"` — **labels** on the drawings so each machine erases
+  only ITS OWN text, leaving everything else untouched. Much better than
+  `delete("all")`, which would wipe the hands too.
+- `canvas.delete("msg")` at the START of the machine — clear the old one before
+  drawing the new one.
+- `draw_score(2, 1)` — calling a machine actually runs it. Call it again with new
+  numbers and only the scoreboard changes.
+
+### Do It in VS Code 🛠️
+1. New file `arena_tools.py`. Type the code.
+2. Save, run — see both pieces.
+3. Add `draw_score(3, 1)` at the bottom. Only the score updated!
+4. Add `show_msg("Computer wins!", "#ff6b6b")` — only the message changed.
 
 ### Your Turn
-1. Make a `greet(name)` function that prints a welcome using the name.
-2. Call it twice with different names.
+1. Add a `draw_title()` machine that writes the arena name at the top.
+2. Call `show_msg` three times with different words — which one wins? (The last.)
+3. Predict what `canvas.delete("msg")` erases — the score too?
+
+### 📸 Show Emrys
+Screenshot your arena with a score and a message. Tell Emrys the names of your
+functions.
 
 ### Check Your Brain
-- What word defines a function?
+- What does `def` do?
+- What is the difference between DEFINING a function and CALLING it?
+- Why are `tags` better than `delete("all")` here?
+- Why delete at the start of the machine?
+
+### More Examples
+A tiny function you call by name:
+
+```python
+def cheer():
+    print("Let's go!")
+
+cheer()
+cheer()
+```
+
+### Common Mistakes
+- **Defining but never calling:** the machine exists but nothing runs it. **Fix:**
+  call it — `draw_score(0, 0)`.
+- **Wiping everything:** `delete("all")` erases the hands too. **Fix:** delete by
+  tag.
+
+### Level Up 🚀
+Write `draw_hand(cx, cy, fingers, color, tag)` combining Lesson 12's loop with
+tags — you'll need exactly this in Lesson 17!
+
+---
+
+## Lesson 15: Functions with Parameters and return
+
+### Big Idea
+Parameters let us hand information INTO a function; `return` hands an answer BACK.
+
+### Kid Meaning
+Some machines DO something (draw a hand). Others ANSWER something (work out who
+won). `return` is how a machine gives you its answer.
+
+### Arena Connection
+`fingers_for(move)` RETURNS how many fingers to draw. `winner_of(a, b)` RETURNS
+who won. These answer-machines keep our code tidy.
+
+### The Code
+```python
+import tkinter as tk
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=520, height=320, bg="#141428")
+canvas.pack()
+
+def fingers_for(move):
+    if move == "rock":
+        return 0
+    elif move == "paper":
+        return 4
+    else:
+        return 2
+
+def draw_hand(cx, cy, move, color):
+    canvas.create_oval(cx-55, cy-55, cx+55, cy+55, fill=color, outline="")
+    fingers = fingers_for(move)
+    spacing = 28 if move == "paper" else 60
+    for k in range(fingers):
+        fy = cy - (fingers - 1) * spacing / 2 + k * spacing
+        canvas.create_rectangle(cx + 40, fy - 9, cx + 112, fy + 9,
+                                fill=color, outline="")
+
+draw_hand(180, 150, "paper", "#ffd54a")
+canvas.create_text(260, 280, text=f"paper needs {fingers_for('paper')} fingers",
+                   fill="white", font=("Arial", 14))
+
+root.mainloop()
+```
+
+### What You'll See
+An open paper hand, and a line reading "paper needs 4 fingers" — the answer came
+straight from the `fingers_for` machine.
+
+### Line by Line
+- `def fingers_for(move):` — an ANSWER-machine. Give it a move, it hands back a
+  number.
+- `return 0` — hands the number back AND stops the function immediately. Nothing
+  after it runs.
+- `fingers = fingers_for(move)` — inside `draw_hand`, we CALL the answer-machine
+  and catch its answer. One machine using another!
+- `spacing = 28 if move == "paper" else 60` — a one-line choice: paper's fingers
+  sit close together, scissors' spread apart.
+- `fingers_for('paper')` inside the f-string uses **single** quotes because the
+  f-string already uses double quotes.
+- `draw_hand` is a DO-machine (it draws); `fingers_for` is an ANSWER-machine (it
+  returns). Knowing which is which is a big step in thinking like a coder.
+
+### Do It in VS Code 🛠️
+1. New file `hand_tools.py`. Type the code.
+2. Save, run — a paper hand.
+3. Change to `draw_hand(180, 150, "scissors", "#ffd54a")` — two spread fingers.
+4. Add `print(fingers_for("rock"))` and check the terminal shows 0.
+
+### Your Turn
+1. Add a `color_for(player)` machine that returns yellow for "you" and blue for
+   "computer".
+2. Draw two hands side by side using it.
+3. Predict what `fingers_for("scissors")` returns. (2 — it falls to the `else`.)
+
+### 📸 Show Emrys
+Screenshot two hands with different moves. Tell Emrys which function RETURNS a
+value and which one DRAWS.
+
+### Check Your Brain
 - What is a parameter?
-
-### More Examples
-A scoreboard with a winner indicator — functions can contain ifs:
-
-```python
-def show_score(you, computer):
-    print(f"You: {you}  |  Computer: {computer}")
-    if you > computer:
-        print("You're ahead! 🔥")
-    elif computer > you:
-        print("Bot leads... fight back!")
-    else:
-        print("Dead even.")
-
-show_score(2, 1)
-show_score(1, 1)
-```
-
-A round announcer:
-
-```python
-def announce(round_number):
-    print("=" * 24)
-    print(f"     ROUND {round_number}")
-    print("=" * 24)
-
-announce(1)
-announce(2)
-```
-
-### Common Mistakes
-- **Define but never call:** functions don't run themselves — `show_score(2, 1)` presses the button.
-- **Call above the def:** Python reads top-down; calling before defining → `NameError`.
-- **Missing arguments:** `show_score(2)` → `TypeError: show_score() missing 1 required positional argument: 'computer'`. Two parameters = two values.
-
-### Level Up 🚀
-Write `victory_banner(name)` that prints a 3-line celebration with the name in capitals, and `defeat_banner(name)` that consoles them kindly. Call each once to test. You're pre-building the ending screens your full game will snap together later — engineers call this "building components."
-
----
-
-## Lesson 15: Functions That Give an Answer Back (return)
-
-### Big Idea
-A function can `return` a value — hand back an answer to use.
-
-### Kid Meaning
-Ask a friend, get an answer you can then use, not just hear.
-
-### Game Connection
-A `decide(you, computer)` function can work out the winner and hand it back.
-
-### The Code
-```python
-def decide(you, computer):
-    if you == computer:
-        return "tie"
-    elif you == "rock" and computer == "scissors":
-        return "you"
-    elif you == "paper" and computer == "rock":
-        return "you"
-    elif you == "scissors" and computer == "paper":
-        return "you"
-    else:
-        return "computer"
-
-result = decide("rock", "scissors")
-print(result)
-```
-
-### Line by Line
-- `decide` takes both moves and returns who won as a word: "tie", "you", or
-  "computer".
-- `return` hands the word back AND stops the function.
-- `result = decide(...)` catches the answer.
-
-### Your Turn
-1. Call `decide` with a tie and with a loss; print each result.
-2. Why is returning a word ("you"/"computer"/"tie") handy for the rest of the game?
-3. What's the difference between `print` and `return`?
-
-### Check Your Brain
 - What does `return` do?
-- What three words can `decide` return?
+- What is the difference between `fingers_for` and `draw_hand`?
+- What does `28 if move == "paper" else 60` mean?
 
 ### More Examples
-Returned words can drive other code — that's their power:
+Return a calculated value:
 
 ```python
-result = decide("paper", "rock")
-if result == "you":
-    print("Round goes to YOU!")
-```
+def double(n):
+    return n * 2
 
-Unit-test your brain function — pros write tests exactly like this:
-
-```python
-print(decide("rock", "rock"))         # expect: tie
-print(decide("rock", "scissors"))     # expect: you
-print(decide("rock", "paper"))        # expect: computer
-print(decide("scissors", "paper"))    # expect: you
-```
-
-Run it — four predictions, four outputs. All match? Your function is certified. ✅
-
-A returning function feeding ANOTHER function:
-
-```python
-def result_emoji(result):
-    if result == "you":
-        return "🎉"
-    elif result == "computer":
-        return "🤖"
-    return "🤝"
-
-print(result_emoji(decide("paper", "rock")))    # functions chained!
+print(double(7))   # 14
 ```
 
 ### Common Mistakes
-- **`print` inside instead of `return`:** then `result = decide(...)` catches `None`, and later checks like `result == "you"` are quietly never true. Return hands back; print only displays.
-- **Code after return:** lines below a hit `return` never run — it exits immediately.
-- **Comparing to the wrong word:** the function returns `"you"`, but you check `== "player"` — always False, no error. Match the exact strings.
+- **Forgetting to catch the answer:** calling `fingers_for(move)` alone throws the
+  answer away. **Fix:** store it — `fingers = fingers_for(move)`.
+- **Using `print` instead of `return`:** printing shows it but hands back nothing.
+  **Fix:** use `return` when you need the value.
 
 ### Level Up 🚀
-Print the test block above, then hand your `decide` to a classmate and challenge them to find ANY pair of moves it judges wrongly. If they can't break it, sign your function like an artist: `# decide() - certified correct by [name]`. Tested code you can trust is the foundation everything else builds on.
+Write `beats(a, b)` that returns True if move `a` beats move `b`, using the
+dictionary you'll meet next lesson.
 
 ---
 
-## Lesson 16: Validating the Player's Choice
+## Lesson 16: Dictionaries — The Rules and the Score
 
 ### Big Idea
-Keep asking until the player gives a valid choice, using a loop.
+A dictionary pairs names with values — perfect for the game's rules and the score.
 
 ### Kid Meaning
-If they type "banana", politely ask again until they pick a real move.
+A real dictionary: look up a word, get its meaning. Here we look up `"rock"` and
+get `"scissors"` — the thing rock beats.
 
-### Game Connection
-A fair game only accepts rock, paper, or scissors.
+### Arena Connection
+This ONE dictionary replaces the huge `if/or/and` referee from Lesson 10. It's the
+most elegant idea in the whole course.
 
 ### The Code
 ```python
-moves = ["rock", "paper", "scissors"]
-choice = input("Rock, paper, or scissors? ").lower().strip()
-while choice not in moves:
-    choice = input("Please type rock, paper, or scissors: ").lower().strip()
-print(f"You chose {choice}.")
-```
+import tkinter as tk
 
-### Line by Line
-- `moves` is the list of valid options.
-- `while choice not in moves:` — keep asking while the choice is NOT in the list.
-- `not in` is the opposite of `in`.
-- Once valid, we move on.
+root = tk.Tk()
+canvas = tk.Canvas(root, width=560, height=340, bg="#141428")
+canvas.pack()
 
-### Your Turn
-1. Build this and try typing nonsense, then a real move.
-2. Why use a `while` loop instead of a single `if`?
-3. What does `not in` check?
+BEATS = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+score = {"you": 0, "computer": 0, "draws": 0}
 
-### Check Your Brain
-- What does `not in` mean?
-- Why keep asking in a loop?
-
-### More Examples
-`in` and `not in` are mirror twins:
-
-```python
-moves = ["rock", "paper", "scissors"]
-print("rock" in moves)        # True
-print("banana" in moves)      # False
-print("banana" not in moves)  # True
-```
-
-Wrap the guard in a reusable function — ask once, use everywhere:
-
-```python
-def get_move():
-    moves = ["rock", "paper", "scissors"]
-    choice = input("Rock, paper, or scissors? ").lower().strip()
-    while choice not in moves:
-        choice = input("Please type rock, paper, or scissors: ").lower().strip()
-    return choice
-
-you = get_move()
-print(f"Locked in: {you}")
-```
-
-A patience-meter version — the re-ask gets more helpful each time:
-
-```python
-tries = 0
-while choice not in moves:
-    tries = tries + 1
-    if tries >= 3:
-        print("(hint: type exactly - rock, paper, or scissors)")
-    choice = input("Your move: ").lower().strip()
-```
-
-### Common Mistakes
-- **Guarding before tidying:** if `.lower().strip()` isn't applied in the re-ask too, "ROCK" stays trapped in the loop forever — frustrating! Tidy EVERY input.
-- **`if` instead of `while`:** an `if` re-asks once; type nonsense twice and it slips through. The `while` guards forever.
-- **Checking against a string:** `choice not in "rock paper scissors"` checks LETTERS in that sentence — "ock" would pass! Check against the LIST.
-
-### Level Up 🚀
-Upgrade `get_move()` to also accept "r", "p", "s" — after validating, convert the short form to the long form (an if/elif chain or, slicker: `{"r": "rock", "p": "paper", "s": "scissors"}` — a dict preview!). Fast players will love you for saving them keystrokes.
-
----
-
-# PART 3 — BUILDING THE GAME
-
----
-
-## Lesson 17: One Full Round
-
-### Big Idea
-Combine your move, the computer's random move, and the decision into one round.
-
-### Kid Meaning
-Now we play a complete single round, start to finish.
-
-### Game Connection
-This is one round of the real game.
-
-### The Code
-```python
-import random
-
-def decide(you, computer):
-    if you == computer:
-        return "tie"
-    elif you == "rock" and computer == "scissors":
-        return "you"
-    elif you == "paper" and computer == "rock":
-        return "you"
-    elif you == "scissors" and computer == "paper":
-        return "you"
+def judge(mine, theirs):
+    canvas.delete("all")
+    if mine == theirs:
+        score["draws"] = score["draws"] + 1
+        result, color = "Draw!", "#8fa0d8"
+    elif BEATS[mine] == theirs:
+        score["you"] = score["you"] + 1
+        result, color = f"You win! {mine} beats {theirs}.", "#7CFC00"
     else:
-        return "computer"
+        score["computer"] = score["computer"] + 1
+        result, color = f"Computer wins! {theirs} beats {mine}.", "#ff6b6b"
+    canvas.create_text(280, 120, text=result, fill=color,
+                       font=("Arial", 18, "bold"))
+    canvas.create_text(280, 200,
+                       text=f"You {score['you']} - {score['computer']} Computer"
+                            f"  (draws {score['draws']})",
+                       fill="white", font=("Arial", 15))
 
-moves = ["rock", "paper", "scissors"]
-you = input("Rock, paper, or scissors? ").lower().strip()
-computer = random.choice(moves)
-print(f"Computer chose {computer}.")
+judge("rock", "scissors")
 
-result = decide(you, computer)
-if result == "tie":
-    print("It's a tie!")
-elif result == "you":
-    print("You win! 🎉")
-else:
-    print("Computer wins! 🤖")
+root.mainloop()
 ```
+
+### What You'll See
+"You win! rock beats scissors." and a running scoreboard. Call `judge` again with
+different moves and the score keeps climbing.
 
 ### Line by Line
-- The `decide` function (Lesson 15) holds the rules.
-- We get your move and a random computer move.
-- We use the returned result to print who won.
+- `BEATS = {"rock": "scissors", ...}` — read it as "rock beats scissors, paper
+  beats rock, scissors beats paper." The **key** is the winner, the **value** is
+  what it defeats.
+- `BEATS[mine] == theirs` — look up what MY move beats, and check whether that's
+  what they threw. If yes, I win. **This one line replaces six lines of
+  `and`/`or`!**
+- `score = {"you": 0, ...}` — a dictionary as a scoreboard: three counters with
+  clear names, all in one box.
+- `score["you"] = score["you"] + 1` — look up the counter, add one, put it back.
+- `result, color = "Draw!", "#8fa0d8"` — filling TWO boxes on one line.
+- `{score['you']}` — single quotes inside a double-quoted f-string.
+
+### Do It in VS Code 🛠️
+1. New file `rules_dict.py`. Type the code.
+2. Save, run — you win.
+3. Try `judge("paper", "scissors")` (you lose) and `judge("rock", "rock")` (draw).
+4. Call `judge` three times in a row and watch the scoreboard accumulate.
 
 ### Your Turn
-1. Build a full round and play it a few times.
-2. Add the choice-validation loop (Lesson 16) so typos are handled.
-3. Which earlier lessons does this combine?
+1. Print `BEATS["paper"]` and check it says `"rock"`.
+2. Add a `"lizard"` entry to `BEATS` and test it.
+3. Predict `BEATS["scissors"]`. (Answer: `"paper"`.)
+
+### 📸 Show Emrys
+Screenshot a win and a loss with the scoreboard. Tell Emrys how the ONE line
+`BEATS[mine] == theirs` decides the winner.
 
 ### Check Your Brain
-- Why is the winner logic inside its own function?
-- What does `random.choice(moves)` give?
+- What is a dictionary?
+- What does `BEATS["rock"]` give you, and what does it mean?
+- Why is `BEATS[mine] == theirs` better than the big `if/and/or`?
+- How does a dictionary work as a scoreboard?
 
 ### More Examples
-Add suspense before the reveal (`import time` at the top):
+Dictionaries in the terminal:
 
 ```python
-import time
-print("Rock...")
-time.sleep(1)
-print("Paper...")
-time.sleep(1)
-print("Scissors...")
-time.sleep(1)
-print(f"Computer chose {computer}!")
+ages = {"Ama": 12, "Kofi": 13}
+print(ages["Ama"])        # 12
+ages["Esi"] = 12          # add a new one
+print(ages)
 ```
-
-Show both moves side by side with emoji — instant scoreboard feel:
-
-```python
-icons = {"rock": "🪨", "paper": "📄", "scissors": "✂️"}
-print(f"You {icons[you]}  vs  {icons[computer]} Computer")
-```
-
-(That `{"rock": "🪨", ...}` is a **dictionary** — a lookup table. Type the word, get the emoji. You'll meet dicts properly in JHS 2 — enjoy the preview!)
 
 ### Common Mistakes
-- **Asking AFTER showing the computer's move:** if the bot's choice prints before the player types, the game is beatable by reading! Player first, computer second, reveal last.
-- **Forgetting the validation loop:** one typo ("rok") and `decide` returns "computer" unfairly — the else catches unknown moves as losses! Always validate before deciding.
-- **Re-importing random in the round:** `import` lines belong at the top of the file, once.
+- **Wrong key:** `BEATS["Rock"]` (capital R) → `KeyError`. **Fix:** keys are
+  case-sensitive — use exactly `"rock"`.
+- **Reversing the meaning:** writing `{"rock": "paper"}` makes rock beat paper —
+  wrong! **Fix:** key beats value.
 
 ### Level Up 🚀
-Polish the round into a ceremony: countdown → both moves revealed with icons → a one-line reason ("Paper covers rock!") → the verdict. Time each beat with `time.sleep`. Run it for someone and watch their face — pacing is what turns code into entertainment.
+Add a `TAUNTS` dictionary pairing each move with a trash-talk line the computer
+says when it wins with that move.
 
 ---
 
-## Lesson 18: Playing Several Rounds with Score
+# PART 3 — BUILDING THE ARENA
+
+## Lesson 17: Drawing Both Hands Facing Each Other
 
 ### Big Idea
-Loop several rounds and keep both scores.
+One `draw_hand` machine, called twice with a **direction**, draws both fighters.
 
 ### Kid Meaning
-A best-of-5 match, not just one round — and we track who's ahead.
+The left hand's fingers point right; the right hand's point left. One number —
+`+1` or `-1` — flips the whole hand around.
 
-### Game Connection
-The core match of the game.
+### Arena Connection
+This is the visual heart of the arena, and the start of our real program.
 
 ### The Code
 ```python
-import random
+import tkinter as tk
 
-def decide(you, computer):
-    if you == computer: return "tie"
-    if you == "rock" and computer == "scissors": return "you"
-    if you == "paper" and computer == "rock": return "you"
-    if you == "scissors" and computer == "paper": return "you"
-    return "computer"
+WIDTH, HEIGHT = 700, 420
+LEFT_X, RIGHT_X, HAND_Y = 180, 520, 250
+YELLOW, BLUE = "#ffd54a", "#7db4ff"
 
-moves = ["rock", "paper", "scissors"]
-you_score = 0
-computer_score = 0
+root = tk.Tk()
+root.title("Rock Paper Scissors Arena")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#141428")
+canvas.pack()
 
-round_number = 1
-while round_number <= 3:
-    print(f"\n--- Round {round_number} ---")
-    you = input("Your move? ").lower().strip()
-    while you not in moves:
-        you = input("Type rock, paper, or scissors: ").lower().strip()
-    computer = random.choice(moves)
-    print(f"Computer chose {computer}.")
-    result = decide(you, computer)
-    if result == "you":
-        you_score = you_score + 1
-        print("You win the round! 🎉")
-    elif result == "computer":
-        computer_score = computer_score + 1
-        print("Computer wins the round. 🤖")
+def fingers_for(shape):
+    if shape == "rock":
+        return 0
+    elif shape == "paper":
+        return 4
     else:
-        print("Tie!")
-    round_number = round_number + 1
+        return 2
 
-print(f"\nFinal: You {you_score} - {computer_score} Computer")
+def draw_hand(cx, cy, shape, direction, color, tag):
+    canvas.delete(tag)
+    canvas.create_oval(cx - 55, cy - 55, cx + 55, cy + 55, fill=color,
+                       outline="", tags=tag)
+    fingers = fingers_for(shape)
+    spacing = 28 if shape == "paper" else 60
+    for k in range(fingers):
+        fy = cy - (fingers - 1) * spacing / 2 + k * spacing
+        x1 = cx + direction * 40
+        x2 = cx + direction * 112
+        canvas.create_rectangle(min(x1, x2), fy - 9, max(x1, x2), fy + 9,
+                                fill=color, outline="", tags=tag)
+
+draw_hand(LEFT_X, HAND_Y, "paper", 1, YELLOW, "left")
+draw_hand(RIGHT_X, HAND_Y, "scissors", -1, BLUE, "right")
+canvas.create_text(WIDTH/2, HAND_Y, text="VS", fill="#5a5ac0",
+                   font=("Arial", 26, "bold"))
+
+root.mainloop()
 ```
+
+### What You'll See
+A yellow **paper** hand on the left with fingers pointing right, and a blue
+**scissors** hand on the right with fingers pointing left, facing off across the
+VS.
 
 ### Line by Line
-- Scores start at 0; we loop 3 rounds.
-- Each round: validate move, computer picks, decide, update the right score.
-- `\n` makes a blank line for spacing.
-- After the loop, an f-string shows the final scoreline.
+- `direction` — `1` means fingers stretch to the RIGHT, `-1` means LEFT. Multiplying
+  by `-1` flips the whole hand.
+- `x1 = cx + direction * 40` — with direction `1` that's `cx + 40` (right of the
+  palm); with `-1` it's `cx - 40` (left of it).
+- `min(x1, x2)` and `max(x1, x2)` — rectangles need top-left BEFORE bottom-right.
+  When direction is `-1`, `x2` is smaller than `x1`, so `min`/`max` sort them out.
+  Without this, the left-facing fingers would vanish!
+- `tag` — each hand gets its own label (`"left"` / `"right"`) so we can redraw ONE
+  hand without disturbing the other.
+- `canvas.delete(tag)` at the start — wipe just this hand before redrawing it.
+
+### Do It in VS Code 🛠️
+1. Create your real project file `rps_arena.py`. Type the code.
+2. Save, run — two hands face off.
+3. Swap the moves in the two calls and run again.
+4. Change the right hand's direction to `1` and run — its fingers point the WRONG
+   way, straight off the screen. Change it back!
 
 ### Your Turn
-1. Build this and play a 3-round match.
-2. Change it to best-of-5.
-3. Notice `decide` here uses several `if`s with `return` — why does that work the
-   same as `if/elif`?
+1. Draw both hands as rock (fists).
+2. Move the hands closer together.
+3. Predict what `min(x1, x2)` gives when direction is `-1`. (It's `x2` — the
+   further-left one.)
+
+### 📸 Show Emrys
+Screenshot both hands with different moves. Tell Emrys what the `direction`
+number does.
 
 ### Check Your Brain
-- Where do the scores get updated?
-- What does `\n` do?
+- What does `direction` control?
+- Why do we need `min` and `max` for the finger rectangles?
+- Why does each hand get its own tag?
+- What does multiplying by `-1` do to a position?
 
 ### More Examples
-"First to 2" instead of fixed rounds — loop on scores, not the round count:
+Flipping with a direction number:
 
 ```python
-while you_score < 2 and computer_score < 2:
-    # ...one round here...
-    print(f"({you_score} - {computer_score})")
-```
-
-The match ends the MOMENT someone reaches 2 — much more dramatic than always playing all rounds.
-
-A tie counter as a third stat:
-
-```python
-ties = 0
-# in the tie branch:
-ties = ties + 1
-# in the final report:
-print(f"You {you_score} - {computer_score} Computer ({ties} ties)")
-```
-
-About that compact `decide` — `if ... : return` on one line works because after a `return`, nothing else in the function runs, so the next `if` is only reached when the previous didn't return. It behaves exactly like `elif`. Both styles are correct; pick the one you read fastest.
-
-### Common Mistakes
-- **Scores reset inside the rounds loop:** `you_score = 0` INSIDE the while wipes progress every round. Start values go BEFORE the loop.
-- **Forgetting to bump `round_number`:** infinite round 1! The increment is the loop's heartbeat.
-- **Updating the wrong score:** the most common RPS bug in history — the player wins but `computer_score` goes up. Read the result branches slowly once.
-
-### Level Up 🚀
-Convert your match to "first to 2 wins" using the score-based while above. Then think: what happens with endless ties — could the match never end? (It can't stall forever — ties don't add score but rounds keep coming. But what if you capped total rounds at 10? Add it!) Congratulations: you're now reasoning about *termination*, a real computer-science concept.
-
----
-
-## Lesson 19: Crowning a Champion
-
-### Big Idea
-After the rounds, compare the scores and announce the overall winner.
-
-### Kid Meaning
-Like the final whistle — who won the whole match?
-
-### Game Connection
-A satisfying end to the match.
-
-### The Code
-```python
-if you_score > computer_score:
-    print("🏆 You are the CHAMPION!")
-elif computer_score > you_score:
-    print("🤖 The computer is the champion. Try again!")
-else:
-    print("🤝 It's a draw overall!")
-```
-
-### Line by Line
-- Compare the two final scores with `>`.
-- Three outcomes: you win, computer wins, or a draw.
-
-### Your Turn
-1. Add the champion announcement to the end of your match.
-2. Write your OWN three end messages.
-3. What does `>` compare?
-
-### Check Your Brain
-- How do we decide the overall winner?
-- When is it a draw?
-
-### More Examples
-A champion ceremony with the score difference:
-
-```python
-if you_score > computer_score:
-    margin = you_score - computer_score
-    print(f"🏆 CHAMPION - you won by {margin}!")
-    if margin == 3:
-        print("A PERFECT SWEEP! Legendary.")
-```
-
-Personalise it with the player's name:
-
-```python
-name = "Adjoa"
-if you_score > computer_score:
-    print(f"🏆 {name.upper()} TAKES THE CROWN!")
-```
-
-The match summary block — every stat in one card:
-
-```python
-print("=" * 26)
-print("      MATCH REPORT")
-print(f"  You:      {you_score}")
-print(f"  Computer: {computer_score}")
-print(f"  Rounds:   {you_score + computer_score}")
-print("=" * 26)
+for direction in [1, -1]:
+    print(200 + direction * 50)   # 250 then 150
 ```
 
 ### Common Mistakes
-- **`>=` instead of `>`:** `if you_score >= computer_score` calls a DRAW a win for you — flattering but wrong! Strict `>` for victory, `else`/equality for draws.
-- **Announcing inside the rounds loop:** the champion line indented into the loop crowns someone every round. It belongs AFTER the loop.
-- **Forgetting the draw case:** with odd best-of totals draws are rare but possible (ties don't score!) — handle all three outcomes.
+- **Fingers disappear:** forgetting `min`/`max` on the left-facing hand. **Fix:**
+  always sort the corners.
+- **Both hands share a tag:** redrawing one erases the other. **Fix:** give each
+  its own tag.
 
 ### Level Up 🚀
-Add a "rivalry record" across matches: outside the play-again loop, keep `championships_you` and `championships_computer`, bump them each match, and print the all-time record at the very end: "All-time: You 3 - 2 Computer 🔥". Whoever loses the session will DEMAND a rematch — engineered competitiveness!
+Add a thumb to each hand: one small oval on the palm, positioned using `direction`
+so it flips correctly too.
 
 ---
 
-## Lesson 20: A Friendly Welcome and Rules
+## Lesson 18: The Shake Animation
 
 ### Big Idea
-Greet the player and explain the rules before the match.
+`root.after` calling a function again and again makes the hands shake.
 
 ### Kid Meaning
-A good host welcomes you and explains how to play.
+"Rock… Paper… Scissors…" — the hands bounce up and down before the reveal. That
+bounce is just: move, redraw, wait a moment, repeat.
 
-### Game Connection
-Makes the game feel finished and friendly.
+### Arena Connection
+This is the drama of the whole game. Without the shake it's just an instant
+answer; with it, it's a real match.
 
 ### The Code
 ```python
-def welcome():
-    print("=" * 30)
-    print("   ROCK • PAPER • SCISSORS")
-    print("=" * 30)
-    print("Beat the computer over 3 rounds!")
-    print("Rock crushes scissors, scissors cut paper, paper covers rock.")
-
-welcome()
+def shake(count):
+    if count == 0:
+        reveal()
+        return
+    offset = 25 if count % 2 == 0 else -25
+    draw_hand(LEFT_X, HAND_Y + offset, "rock", 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y + offset, "rock", -1, BLUE, "right")
+    show_msg("Rock... Paper... Scissors...", "#8fa0d8")
+    root.after(200, lambda: shake(count - 1))
 ```
+
+### What You'll See
+Both fists **bounce up and down six times**, about a fifth of a second apart,
+while the countdown text shows — then they reveal their real moves.
 
 ### Line by Line
-- A `welcome()` function (Lesson 14) holds the intro.
-- `"=" * 30` draws a line.
-- Call it once at the start.
+- `def shake(count):` — `count` is how many bounces are LEFT to do.
+- `if count == 0: reveal(); return` — the **stop condition**. When there are no
+  bounces left, show the result and leave. Without this, the hands would shake
+  forever!
+- `offset = 25 if count % 2 == 0 else -25` — the bounce. `count % 2` is 0, 1, 0,
+  1… so the offset flips between **down 25** and **up 25** each time.
+- `HAND_Y + offset` — a bigger y draws LOWER, a smaller y draws HIGHER (the screen
+  map from Lesson 2!).
+- Both hands show as `"rock"` during the shake — just like real players keeping
+  their move hidden until the last moment.
+- `root.after(200, lambda: shake(count - 1))` — "in 200 milliseconds, run `shake`
+  again with ONE FEWER bounce." A function that calls itself is called
+  **recursion**, and the countdown is what stops it.
+
+### Do It in VS Code 🛠️
+1. Add `shake` to `rps_arena.py` (plus a temporary `reveal` that just prints).
+2. Call `shake(6)` and run. Watch the bounce!
+3. Change `200` to `500` — a slow, dramatic shake. Try `80` — a frantic one.
+4. Change `shake(6)` to `shake(12)` for a longer build-up.
 
 ### Your Turn
-1. Add `welcome()` to the start of your game.
-2. Make the title and rules your own style.
+1. Make the bounce bigger (change 25 to 50).
+2. Make the two hands bounce in OPPOSITE directions (use `- offset` for one).
+3. Predict what happens if you delete the `if count == 0` block. (It never stops!)
+
+### 📸 Show Emrys
+Screenshot the hands mid-shake (both raised or lowered). Tell Emrys how many
+bounces you used and how fast.
 
 ### Check Your Brain
-- What does `"=" * 30` do?
-- Why put the welcome in a function?
+- What stops the shake from going forever?
+- What does `count % 2` produce as count counts down?
+- Why do both hands show as rock during the shake?
+- What does `root.after(200, ...)` do?
 
 ### More Examples
-A parameterised welcome — the rounds number always tells the truth:
+A simple countdown with `after`:
 
 ```python
-def welcome(rounds):
-    print("=" * 30)
-    print("   ROCK • PAPER • SCISSORS")
-    print("=" * 30)
-    print(f"Best of {rounds} rounds. Good luck!")
-
-welcome(3)
-```
-
-Border style options:
-
-```python
-print("•" * 30)
-print("=-" * 15)
-print("✊✋✌️ " * 5)
-```
-
-A matching `goodbye()` to bookend the game:
-
-```python
-def goodbye(you_score, computer_score):
-    print("-" * 30)
-    print(f"Final all-time: {you_score} - {computer_score}")
-    print("Come back for the rematch! 👋")
+def countdown(n):
+    if n == 0:
+        print("Go!")
+        return
+    print(n)
+    root.after(1000, lambda: countdown(n - 1))
 ```
 
 ### Common Mistakes
-- **Hard-coded lies:** welcome says "3 rounds" but the loop plays 5 — players notice! Pass the real number as a parameter.
-- **Defining functions at the bottom:** call-before-define → `NameError`. Defs live at the top, like a menu.
-- **`"=" + 30`:** crashes (`TypeError`) — you can MULTIPLY text by a number but not ADD a number to text.
+- **Using `time.sleep()`:** it FREEZES the window — you'd see nothing move at all.
+  **Fix:** always use `root.after` in tkinter.
+- **Forgetting the stop condition:** an endless shake that never reveals. **Fix:**
+  always check for 0 first.
+- **Brackets on the function:** `root.after(200, shake(count - 1))` runs it
+  instantly. **Fix:** wrap it in `lambda:`.
 
 ### Level Up 🚀
-Build the full broadcast package: `welcome(rounds)`, `announce(round_number)` between rounds, and `goodbye(...)` at the end. Your game now has the same structure as a televised sports event — opening, segments, closing. That structure is no accident: it's information design.
+Make the shake speed UP as it goes: pass a shorter delay each time, so the
+countdown builds tension.
 
 ---
 
-## Lesson 21: Play Again?
+## Lesson 19: One Full Round — Pick, Shake, Reveal, Judge
 
 ### Big Idea
-Wrap the whole match so the player can play again.
+Chain the pieces: the player picks, the hands shake, the moves reveal, the referee
+decides.
 
 ### Kid Meaning
-After a match, ask "Again?" — like a rematch.
+This is one complete round of the game, from button press to result.
 
-### Game Connection
-Real games let you rematch.
+### Arena Connection
+Everything from here is repeating this one round until someone wins the match.
 
 ### The Code
 ```python
-playing = "yes"
-while playing == "yes":
-    # ...run one full match here (the Lesson 18 loop)...
-    print("(match would play here)")
-    playing = input("Play again? (yes/no): ").lower().strip()
-print("Thanks for playing! 👋")
+CHOICES = ["rock", "paper", "scissors"]
+BEATS = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+score = {"you": 0, "computer": 0, "draws": 0}
+busy = False
+player_choice = "rock"
+
+def play(choice):
+    global busy, player_choice
+    if busy:
+        return
+    busy = True
+    player_choice = choice
+    shake(6)
+
+def reveal():
+    global busy
+    computer_choice = random.choice(CHOICES)
+    draw_hand(LEFT_X, HAND_Y, player_choice, 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y, computer_choice, -1, BLUE, "right")
+    if player_choice == computer_choice:
+        score["draws"] = score["draws"] + 1
+        show_msg(f"Draw! Both chose {player_choice}.", "#8fa0d8")
+    elif BEATS[player_choice] == computer_choice:
+        score["you"] = score["you"] + 1
+        show_msg(f"You win! {player_choice} beats {computer_choice}.", "#7CFC00")
+    else:
+        score["computer"] = score["computer"] + 1
+        show_msg(f"Computer wins! {computer_choice} beats {player_choice}.",
+                 "#ff6b6b")
+    draw_score()
+    busy = False
 ```
+
+### What You'll See
+Click **Rock** → the hands shake → they snap open showing your rock and the
+computer's random move → the winner is announced and the score updates.
 
 ### Line by Line
-- An OUTER `while playing == "yes":` wraps a whole match.
-- After the match, ask "Again?"; not "yes" → stop.
+- `play(choice)` — the button handler. It stores the move and starts the shake.
+- `if busy: return` — the guard from Lesson 11. It stops a player clicking a second
+  move mid-shake, which would confuse the whole round.
+- `busy = True` at the start, `busy = False` at the end of `reveal` — locked during
+  the animation, unlocked when the round finishes.
+- `player_choice` is a global so it survives from `play` through the shake to
+  `reveal`. The shake happens in between, so we can't just pass it along.
+- `random.choice(CHOICES)` — the computer's move, decided at the REVEAL moment
+  (not before) so it's a genuine surprise.
+- The `if/elif/else` is the Lesson 16 referee, using the `BEATS` dictionary.
+
+### Do It in VS Code 🛠️
+1. Add `play` and the real `reveal` to `rps_arena.py`, plus the three move buttons
+   from Lesson 6.
+2. Save, run. Play several rounds!
+3. Try clicking two buttons quickly — the guard blocks the second.
 
 ### Your Turn
-1. Wrap your full match (Lesson 18) inside this play-again loop.
-2. Make sure `you_score` and `computer_score` RESET at the start of each match.
-3. Why must they reset?
+1. Add your own wording to all three announcements.
+2. Print `computer_choice` to the terminal each round.
+3. Predict what happens if you forget `busy = False` in `reveal`. (One round only,
+   then it's stuck!)
+
+### 📸 Show Emrys
+Screenshot a win, a loss, and a draw with the revealed hands. Tell Emrys what the
+`busy` guard protects.
 
 ### Check Your Brain
-- What does the OUTER loop do?
-- What resets each match?
+- What are the four steps of one round?
+- Why must `player_choice` be a global?
+- When exactly does the computer choose its move?
+- Where is `busy` locked and where is it unlocked?
 
 ### More Examples
-Accept y/yes/YES gracefully:
+Storing a value between two functions:
 
 ```python
-playing = input("Play again? (yes/no): ").lower().strip()
-if playing == "y":
-    playing = "yes"
-```
-
-Count the matches across the session:
-
-```python
-matches = 0
-playing = "yes"
-while playing == "yes":
-    matches = matches + 1
-    print(f"\n🥊 MATCH {matches}!")
-    # ... full match here ...
-    playing = input("Rematch? (yes/no): ").lower().strip()
-print(f"Session over - {matches} matches played!")
-```
-
-What lives where — the memory map of your game:
-
-```python
-# OUTSIDE the outer loop  -> survives all matches (all-time records, match count)
-# INSIDE outer, before rounds -> fresh each match (you_score, computer_score)
-# INSIDE the rounds loop  -> fresh each round (you, computer, result)
+choice = ""
+def pick(c):
+    global choice
+    choice = c
+def use():
+    print("You picked", choice)
 ```
 
 ### Common Mistakes
-- **Score reset missing:** match 2 starts at 2-1 — instant chaos. Reset INSIDE the outer loop.
-- **Asking "again?" inside the rounds loop:** nags after every round. It belongs after the match ends, still inside the outer loop. Indentation is the address.
-- **Infinite politeness:** if `playing` never gets reassigned from input, the game never ends. Every loop needs its exit.
+- **Never unlocking `busy`:** the game plays one round then freezes. **Fix:** set
+  `busy = False` at the end of `reveal`.
+- **Choosing the computer's move too early:** if you pick it in `play`, a curious
+  student could peek before the reveal. **Fix:** choose it in `reveal`.
 
 ### Level Up 🚀
-Memorise that three-line memory map — it answers 90% of "why is my variable wrong?!" questions in ANY program, not just this one. Then prove you own it: deliberately move `you_score = 0` to the wrong place, predict the broken behaviour, run to confirm, fix it back. Breaking things on purpose is how engineers learn fastest.
+Make the winning hand **glow** by drawing a bright outline around it after the
+reveal.
 
 ---
 
-## Lesson 22: The Full Game
+## Lesson 20: The Best-Of Match
 
 ### Big Idea
-Put everything together: welcome, rounds, scoring, champion, play-again.
+Keep playing rounds until someone reaches the winning score.
 
 ### Kid Meaning
-Your complete, polished Rock-Paper-Scissors game!
+One round is fun; a match is a story. First to 3 wins takes the whole thing.
 
-### Game Connection
-This is your finished game.
+### Arena Connection
+This turns a series of rounds into a real contest with a champion.
 
 ### The Code
 ```python
-import random
+WIN_TARGET = 3
+match_over = False
 
-def welcome():
-    print("=" * 30)
-    print("   ROCK • PAPER • SCISSORS")
-    print("=" * 30)
-
-def decide(you, computer):
-    if you == computer: return "tie"
-    if you == "rock" and computer == "scissors": return "you"
-    if you == "paper" and computer == "rock": return "you"
-    if you == "scissors" and computer == "paper": return "you"
-    return "computer"
-
-moves = ["rock", "paper", "scissors"]
-welcome()
-
-playing = "yes"
-while playing == "yes":
-    you_score = 0
-    computer_score = 0
-    round_number = 1
-    while round_number <= 3:
-        print(f"\n--- Round {round_number} ---")
-        you = input("Your move? ").lower().strip()
-        while you not in moves:
-            you = input("Type rock, paper, or scissors: ").lower().strip()
-        computer = random.choice(moves)
-        print(f"Computer chose {computer}.")
-        result = decide(you, computer)
-        if result == "you":
-            you_score = you_score + 1
-            print("You win the round! 🎉")
-        elif result == "computer":
-            computer_score = computer_score + 1
-            print("Computer wins the round. 🤖")
+# at the end of reveal(), after busy = False:
+    if score["you"] >= WIN_TARGET or score["computer"] >= WIN_TARGET:
+        global match_over
+        match_over = True
+        if score["you"] >= WIN_TARGET:
+            show_msg("YOU WIN THE MATCH!", "#7CFC00")
+            celebrate()
         else:
-            print("Tie!")
-        round_number = round_number + 1
+            show_msg("Computer wins the match!", "#ff6b6b")
 
-    print(f"\nFinal: You {you_score} - {computer_score} Computer")
-    if you_score > computer_score:
-        print("🏆 You are the CHAMPION!")
-    elif computer_score > you_score:
-        print("🤖 Computer wins. Try again!")
-    else:
-        print("🤝 It's a draw!")
-
-    playing = input("\nPlay again? (yes/no): ").lower().strip()
-
-print("Thanks for playing! 👋")
+# and the guard in play() becomes:
+    if busy or match_over:
+        return
 ```
+
+### What You'll See
+Play on — as soon as either side reaches **3 wins**, a match-winner banner appears
+and the move buttons stop responding until you start a new match.
 
 ### Line by Line
-- Two functions (`welcome`, `decide`) up top.
-- Outer loop = a match; inner loop = 3 rounds; innermost loop = validating a move.
-- Scores reset each match; champion announced; ask to replay.
+- `WIN_TARGET = 3` — one number controls the match length. Change it to 5 for a
+  longer contest.
+- `score["you"] >= WIN_TARGET or score["computer"] >= WIN_TARGET` — either side
+  reaching the target ends the match. `>=` means "greater than or equal to".
+- `match_over = True` — a second Boolean flag, like `busy` but permanent until a
+  new match.
+- `if busy or match_over: return` — now the guard blocks clicks for BOTH reasons:
+  mid-animation, or match finished.
+- Note we check the match END after the round result, so the final round still
+  gets announced normally first.
+
+### Do It in VS Code 🛠️
+1. Add `WIN_TARGET`, `match_over`, and update `reveal` and `play`.
+2. Save, run. Play until someone reaches 3.
+3. Try clicking a move after the match ends — nothing happens, as intended.
+4. Change `WIN_TARGET = 1` for a lightning match to test quickly.
 
 ### Your Turn
-1. Build the full game and play several matches.
-2. Make it best-of-5 and adjust the messages.
-3. Trace what happens across one full match.
+1. Make it best-of-7 (first to 4).
+2. Add a message showing how many wins are still needed.
+3. Predict what happens with `WIN_TARGET = 1`. (The first non-draw round ends it.)
+
+### 📸 Show Emrys
+Screenshot the match-winner banner. Tell Emrys your `WIN_TARGET` and the final
+score.
 
 ### Check Your Brain
-- How many loops are in this game, and what does each do?
-- Why reset the scores inside the outer loop?
+- What does `WIN_TARGET` control?
+- What does `>=` mean?
+- Why do we have TWO flags (`busy` and `match_over`)?
+- Why check for the match end AFTER announcing the round?
 
 ### More Examples
-The release checklist — run each test on your finished game:
+Checking two ways to finish:
 
 ```python
-# Test 1: win a match            -> champion line shows?
-# Test 2: lose a match           -> computer line + kind message?
-# Test 3: tie every round        -> draw announced properly?
-# Test 4: type "ROCK", " paper " -> still accepted (tidying works)?
-# Test 5: type "banana"          -> politely re-asked, no crash?
-# Test 6: play 2 matches         -> scores reset between them?
-# Test 7: answer "YES" then "no" -> replays once, then exits cleanly?
-```
-
-Pass all seven and your game is genuinely production-quality for a beginner project. Most adults' first games can't pass this list.
-
-Three loops, one map:
-
-```python
-# while playing == "yes":        <- the SESSION (matches)
-#     while round_number <= 3:   <- the MATCH (rounds)
-#         while you not in moves:  <- the GUARD (one valid input)
+if lives <= 0 or rounds >= 10:
+    print("Game over")
 ```
 
 ### Common Mistakes
-- **Indentation drift in the big build:** with three nested loops, one wrong indent silently moves a line to a different loop. When something repeats too often or too rarely — check its indent FIRST.
-- **decide() defined inside a loop:** works, but redefines the machine every round — wasteful and confusing. Functions at the top, once.
-- **Testing only victory:** the bugs hide in the loss, tie, and typo paths. The checklist exists because happy-path testing lies.
+- **Forgetting `global match_over`:** the flag never sticks and the match never
+  ends. **Fix:** declare it global where you change it.
+- **Blocking too early:** checking `match_over` before announcing the last round
+  hides the winning result. **Fix:** announce first, then check.
 
 ### Level Up 🚀
-Time a full match with `time.time()`: stamp `start = time.time()` before the rounds, and after the champion line print `f"Match time: {time.time() - start:.1f} seconds"`. Speedrun mode unlocked — who in class finishes a best-of-3 fastest? 🏁
+Add "match point!" text when either side is one win away from taking the match.
 
 ---
 
-## Lesson 23: Making It Cooler — A Running Tally
+## Lesson 21: The Score Dictionary in Action
 
 ### Big Idea
-Show the score after every round so the player always knows the state.
+One dictionary holds every counter, and one machine draws them all.
 
 ### Kid Meaning
-Like a scoreboard updating live during the match.
+Instead of three separate boxes floating around, the scoreboard lives in one tidy
+place with clear labels.
 
-### Game Connection
-Keeps players excited round to round.
+### Arena Connection
+This is the scoreboard the whole arena reads from.
 
 ### The Code
 ```python
-# Add this line at the END of each round, inside the rounds loop:
-print(f"Score so far → You: {you_score}  Computer: {computer_score}")
+def draw_score():
+    canvas.delete("score")
+    canvas.create_text(WIDTH/2, 40, text="ROCK PAPER SCISSORS ARENA",
+                       fill="#ffd54a", font=("Arial", 20, "bold"), tags="score")
+    canvas.create_text(WIDTH/2, 78,
+                       text=f"You {score['you']}  -  {score['computer']} Computer"
+                            f"   (draws: {score['draws']})",
+                       fill="white", font=("Arial", 15), tags="score")
+    canvas.create_text(WIDTH/2, 105, text=f"First to {WIN_TARGET} wins the match",
+                       fill="#8fa0d8", font=("Arial", 11), tags="score")
+    canvas.create_text(LEFT_X, 150, text="YOU", fill=YELLOW,
+                       font=("Arial", 14, "bold"), tags="score")
+    canvas.create_text(RIGHT_X, 150, text="COMPUTER", fill=BLUE,
+                       font=("Arial", 14, "bold"), tags="score")
 ```
+
+### What You'll See
+A complete scoreboard header: the arena title, the live score with draws, the
+match rule, and a name above each fighter — all redrawn cleanly every round.
 
 ### Line by Line
-- An f-string showing both scores.
-- Placed inside the rounds loop, after updating the score, so it shows every round.
+- `canvas.delete("score")` then redraw — the standard pattern: wipe this piece,
+  draw it fresh. Everything shares the `"score"` tag so ONE delete clears the lot.
+- `f"You {score['you']} ..."` — reading three values straight out of the
+  dictionary inside one f-string.
+- Two f-strings written next to each other (`f"..."` `f"..."`) — Python **joins
+  them automatically**. That lets a long line be split neatly across two lines.
+- `{score['you']}` — single quotes inside the double-quoted f-string.
+- One machine draws the whole header, so `reveal` just calls `draw_score()` and
+  everything updates at once.
+
+### Do It in VS Code 🛠️
+1. Replace your simple score drawing with this full `draw_score` in
+   `rps_arena.py`.
+2. Save, run. Play a few rounds and watch every number update together.
+3. Add a new key `score["rounds"]` and display it too.
 
 ### Your Turn
-1. Add the running tally to your game.
-2. Add an emoji that changes if you're ahead, behind, or tied (hint: an `if` on the
-   scores).
-3. Why show the score every round?
+1. Add your fighter name (from Lesson 8) above the left hand instead of "YOU".
+2. Change the header colours.
+3. Predict what `score['draws']` shows after two drawn rounds. (2.)
+
+### 📸 Show Emrys
+Screenshot your scoreboard mid-match. Tell Emrys how many values it reads from
+the dictionary.
 
 ### Check Your Brain
-- Where must this line go to show every round?
-- Why use an f-string?
+- Why does everything in the header share one tag?
+- What happens when you write two f-strings next to each other?
+- Why single quotes inside the braces?
+- Why is one `draw_score()` better than updating each number separately?
 
 ### More Examples
-The mood-aware tally from Your Turn, fully built:
+Reading several keys at once:
 
 ```python
-if you_score > computer_score:
-    status = "😎 You lead!"
-elif computer_score > you_score:
-    status = "😬 Bot leads..."
-else:
-    status = "🤝 All square."
-print(f"Score → You {you_score} - {computer_score} Computer   {status}")
-```
-
-A visual score bar — stars per point:
-
-```python
-print(f"You      {'⭐' * you_score}")
-print(f"Computer {'⭐' * computer_score}")
-```
-
-Win-streak tracking with celebration:
-
-```python
-streak = 0
-# in the "you win" branch:
-streak = streak + 1
-if streak >= 2:
-    print(f"🔥 {streak} in a row!")
-# in the "computer wins" branch:
-streak = 0
+score = {"you": 2, "computer": 1}
+print(f"{score['you']} to {score['computer']}")
 ```
 
 ### Common Mistakes
-- **Tally before the score update:** print first, update second shows LAST round's score — confusing! Update, THEN display.
-- **Streak never reset:** forgetting `streak = 0` on a loss makes the fire emoji lie. Resets matter as much as increments.
-- **Information overload:** tally + streak + bars + status every round can drown the game. Pick the 1–2 displays that feel best — restraint is design.
+- **Same quote type inside the f-string:** `f"{score["you"]}"` → `SyntaxError`.
+  **Fix:** use single quotes inside.
+- **Forgetting the tag on one item:** it never gets erased and text piles up.
+  **Fix:** tag every piece.
 
 ### Level Up 🚀
-A/B test your own game: version A with just the plain tally, version B with bars + streaks. Have two classmates play each, then ask which felt more exciting. You're now doing UX research — the discipline that decides how the world's apps look and feel.
+Highlight whoever is currently ahead by drawing their name in a brighter colour.
+
+---
+
+## Lesson 22: Win Statistics and Percentages
+
+### Big Idea
+Turn the raw counts into percentages and draw them as bars.
+
+### Kid Meaning
+"You've won 3 of 5" is fine — but a bar chart shows your form at a glance, like a
+real sports app.
+
+### Arena Connection
+This is the professional touch that makes the arena feel like a real game.
+
+### The Code
+```python
+rounds_played = 0
+
+def draw_stats():
+    canvas.delete("stats")
+    if rounds_played == 0:
+        return
+    labels = ["Wins", "Losses", "Draws"]
+    values = [score["you"], score["computer"], score["draws"]]
+    colors = [YELLOW, BLUE, "#8fa0d8"]
+    for i in range(3):
+        y = 440 + i * 28
+        percent = values[i] / rounds_played * 100
+        canvas.create_text(80, y, text=labels[i], fill="white", anchor="e",
+                           font=("Arial", 11), tags="stats")
+        canvas.create_rectangle(95, y - 9, 95 + 380, y + 9, outline="#3a4a90",
+                                tags="stats")
+        canvas.create_rectangle(95, y - 9, 95 + 380 * percent / 100, y + 9,
+                                fill=colors[i], outline="", tags="stats")
+        canvas.create_text(495, y, text=f"{percent:.0f}%", fill="white",
+                           anchor="w", font=("Arial", 11), tags="stats")
+```
+
+### What You'll See
+Three labelled bars under the arena — **Wins** in yellow, **Losses** in blue,
+**Draws** in grey — each filling to its true percentage, with the number beside it.
+
+### Line by Line
+- `if rounds_played == 0: return` — the **divide-by-zero guard**. Before any round
+  is played, dividing by 0 would crash the program. Leaving early avoids it.
+- `labels`, `values`, `colors` — three lists that line up: position 0 of each
+  belongs together. This is a really common coder pattern.
+- `for i in range(3):` — one loop draws all three bars, reading `labels[i]`,
+  `values[i]`, and `colors[i]` together.
+- `y = 440 + i * 28` — each bar sits 28 pixels below the one before.
+- `percent = values[i] / rounds_played * 100` — this bar's share of all rounds.
+- `95 + 380 * percent / 100` — the filled bar's right edge on a 380-wide track.
+- `anchor="e"` puts the label's RIGHT edge at x=80 (so labels end neatly aligned);
+  `anchor="w"` puts the percentage's LEFT edge at x=495.
+
+### Do It in VS Code 🛠️
+1. Add `rounds_played = 0`, `draw_stats`, and `rounds_played = rounds_played + 1`
+   in `reveal` (with `global rounds_played`).
+2. Call `draw_stats()` from `reveal`.
+3. Save, run. Play several rounds and watch the bars shift.
+4. Remove the zero-guard and run — crash! Put it back.
+
+### Your Turn
+1. Change the bar colours and make the track longer.
+2. Add a fourth bar showing rounds played as a fraction of 10.
+3. Predict the three percentages after 1 win, 1 loss, 0 draws. (50%, 50%, 0%.)
+
+### 📸 Show Emrys
+Screenshot your stats bars after several rounds. Tell Emrys your win percentage.
+
+### Check Your Brain
+- Why do we check `rounds_played == 0` first?
+- How do the three lists line up with each other?
+- What do `anchor="e"` and `anchor="w"` do?
+- What sets each bar's length?
+
+### More Examples
+Parallel lists in the terminal:
+
+```python
+names = ["Ama", "Kofi"]
+scores = [3, 5]
+for i in range(2):
+    print(names[i], "scored", scores[i])
+```
+
+### Common Mistakes
+- **`ZeroDivisionError`:** dividing before any round is played. **Fix:** the guard.
+- **Lists out of step:** adding a label but not a colour → `IndexError`. **Fix:**
+  keep all three lists the same length.
+
+### Level Up 🚀
+Track your favourite move: count how often you throw each one and show that as a
+fourth set of bars.
+
+---
+
+## Lesson 23: Polish — Arena Feel
+
+### Big Idea
+Small touches — a reset, locked sizing, and a celebration — turn a program into a
+game.
+
+### Kid Meaning
+The difference between "it works" and "let's play again" is polish.
+
+### Arena Connection
+This is the final layer before your showcase.
+
+### The Code
+```python
+def celebrate():
+    for i in range(30):
+        x = random.randint(0, WIDTH)
+        y = random.randint(0, HEIGHT)
+        canvas.create_text(x, y, text="*", fill="#ffd54a",
+                           font=("Arial", 18), tags="stars")
+
+def new_match():
+    global score, rounds_played, busy, match_over
+    score = {"you": 0, "computer": 0, "draws": 0}
+    rounds_played = 0
+    busy = False
+    match_over = False
+    canvas.delete("stars")
+    canvas.delete("stats")
+    draw_score()
+    draw_hand(LEFT_X, HAND_Y, "rock", 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y, "rock", -1, BLUE, "right")
+    show_msg("Pick your move!", "white")
+```
+
+### What You'll See
+Winning a match scatters **30 gold stars** across the arena. The **New Match**
+button wipes everything clean — score, stats, stars — and puts both fists back in
+the ready position.
+
+### Line by Line
+- `celebrate()` — a `for` loop (Lesson 12) scattering stars at `random` positions
+  (Lesson 13). Two old skills combining.
+- `random.randint(0, WIDTH)` — a random whole number anywhere across the arena.
+- `tags="stars"` — so `new_match` can sweep them all away.
+- `new_match` resets **four** things at once: the score dictionary, the round
+  count, and both flags. Miss one and the new match starts broken.
+- `score = {...}` — building a brand-new dictionary is the cleanest way to reset
+  all three counters together.
+- Redrawing both hands as `"rock"` puts the fighters back in their ready stance.
+
+### Do It in VS Code 🛠️
+1. Add `celebrate` and `new_match`, plus a **New Match** button.
+2. Add `root.resizable(False, False)` near the top if it isn't there.
+3. Save, run. Win a match, see the stars, then hit New Match.
+
+### Your Turn
+1. Change the star symbol and count.
+2. Make `new_match` also show a "Round 1 - FIGHT!" banner.
+3. Predict what breaks if `new_match` forgets `match_over = False`. (Buttons stay
+   dead!)
+
+### 📸 Show Emrys
+Screenshot your victory stars AND the freshly reset arena. Tell Emrys the four
+things `new_match` resets.
+
+### Check Your Brain
+- Which four things must `new_match` reset?
+- Why do the stars need their own tag?
+- What does `random.randint(0, WIDTH)` give?
+- Why lock the window size?
+
+### More Examples
+Resetting several values at once:
+
+```python
+def reset():
+    global score, lives
+    score = 0
+    lives = 3
+```
+
+### Common Mistakes
+- **Stars piling up:** forgetting `canvas.delete("stars")`. **Fix:** delete them in
+  `new_match`.
+- **Forgetting one flag:** the arena looks reset but won't respond. **Fix:** reset
+  `busy` AND `match_over`.
+
+### Level Up 🚀
+Animate the stars falling down the arena using `root.after`, like real confetti.
 
 ---
 
 ## Lesson 24: Showcase and Reflection
 
 ### Big Idea
-You built a real game — celebrate and share it.
+Assemble the complete Rock Paper Scissors Arena and show it off — you built a real
+animated game!
 
 ### Kid Meaning
-From zero to a scored, multi-round game vs the computer. Be proud!
+Every piece you learned — windows, shapes, loops, buttons, variables, maths,
+if/elif, booleans, dictionaries, functions, return, random, and animation — comes
+together into one game you can play and share.
 
-### Game Connection
-This is your finished Rock-Paper-Scissors — welcome, rounds, scoring, champion,
-play-again, and a live tally.
+### Arena Connection
+This is the finished product. Read it, run it, and be proud.
 
 ### The Code
 ```python
-# This is YOUR finished game. Read every line top to bottom and
-# make sure you can explain it. That's how you know you've learned it.
+import tkinter as tk
+import random
+
+WIDTH, HEIGHT = 700, 540
+LEFT_X, RIGHT_X, HAND_Y = 180, 520, 250
+YELLOW, BLUE = "#ffd54a", "#7db4ff"
+WIN_TARGET = 3
+
+root = tk.Tk()
+root.title("Rock Paper Scissors Arena")
+root.resizable(False, False)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#141428")
+canvas.pack()
+
+CHOICES = ["rock", "paper", "scissors"]
+BEATS = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+
+score = {"you": 0, "computer": 0, "draws": 0}
+rounds_played = 0
+busy = False
+match_over = False
+player_choice = "rock"
+
+def fingers_for(shape):
+    if shape == "rock":
+        return 0
+    elif shape == "paper":
+        return 4
+    else:
+        return 2
+
+def draw_hand(cx, cy, shape, direction, color, tag):
+    canvas.delete(tag)
+    canvas.create_oval(cx - 55, cy - 55, cx + 55, cy + 55, fill=color,
+                       outline="", tags=tag)
+    fingers = fingers_for(shape)
+    spacing = 28 if shape == "paper" else 60
+    for k in range(fingers):
+        fy = cy - (fingers - 1) * spacing / 2 + k * spacing
+        x1 = cx + direction * 40
+        x2 = cx + direction * 112
+        canvas.create_rectangle(min(x1, x2), fy - 9, max(x1, x2), fy + 9,
+                                fill=color, outline="", tags=tag)
+
+def show_msg(text, color):
+    canvas.delete("msg")
+    canvas.create_text(WIDTH / 2, 385, text=text, fill=color,
+                       font=("Arial", 22, "bold"), tags="msg")
+
+def draw_score():
+    canvas.delete("score")
+    canvas.create_text(WIDTH / 2, 40, text="ROCK PAPER SCISSORS ARENA",
+                       fill="#ffd54a", font=("Arial", 20, "bold"),
+                       tags="score")
+    canvas.create_text(WIDTH / 2, 78,
+                       text=f"You {score['you']}  -  {score['computer']} Computer"
+                            f"   (draws: {score['draws']})",
+                       fill="white", font=("Arial", 15), tags="score")
+    canvas.create_text(WIDTH / 2, 105,
+                       text=f"First to {WIN_TARGET} wins the match",
+                       fill="#8fa0d8", font=("Arial", 11), tags="score")
+    canvas.create_text(LEFT_X, 150, text="YOU", fill=YELLOW,
+                       font=("Arial", 14, "bold"), tags="score")
+    canvas.create_text(RIGHT_X, 150, text="COMPUTER", fill=BLUE,
+                       font=("Arial", 14, "bold"), tags="score")
+    canvas.create_text(WIDTH / 2, HAND_Y, text="VS", fill="#5a5ac0",
+                       font=("Arial", 26, "bold"), tags="score")
+
+def draw_stats():
+    canvas.delete("stats")
+    if rounds_played == 0:
+        return
+    labels = ["Wins", "Losses", "Draws"]
+    values = [score["you"], score["computer"], score["draws"]]
+    colors = [YELLOW, BLUE, "#8fa0d8"]
+    for i in range(3):
+        y = 440 + i * 28
+        percent = values[i] / rounds_played * 100
+        canvas.create_text(80, y, text=labels[i], fill="white", anchor="e",
+                           font=("Arial", 11), tags="stats")
+        canvas.create_rectangle(95, y - 9, 95 + 380, y + 9, outline="#3a4a90",
+                                tags="stats")
+        canvas.create_rectangle(95, y - 9, 95 + 380 * percent / 100, y + 9,
+                                fill=colors[i], outline="", tags="stats")
+        canvas.create_text(495, y, text=f"{percent:.0f}%", fill="white",
+                           anchor="w", font=("Arial", 11), tags="stats")
+
+def celebrate():
+    for i in range(30):
+        x = random.randint(0, WIDTH)
+        y = random.randint(0, HEIGHT)
+        canvas.create_text(x, y, text="*", fill="#ffd54a",
+                           font=("Arial", 18), tags="stars")
+
+def play(choice):
+    global busy, player_choice
+    if busy or match_over:
+        return
+    busy = True
+    player_choice = choice
+    shake(6)
+
+def shake(count):
+    if count == 0:
+        reveal()
+        return
+    offset = 25 if count % 2 == 0 else -25
+    draw_hand(LEFT_X, HAND_Y + offset, "rock", 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y + offset, "rock", -1, BLUE, "right")
+    show_msg("Rock... Paper... Scissors...", "#8fa0d8")
+    root.after(200, lambda: shake(count - 1))
+
+def reveal():
+    global busy, rounds_played, match_over
+    computer_choice = random.choice(CHOICES)
+    draw_hand(LEFT_X, HAND_Y, player_choice, 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y, computer_choice, -1, BLUE, "right")
+    if player_choice == computer_choice:
+        score["draws"] = score["draws"] + 1
+        show_msg(f"Draw! Both chose {player_choice}.", "#8fa0d8")
+    elif BEATS[player_choice] == computer_choice:
+        score["you"] = score["you"] + 1
+        show_msg(f"You win! {player_choice} beats {computer_choice}.", "#7CFC00")
+    else:
+        score["computer"] = score["computer"] + 1
+        show_msg(f"Computer wins! {computer_choice} beats {player_choice}.",
+                 "#ff6b6b")
+    rounds_played = rounds_played + 1
+    draw_score()
+    draw_stats()
+    busy = False
+    if score["you"] >= WIN_TARGET or score["computer"] >= WIN_TARGET:
+        match_over = True
+        if score["you"] >= WIN_TARGET:
+            show_msg("YOU WIN THE MATCH!", "#7CFC00")
+            celebrate()
+        else:
+            show_msg("Computer wins the match!", "#ff6b6b")
+
+def new_match():
+    global score, rounds_played, busy, match_over
+    score = {"you": 0, "computer": 0, "draws": 0}
+    rounds_played = 0
+    busy = False
+    match_over = False
+    canvas.delete("stars")
+    canvas.delete("stats")
+    draw_score()
+    draw_hand(LEFT_X, HAND_Y, "rock", 1, YELLOW, "left")
+    draw_hand(RIGHT_X, HAND_Y, "rock", -1, BLUE, "right")
+    show_msg("Pick your move!", "white")
+
+buttons = tk.Frame(root)
+buttons.pack(pady=6)
+tk.Button(buttons, text="Rock", font=("Arial", 13), width=9,
+          command=lambda: play("rock")).pack(side="left", padx=4)
+tk.Button(buttons, text="Paper", font=("Arial", 13), width=9,
+          command=lambda: play("paper")).pack(side="left", padx=4)
+tk.Button(buttons, text="Scissors", font=("Arial", 13), width=9,
+          command=lambda: play("scissors")).pack(side="left", padx=4)
+tk.Button(buttons, text="New Match", font=("Arial", 11),
+          command=new_match).pack(side="left", padx=14)
+
+new_match()
+root.mainloop()
 ```
+
+### What You'll See
+The full arena: two fighters, a dramatic shake countdown, the reveal, a referee
+that names the winning move, a live scoreboard, percentage bars, best-of-3 match
+play, a star-shower victory, and a New Match button.
 
 ### Line by Line
-- Open your full game file and explain each line out loud.
-- Any fuzzy line → revisit the lesson that taught it.
+- Every function is one you built across the course. Read each name — you know
+  exactly what it does now.
+- The flow: a button calls `play()` → `shake()` bounces the hands → `reveal()`
+  judges and scores → if someone hit the target, the match ends.
+- Notice how the program is just **small machines calling each other**. That's how
+  all real software is built.
 
-### Your Turn (Showcase)
-1. Let your class or family play your game.
-2. Explain THREE lines of your code to them.
-3. Pick ONE upgrade you'd add next (best-of-7, lizard/Spock, two players) and
-   describe how it might work.
-4. Brilliant — you're now a beginner Python game-maker! 🎉
+### Do It in VS Code 🛠️
+1. Make sure your `rps_arena.py` matches this complete version.
+2. Save, run. Play several matches. Can you beat the computer 3-0?
+3. Let a friend play and watch which part they enjoy most.
+
+### Your Turn — Reflection
+1. Which lesson was the hardest, and what finally made it click?
+2. Add ONE personal touch (your fighter name, new colours, trash talk, a longer
+   match).
+3. Write two sentences: what are you proudest of building?
+
+### 📸 Show Emrys
+Screenshot your arena mid-shake AND your match victory with stars. Tell Emrys:
+"Course complete!" and share your one personal touch.
 
 ### Check Your Brain
-- What was your favourite part to build?
-- Explain what a variable, an `if` with `and`, `random.choice`, a loop, and a
-  function with `return` each do.
-- What's one thing you understand now that you didn't 4 months ago?
+- Name three different concepts this game uses (there are many!).
+- Which function judges the winner, and which one animates the hands?
+- How would you explain the `BEATS` dictionary to a friend?
 
-### Look How Far You've Come 🏆
-Four months ago: zero code. Today your game runs on ALL of this:
-
-- **print & f-strings** — the broadcast voice (Lessons 1, 7)
-- **variables & counters** — two scores, rounds, streaks (Lessons 3, 5)
-- **input + tidying** — fair, forgiving controls (Lessons 6, 8)
-- **if / elif / else / and** — the complete rules engine (Lessons 9–11)
-- **random.choice** — a fair computer opponent (Lesson 12)
-- **three nested loops** — session, match, input guard (Lessons 13, 16, 21)
-- **functions + return** — `decide()`, tested and certified (Lessons 14–15)
-
-You also learned things most beginners skip: testing all nine combinations, validating input, and the memory map of where variables live. That's engineering discipline, not just coding.
-
-### More Examples (Showcase ideas)
-```python
-# 1. A signed splash screen
-print("RPS ARENA - engineered by Kwame, JHS 1 ⚙️")
-```
+### More Examples
+Ideas to keep growing your arena:
 
 ```python
-# 2. Tournament mode banner for the class competition
-print("🏟️  CLASS CHAMPIONSHIP - QUARTER FINAL")
+# Give the computer a favourite move it plays more often
+def computer_move():
+    if random.randint(1, 10) <= 5:
+        return "rock"
+    return random.choice(CHOICES)
 ```
 
-```python
-# 3. The all-time record farewell
-print(f"All-time: You {champs_you} - {champs_bot} Computer. Rematch tomorrow?")
-```
+### Common Mistakes
+- **Copy-paste errors:** if it won't run, read the terminal's red line number and
+  check that exact line. **Fix:** compare it character by character.
+- **Indentation drift:** mixed spaces break Python. **Fix:** keep 4 spaces per
+  level everywhere.
 
-### Common Mistakes (on showcase day!)
-- **Last-minute "improvements":** code freeze before the demo. Working beats fancy.
-- **Demoing in silence:** narrate like a sports commentator — you built the arena, own the mic.
-- **Skipping the checklist:** run the 7-test release checklist (Lesson 22) one final time in the morning.
-
-### Level Up 🚀 (your next adventure)
-1. **Rock-Paper-Scissors-Lizard-Spock** — five moves, ten win-rules. Your `decide()` is about to grow up.
-2. **The learning bot** — track which move the player picks most, and let the computer counter it. That's genuinely simple AI.
-3. **Saved rivalry records** — JHS 2 teaches files; your all-time score could survive shutdown.
-
-You didn't just play a game — you *built the opponent*. See you in JHS 2, engineer. ⚙️🚀
+### Level Up 🚀
+Add Rock-Paper-Scissors-Lizard-Spock by expanding the `BEATS` dictionary so each
+move beats TWO others, or add a two-player mode. You are officially a game
+maker! 🎮
