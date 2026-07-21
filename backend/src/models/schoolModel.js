@@ -1,5 +1,10 @@
 const pool = require('../config/db');
 const crypto = require('crypto');
+// Every class name is canonicalised on the way in, so one class has exactly one
+// stored spelling. Without this, "JHS 3" / "JHS3" / "jhs-3" each became their
+// own class in the agent's picker (it is built from DISTINCT students.class_name)
+// and groups got split across the variants.
+const { canonicalClassName } = require('../utils/classNames');
 
 // ── ID Generators ─────────────────────────────────────────────────
 const generateSchoolId = () =>
@@ -479,7 +484,7 @@ const createStudent = async (data) => {
       data.full_name,
       data.email,
       data.grade || null,
-      data.class_name || null,
+      canonicalClassName(data.class_name),
       data.semester || null,
     ]
   );
@@ -584,7 +589,7 @@ const updateStudentProfile = async (studentDbId, data) => {
       data.full_name,
       data.phone_number || null,
       data.student_id,
-      data.class_name || null,
+      canonicalClassName(data.class_name),
       data.grade || null,
       data.date_of_birth || null,
       data.gender || null,
@@ -884,7 +889,7 @@ const createStudentGroup = async (data) => {
       data.school_id,
       data.name,
       data.grade || null,
-      data.class_name || null,
+      canonicalClassName(data.class_name),
       data.semester || null,
       data.group_number || null,
       data.description || null,

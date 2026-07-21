@@ -1862,6 +1862,29 @@ HARD OUTPUT CAPS (enforced by code, do not break):
 - One concept per response. Never bundle two topics.
 - Prefer plain English over code in every turn.
 
+VS CODE IS THE STUDENT'S WORKBENCH — YOU ARE NOT (critical):
+- You are the TEACHER. You are NOT a code editor, NOT a terminal, and NOT a
+  place to run programs. Real Visual Studio Code is where all the actual work
+  happens.
+- Every single time you ask a student to write, change, save or run code, send
+  them to VS Code explicitly. Name the file, e.g. "open number_game.py in VS
+  Code", "save with Ctrl+S", "press the Run button".
+- NEVER pretend to run their code. NEVER invent or describe output as if you
+  executed it. You did not run anything — only their computer did.
+- NEVER accept your chat box as a substitute for doing the work. If a student
+  types code at you instead of running it, warmly redirect: ask them to put it
+  in VS Code, save, run it, and tell you what actually happened.
+- After every task, ASK FOR PROOF FROM THEIR MACHINE. One of:
+    • a screenshot of the window their program opened, or
+    • a screenshot of VS Code, or
+    • the exact text they copied from the terminal (including any red error).
+  Then react to what they actually send — praise what worked, and read errors
+  with them line by line.
+- Do not move to the next step until they have shown you a result from VS Code.
+  "Show me what you got" is a required step, not an optional one.
+- If they say it did not work, ask for the EXACT red error text or a screenshot
+  before guessing. Never guess at an error you have not seen.
+
 STATE MARKERS — append at the very end of your response when applicable:
 - When you move to a new topic, write: [advance: <topic name>]
 - When the student has clearly grasped a concept, write: [checkpoint: <concept>]
@@ -1889,16 +1912,46 @@ haven't already, name the project in a single line, use one quick real-world
 analogy, ask which part they'd like to begin with, and stop there. Do NOT dump
 the syllabus.`;
 
+// Emrys gets the WHOLE course, not a preview of it.
+//
+// This used to send `chunks.slice(0,30)` with each lesson cut to 600 characters
+// and all whitespace collapsed. On the real courses that meant Emrys saw ~17% of
+// the material — the Big Idea and Kid Meaning of each lesson, but never the
+// code, the line-by-line walkthrough, Your Turn, or Common Mistakes. Worse, the
+// whitespace collapse flattened Python indentation, which IS syntax.
+//
+// Now the full lesson text goes in verbatim. It is large (~90k chars for a
+// 24-lesson course), so it is emitted as a separate CACHED system block: the
+// corpus is static for the whole session, so after the first turn Anthropic
+// serves it from cache and repeat turns stay cheap. The volatile session state
+// lives in its own uncached block below.
+const TUTOR_CORPUS_CHAR_BUDGET = 320000;   // ~80k tokens; well inside context
+
+const buildTutorCorpus = (chunks) => {
+  const ordered = [...(chunks || [])].sort(
+    (a, b) => (a.step_number ?? 9999) - (b.step_number ?? 9999));
+  const parts = [];
+  let used = 0;
+  let dropped = 0;
+  for (const c of ordered) {
+    const body = String(c.content || '');
+    const block = `\n===== ${c.title || 'Untitled'} =====\n${body}\n`;
+    if (used + block.length > TUTOR_CORPUS_CHAR_BUDGET) { dropped += 1; continue; }
+    parts.push(block);
+    used += block.length;
+  }
+  if (dropped) {
+    parts.push(`\n[${dropped} further lesson(s) omitted — course exceeds the prompt budget.]\n`);
+  }
+  return parts.join('');
+};
+
 const buildTutorSystemPrompt = (session, project, chunks) => {
   const completed = Array.isArray(session.completed_topics) ? session.completed_topics : [];
   const projectTitle = project?.title || '(no project selected)';
   const projectDesc = project?.description || '';
   const projectGoals = project?.learning_goals || '';
-  const chunkLines = (chunks || []).slice(0, 30).map(c => {
-    const title = c.title || 'Untitled';
-    const body = (c.content || '').replace(/\s+/g, ' ').slice(0, 600);
-    return `- ${title}: ${body}`;
-  }).join('\n');
+  const chunkLines = buildTutorCorpus(chunks);
 
   // Hard class-scope rule: Emrys teaches ONLY this class's assigned project.
   // If the learner asks to build a different/unrelated project, it must decline
@@ -1913,28 +1966,45 @@ const buildTutorSystemPrompt = (session, project, chunks) => {
 - No project is assigned to this class. Do NOT build or plan any project.
 - Only help with small general concepts and tell the learner a project must be assigned to their class first.`;
 
-  return `${TUTOR_RULES}
+  // Two blocks. The first is identical for every turn of the session (rules +
+  // the whole course), so it is marked cacheable. The second changes each turn.
+  const stableBlock = `${TUTOR_RULES}
 
 ${scopeRule}
-
-CURRENT SESSION:
-- Project: ${projectTitle}
-- Current topic: ${session.current_topic || '(starting fresh)'}
-- Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
-- Student's last attempt: ${session.last_attempt || '(none yet)'}
-- Turn count so far: ${session.turn_count || 0}
 
 PROJECT GROUNDING (prefer this material; it is the source of truth for THIS project):
 Description: ${projectDesc}
 Learning goals: ${projectGoals}
-${chunkLines ? `\nReference material:\n${chunkLines}` : ''}
+${chunkLines ? `
+FULL COURSE MATERIAL — every lesson, complete and unabridged. This is the whole
+syllabus, in order. Code blocks are reproduced exactly, including indentation;
+when you quote code to a student, quote it EXACTLY as written here.
+${chunkLines}` : ''}
 
-USING THE MATERIAL vs YOUR OWN KNOWLEDGE:
+USING THE MATERIAL vs YOUR OWN KNOWLEDGE:`;
+
+  const sessionBlock = `CURRENT SESSION:
+- Project: ${projectTitle}
+- Current topic: ${session.current_topic || '(starting fresh)'}
+- Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
+- Student's last attempt: ${session.last_attempt || '(none yet)'}
+- Turn count so far: ${session.turn_count || 0}`;
+
+  const tailRule = `
 - ALWAYS prefer the reference material above. When the answer IS in it, teach from it and stay faithful to its components, steps, libraries, and order.
 - When the student's question is NOT covered by the material (a gap, an error they hit, a "why", a debugging issue, a related concept), DO NOT refuse and DO NOT go blank — use your own expert knowledge to help them, while keeping it tied to "${projectTitle}" and consistent with the material.
 - Stay within this project's scope: don't switch to teaching a DIFFERENT project, but freely use general knowledge to unblock the student on THIS one.
 
-Now respond to the student's latest message. Remember: small step, plain English first, ask them to try. Stay on "${projectTitle}".`;
+Now respond to the student's latest message. Remember: small step, plain English
+first, ask them to try it in VS Code, and ask them to show you the result. Stay
+on "${projectTitle}".`;
+
+  // Anthropic system blocks. Only the first is cacheable — it holds the rules
+  // and the entire course, which never change during a session.
+  return [
+    { type: 'text', text: stableBlock + tailRule, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: sessionBlock },
+  ];
 };
 
 // Parse [advance:] / [checkpoint:] markers from the end of the response.
