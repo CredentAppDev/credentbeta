@@ -306,37 +306,126 @@ const getLearningLeaderboard = async (req, res) => {
       // Now they see their full CLASS: every group in the same school +
       // class_name. NULL class_name on either side counts as a wildcard so
       // school-wide / un-classified groups still appear for that student.
+      // Two rules, OR'd:
+      //   1. You ALWAYS see a group you are a member of. Previously a class-name
+      //      mismatch could hide your own group from you — real data has a group
+      //      classed "JHS3" whose members are classed "JHS 3", so the plain
+      //      equality check hid it from the very students in it.
+      //   2. Otherwise you see your class across the school. The class match is
+      //      normalised (case + all punctuation/space stripped) so "JHS 3",
+      //      "JHS3" and "jhs-3" are treated as the same class.
       params.push(req.user.id);
       accessJoin = `JOIN students viewer_s
                       ON viewer_s.id = $1
-                     AND viewer_s.school_id = sg.school_id
                      AND (
-                          sg.class_name IS NULL
-                       OR viewer_s.class_name IS NULL
-                       OR LOWER(sg.class_name) = LOWER(viewer_s.class_name)
+                          EXISTS (
+                            SELECT 1 FROM group_members viewer_gm
+                             WHERE viewer_gm.group_id = sg.id
+                               AND viewer_gm.student_id = viewer_s.id
+                          )
+                       OR (
+                            viewer_s.school_id = sg.school_id
+                            AND (
+                                 sg.class_name IS NULL
+                              OR viewer_s.class_name IS NULL
+                              OR REGEXP_REPLACE(LOWER(sg.class_name), '[^a-z0-9]', '', 'g')
+                                 = REGEXP_REPLACE(LOWER(viewer_s.class_name), '[^a-z0-9]', '', 'g')
+                            )
+                          )
                      )`;
     }
 
+    // The board no longer waits on teacher ratings. Every visible group gets an
+    // ACTIVITY score derived from work the system already records, and a teacher
+    // rating (when one exists) is blended in as the authoritative signal.
+    //
+    // Activity score, out of 100 — deliberately weighted so a group cannot climb
+    // by having one keen student spam Emrys:
+    //   • 40  breadth      — share of members who actually used Emrys
+    //   • 35  consistency  — distinct days active (capped at 10)
+    //   • 25  volume       — questions asked (capped at 30, diminishing)
+    //
+    // Attribution note: ai_interactions.group_id is never populated by the app,
+    // so a question is tied to a group through the STUDENT who asked it. A
+    // student in two groups therefore contributes to both — intentional, they
+    // participate in both.
+    //
+    // RANK() (not ROW_NUMBER) so tied scores share a place, and it is ordered by
+    // score alone so the rank column can never disagree with the row order.
     const result = await pool.query(
-      `SELECT (ROW_NUMBER() OVER (ORDER BY AVG(gr.score) DESC, MAX(gr.submitted_at) DESC))::integer AS rank,
-              sg.id AS group_id,
-              sg.name AS group_name,
-              gr.project_name,
-              ROUND(AVG(gr.score))::integer AS score,
-              COUNT(DISTINCT gm.student_id)::integer AS member_count,
+      `WITH visible AS (
+         SELECT sg.id, sg.name
+           FROM student_groups sg
+           ${accessJoin}
+       ),
+       sizes AS (
+         SELECT gm.group_id, COUNT(DISTINCT gm.student_id)::integer AS member_count
+           FROM group_members gm
+          GROUP BY gm.group_id
+       ),
+       activity AS (
+         SELECT gm.group_id,
+                COUNT(ai.id)::integer                          AS questions,
+                COUNT(DISTINCT ai.requester_id)::integer       AS active_students,
+                COUNT(DISTINCT ai.created_at::date)::integer   AS active_days,
+                MAX(ai.created_at)                             AS last_active
+           FROM group_members gm
+           LEFT JOIN ai_interactions ai
+                  ON ai.requester_type = 'student'
+                 AND ai.requester_id = gm.student_id
+          GROUP BY gm.group_id
+       ),
+       scored AS (
+         SELECT v.id   AS group_id,
+                v.name AS group_name,
+                COALESCE(s.member_count, 0)    AS member_count,
+                COALESCE(a.questions, 0)       AS questions,
+                COALESCE(a.active_students, 0) AS active_students,
+                COALESCE(a.active_days, 0)     AS active_days,
+                a.last_active,
+                ROUND(
+                    40.0 * COALESCE(a.active_students, 0)
+                         / GREATEST(COALESCE(s.member_count, 0), 1)
+                  + 35.0 * LEAST(COALESCE(a.active_days, 0), 10) / 10.0
+                  + 25.0 * LEAST(COALESCE(a.questions, 0), 30) / 30.0
+                )::integer AS activity_score
+           FROM visible v
+           LEFT JOIN sizes    s ON s.group_id = v.id
+           LEFT JOIN activity a ON a.group_id = v.id
+       ),
+       rated AS (
+         SELECT gr.group_id, gr.project_name,
+                AVG(gr.score)       AS rating_avg,
+                MAX(gr.submitted_at) AS rated_at
+           FROM group_ratings gr
+          GROUP BY gr.group_id, gr.project_name
+       ),
+       board AS (
+         SELECT sc.group_id, sc.group_name, r.project_name,
+                sc.member_count, sc.activity_score,
+                sc.questions, sc.active_students, sc.active_days,
+                CASE WHEN r.rating_avg IS NOT NULL
+                     THEN ROUND(r.rating_avg * 0.7 + sc.activity_score * 0.3)::integer
+                     ELSE sc.activity_score END AS score,
+                CASE WHEN r.rating_avg IS NOT NULL
+                     THEN 'rating' ELSE 'activity' END AS score_source,
+                GREATEST(r.rated_at, sc.last_active) AS last_active
+           FROM scored sc
+           LEFT JOIN rated r ON r.group_id = sc.group_id
+       )
+       SELECT RANK() OVER (ORDER BY score DESC)::integer AS rank,
+              group_id, group_name, project_name, score, member_count,
+              score_source, activity_score, questions, active_students,
+              active_days, last_active,
               CASE
-                WHEN AVG(gr.score) >= 90 THEN 'excellent'
-                WHEN AVG(gr.score) >= 75 THEN 'strong'
-                WHEN AVG(gr.score) >= 60 THEN 'improvement'
+                WHEN score >= 90 THEN 'excellent'
+                WHEN score >= 75 THEN 'strong'
+                WHEN score >= 60 THEN 'improvement'
                 ELSE 'needs_support'
               END AS badge
-       FROM group_ratings gr
-       JOIN student_groups sg ON sg.id = gr.group_id
-       ${accessJoin}
-       LEFT JOIN group_members gm ON gm.group_id = sg.id
-       GROUP BY sg.id, sg.name, gr.project_name
-       ORDER BY score DESC, MAX(gr.submitted_at) DESC
-       LIMIT 50`,
+         FROM board
+        ORDER BY score DESC, last_active DESC NULLS LAST
+        LIMIT 50`,
       params
     );
 

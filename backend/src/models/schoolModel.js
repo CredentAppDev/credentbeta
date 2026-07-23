@@ -1,5 +1,10 @@
 const pool = require('../config/db');
 const crypto = require('crypto');
+// Every class name is canonicalised on the way in, so one class has exactly one
+// stored spelling. Without this, "JHS 3" / "JHS3" / "jhs-3" each became their
+// own class in the agent's picker (it is built from DISTINCT students.class_name)
+// and groups got split across the variants.
+const { canonicalClassName } = require('../utils/classNames');
 
 // ── ID Generators ─────────────────────────────────────────────────
 const generateSchoolId = () =>
@@ -320,12 +325,37 @@ const createSchoolTables = async () => {
       ADD COLUMN IF NOT EXISTS phone_number VARCHAR(50)
   `);
 
+  // "About Me" profile fields the student fills in themselves. All nullable
+  // so existing rows stay valid; the agent reads them back on tap-through.
+  await pool.query(`
+    ALTER TABLE students
+      ADD COLUMN IF NOT EXISTS date_of_birth DATE,
+      ADD COLUMN IF NOT EXISTS gender VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS address TEXT,
+      ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS guardian_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS guardian_phone VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS hobbies TEXT
+  `);
+
   await pool.query(`
     ALTER TABLE teachers
       ADD COLUMN IF NOT EXISTS profile_picture_url TEXT,
       ADD COLUMN IF NOT EXISTS phone_number VARCHAR(50),
       ADD COLUMN IF NOT EXISTS account_number VARCHAR(100),
       ADD COLUMN IF NOT EXISTS certificate VARCHAR(255)
+  `);
+
+  // "About Me" profile fields the teacher fills in themselves.
+  await pool.query(`
+    ALTER TABLE teachers
+      ADD COLUMN IF NOT EXISTS date_of_birth DATE,
+      ADD COLUMN IF NOT EXISTS gender VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS address TEXT,
+      ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS qualification VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS subjects TEXT,
+      ADD COLUMN IF NOT EXISTS years_of_experience INTEGER
   `);
 
   await pool.query(`
@@ -454,7 +484,7 @@ const createStudent = async (data) => {
       data.full_name,
       data.email,
       data.grade || null,
-      data.class_name || null,
+      canonicalClassName(data.class_name),
       data.semester || null,
     ]
   );
@@ -536,26 +566,60 @@ const updateStudentProfilePicture = async (studentDbId, profilePictureUrl) => {
   return result.rows[0];
 };
 
+// ── Profile updates are PATCHES, not overwrites ─────────────────────────────
+//
+// These used to be one fixed UPDATE that wrote EVERY column, with each value
+// defaulting through `data.x || null`. Any field a caller didn't send became
+// NULL — so a client posting a partial profile silently wiped the fields it
+// left out (guardian details, hobbies, address, bio, even class_name, which
+// then knocked the student off their own group's leaderboard). That is the
+// "profile sometimes gets cleared" report.
+//
+// Now only the fields actually PRESENT in `data` appear in the SET clause:
+//   • key absent   → column untouched
+//   • key === ''   → column cleared (the user really did empty the box)
+//   • key has text → column updated
+//
+// buildPatch returns null when there is nothing to write, so a no-op request
+// can't blank `updated_at` either.
+const buildPatch = (data, columns, transforms = {}) => {
+  const sets = [];
+  const values = [];
+  for (const col of columns) {
+    if (!Object.prototype.hasOwnProperty.call(data, col)) continue;
+    const raw = data[col];
+    if (raw === undefined) continue;              // treat as "not sent"
+    const value = transforms[col] ? transforms[col](raw) : (raw === '' ? null : raw);
+    values.push(value);
+    sets.push(`${col} = $${values.length}`);
+  }
+  return sets.length ? { sets, values } : null;
+};
+
+const STUDENT_PROFILE_COLUMNS = [
+  'full_name', 'phone_number', 'student_id', 'class_name', 'grade',
+  'date_of_birth', 'gender', 'address', 'bio',
+  'guardian_name', 'guardian_phone', 'hobbies',
+];
+
 const updateStudentProfile = async (studentDbId, data) => {
+  const patch = buildPatch(data, STUDENT_PROFILE_COLUMNS, {
+    class_name: (v) => canonicalClassName(v),
+  });
+  if (!patch) {
+    // Nothing to change — return the row as-is rather than touching it.
+    const current = await pool.query(
+      'SELECT * FROM students WHERE id = $1 AND is_active = true', [studentDbId]);
+    return current.rows[0];
+  }
+  patch.values.push(studentDbId);
   const result = await pool.query(
     `UPDATE students
-     SET full_name = $1,
-         phone_number = $2,
-         student_id = $3,
-         class_name = $4,
-         grade = $5,
-         updated_at = NOW()
-     WHERE id = $6
-       AND is_active = true
-     RETURNING *`,
-    [
-      data.full_name,
-      data.phone_number || null,
-      data.student_id,
-      data.class_name || null,
-      data.grade || null,
-      studentDbId,
-    ]
+        SET ${patch.sets.join(', ')}, updated_at = NOW()
+      WHERE id = $${patch.values.length}
+        AND is_active = true
+      RETURNING *`,
+    patch.values
   );
   return result.rows[0];
 };
@@ -585,9 +649,22 @@ const findStudentByDeviceToken = async (deviceToken) => {
   return result.rows[0];
 };
 
+// A student profile counts as "complete" once they've filled the key personal
+// fields themselves (the agent only creates the account + assigns class/group).
+// Computed in SQL so the agent list shows Complete/Incomplete without pulling
+// every personal field to the client.
+const STUDENT_COMPLETE_SQL = `(
+  date_of_birth IS NOT NULL
+  AND COALESCE(gender, '') <> ''
+  AND COALESCE(guardian_name, '') <> ''
+  AND COALESCE(guardian_phone, '') <> ''
+  AND COALESCE(address, '') <> ''
+)`;
+
 const getStudentsBySchool = async (schoolId) => {
   const result = await pool.query(
-    `SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url, is_active, created_at
+    `SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url, is_active, created_at,
+            ${STUDENT_COMPLETE_SQL} AS profile_completed
      FROM students
      WHERE school_id = $1
      ORDER BY full_name`,
@@ -599,7 +676,8 @@ const getStudentsBySchool = async (schoolId) => {
 const getStudentsBySchoolAndClass = async (schoolId, className, semester = null) => {
   const values = [schoolId, className];
   let query = `
-    SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url
+    SELECT id, student_id, full_name, email, grade, class_name, semester, profile_picture_url,
+           ${STUDENT_COMPLETE_SQL} AS profile_completed
     FROM students
     WHERE school_id = $1
       AND class_name = $2
@@ -712,27 +790,35 @@ const updateTeacherProfilePicture = async (teacherDbId, profilePictureUrl) => {
   return result.rows[0];
 };
 
+const TEACHER_PROFILE_COLUMNS = [
+  'full_name', 'phone_number', 'teacher_id', 'account_number', 'certificate',
+  'date_of_birth', 'gender', 'address', 'bio',
+  'qualification', 'subjects', 'years_of_experience',
+];
+
+// Same patch semantics as the student version above — an omitted field is left
+// alone instead of being nulled out.
 const updateTeacherProfile = async (teacherDbId, data) => {
-  const teacherId = normalizeTeacherId(data.teacher_id);
+  const patch = buildPatch(data, TEACHER_PROFILE_COLUMNS, {
+    teacher_id: (v) => normalizeTeacherId(v) || null,
+    years_of_experience: (v) =>
+      (Number.isFinite(Number(v)) && String(v).trim() !== ''
+        ? Math.max(0, Math.trunc(Number(v)))
+        : null),
+  });
+  if (!patch) {
+    const current = await pool.query(
+      'SELECT * FROM teachers WHERE id = $1 AND is_active = true', [teacherDbId]);
+    return current.rows[0];
+  }
+  patch.values.push(teacherDbId);
   const result = await pool.query(
     `UPDATE teachers
-     SET full_name = $1,
-         phone_number = $2,
-         teacher_id = $3,
-         account_number = $4,
-         certificate = $5,
-         updated_at = NOW()
-     WHERE id = $6
-       AND is_active = true
-     RETURNING *`,
-    [
-      data.full_name,
-      data.phone_number || null,
-      teacherId,
-      data.account_number || null,
-      data.certificate || null,
-      teacherDbId,
-    ]
+        SET ${patch.sets.join(', ')}, updated_at = NOW()
+      WHERE id = $${patch.values.length}
+        AND is_active = true
+      RETURNING *`,
+    patch.values
   );
   return result.rows[0];
 };
@@ -769,9 +855,20 @@ const updateTeacherLastActive = async (teacherId) => {
   );
 };
 
+// A teacher profile is "complete" once they've filled their own key personal /
+// professional fields. Computed in SQL for the agent list.
+const TEACHER_COMPLETE_SQL = `(
+  date_of_birth IS NOT NULL
+  AND COALESCE(gender, '') <> ''
+  AND COALESCE(qualification, '') <> ''
+  AND COALESCE(subjects, '') <> ''
+  AND COALESCE(phone_number, '') <> ''
+)`;
+
 const getAllTeachers = async () => {
   const result = await pool.query(
-    `SELECT id, teacher_id, full_name, email, phone_number, profile_picture_url, is_available, is_active, created_at
+    `SELECT id, teacher_id, full_name, email, phone_number, profile_picture_url, is_available, is_active, created_at,
+            ${TEACHER_COMPLETE_SQL} AS profile_completed
      FROM teachers
      ORDER BY full_name`
   );
@@ -803,7 +900,7 @@ const createStudentGroup = async (data) => {
       data.school_id,
       data.name,
       data.grade || null,
-      data.class_name || null,
+      canonicalClassName(data.class_name),
       data.semester || null,
       data.group_number || null,
       data.description || null,

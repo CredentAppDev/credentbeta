@@ -112,7 +112,7 @@ const peerKeyFor = (id, role) => `user_${id}_${role}`;
  *   call:answer         { call_id, answer:   {sdp, type}, from: peerKey }
  *   call:ice-candidate  { call_id, candidate:{candidate, sdpMid, sdpMLineIndex, sdpMlineIndex}, from: peerKey }
  */
-const broadcastCallSignal = ({ callId, signalType, payload, senderType, senderId, exceptSocketId = null }) => {
+const broadcastCallSignal = ({ callId, signalType, payload, senderType, senderId, exceptSocketId = null, toPeerKey = null }) => {
   if (!io || !callId) return;
   const room = `call_${callId}`;
   const event = signalType === 'ice_candidate' ? 'call:ice-candidate' : `call:${signalType}`;
@@ -122,10 +122,43 @@ const broadcastCallSignal = ({ callId, signalType, payload, senderType, senderId
   else if (signalType === 'answer')   msg.answer = payload;
   else if (signalType === 'ice_candidate') msg.candidate = payload;
   else msg.payload = payload;
+
+  // Deliver to ONE peer when the sender addressed it.
+  //
+  // Desktop has always sent a `to` peer key with every offer/answer/candidate,
+  // but this bridge ignored it and fanned every signal out to the whole call
+  // room. With two people that is harmless (there is only one other socket),
+  // which is why it survived testing — but in a real GROUP call an offer meant
+  // for B also reached C, who answered an offer that was never for them, and
+  // peers ended up crossed and duplicated.
+  //
+  // Every socket in a call joins a room named after its own peer key (see
+  // joinPeerRoom below), so a targeted send is just an emit to that room. If
+  // the addressee has no socket (mobile clients poll instead), the signal was
+  // already persisted by saveCallSignal, so they still receive it that way.
+  // No `to` at all → fall back to the old broadcast, keeping older desktop
+  // builds working.
+  if (toPeerKey) {
+    const direct = exceptSocketId
+      ? io.to(`peer_${toPeerKey}`).except(exceptSocketId)
+      : io.to(`peer_${toPeerKey}`);
+    direct.emit(event, msg);
+    return;
+  }
+
   const target = exceptSocketId
     ? io.to(room).except(exceptSocketId)
     : io.to(room);
   target.emit(event, msg);
+};
+
+/**
+ * Put a socket in a room named after its peer key so call signals can be
+ * addressed to it directly. Safe to call repeatedly.
+ */
+const joinPeerRoom = (socket) => {
+  if (!socket || socket.authenticatedUserId == null) return;
+  socket.join(`peer_${peerKeyFor(socket.authenticatedUserId, socket.authenticatedRole)}`);
 };
 
 /**
@@ -201,6 +234,7 @@ const initSocket = (server) => {
       }
       connectedUsers[userId] = socket.id;
       socket.join(`user_${userId}`);
+      joinPeerRoom(socket);
       console.log(`👤 User ${userId} joined socket`);
     });
 
@@ -287,6 +321,7 @@ const initSocket = (server) => {
       }
       socket.authorizedCalls.add(String(callId));
       socket.join(`call_${callId}`);
+      joinPeerRoom(socket);
       console.log(`📞 User ${socket.authenticatedUserId} joined call room ${callId}`);
       // Tell the other room members that someone joined — desktops use
       // this to know they should send an offer to the new peer.
@@ -332,6 +367,7 @@ const initSocket = (server) => {
       }
       socket.authorizedCalls.add(String(callId));
       socket.join(`call_${callId}`);
+      joinPeerRoom(socket);
 
       // Desktop sends `{ offer: {...} }` for offer / `{ answer: {...} }`
       // for answer / `{ candidate: {...} }` for ICE. Mobile sends a flat
@@ -364,6 +400,8 @@ const initSocket = (server) => {
         senderType: socket.authenticatedRole,
         senderId: Number(socket.authenticatedUserId),
         exceptSocketId: socket.id,
+        // Honour the addressee the desktop has always been sending.
+        toPeerKey: typeof data.to === 'string' && data.to ? data.to : null,
       });
     };
 

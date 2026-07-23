@@ -40,7 +40,7 @@ If you don't have GitHub CLI installed, do it through the web:
 
 ## 2. Create the Neon Postgres database — 5 min
 
-Free, always-on, 0.5 GB. No card.
+Free plan with a monthly compute allowance and 0.5 GB storage. No card.
 
 1. Go to **https://neon.tech** → Sign in with GitHub
 2. Click **Create project**
@@ -115,7 +115,7 @@ If you see the JSON, **the backend is live, public, on HTTPS, and connected to N
 
 ## 6. Keep the service warm (UptimeRobot) — 3 min
 
-Render's free tier spins down after 15 min of no requests. UptimeRobot pinging `/api/health` every 5 min keeps it awake. Free forever.
+Render's free tier spins down after 15 min of no requests. UptimeRobot should ping `/api/live` every 5 min to keep the Node service awake without touching Postgres. Do not ping `/api/health` every 5 min on Neon free; that route queries the database and can exhaust the monthly compute quota.
 
 See `deploy/UPTIME_MONITORING.md` for the 3-step setup.
 

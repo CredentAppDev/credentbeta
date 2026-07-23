@@ -1,5 +1,11 @@
 # Python Calculator Lessons: Kid Builder Edition
 
+
+**What you will build:** Lessons 1–19 build a calculator that works in the
+terminal. Lessons 20–25 go further — you will build a real window app with
+buttons, just like the Windows Calculator, that opens on its own screen outside
+of any terminal.
+
 This lesson is for kids who are building the Python Calculator project.
 
 The goal is not to memorize big computer words. The goal is to understand what
@@ -38,6 +44,29 @@ Rules for learning:
 - Run the code often.
 - Explain what you built out loud, like you are teaching a friend.
 
+### Your Workshop Is VS Code 🛠️
+
+All code in this course is typed, saved, and run in **Visual Studio Code
+(VS Code)** with the Python extension — the same editor professional
+programmers use every day. The rhythm for every piece of code is always:
+
+1. Open `calculator.py` in VS Code (or **File → New File** for practice files).
+2. Type the code in the editor.
+3. Save: **Ctrl+S** (Windows) or **Cmd+S** (Mac).
+4. Run: press the **▶ Run** button at the top-right, and read the result in
+   the **TERMINAL** panel at the bottom.
+
+You never run code inside Emrys's chat — Emrys is your teacher; VS Code is
+your workbench.
+
+### Show Emrys Your Work 📸
+
+After EVERY "Try It" task, show Emrys the proof: **copy what the terminal
+printed and paste it to Emrys — or send a screenshot.** Emrys will check it,
+celebrate what's right, and help fix anything that isn't. If something errored,
+paste the red error message too — errors are clues, and Emrys reads them like
+a detective. No skipping this step: real coders always show their output.
+
 ---
 
 ## Project Picture
@@ -60,6 +89,254 @@ That is the whole app loop.
 
 Kid meaning: An app loop is like a vending machine. You pick, it gives you
 what you picked, then it is ready again for the next choice.
+
+### The App As a Map
+
+Here is what the full app looks like as a picture:
+
+```text
+         START
+           |
+           v
+  [Show welcome message]
+           |
+           v
+  [Create empty history]
+           |
+           v
++----------+----------+
+|   LOOP starts here  |<----------------------------+
++----------+----------+                             |
+           |                                        |
+           v                                        |
+   [Show the menu]                                  |
+           |                                        |
+           v                                        |
+   [User picks 1-6]                                 |
+           |                                        |
+    +------+------+                                 |
+    |      |      |                                 |
+   1-4     5      6                                 |
+    |      |      |                                 |
+    v      v      v                                 |
+ [Ask   [Show  [Print                               |
+  for   history] Goodbye]                           |
+  two     |      |                                  |
+ numbers] |      v                                  |
+    |     |    STOP                                 |
+    v     |                                         |
+ [Do the  |                                         |
+  math]   |                                         |
+    |     |                                         |
+    v     |                                         |
+ [Round & |                                         |
+  show    |                                         |
+  answer] |                                         |
+    |     |                                         |
+    v     |                                         |
+ [Save to |                                         |
+  history]|                                         |
+    |     |                                         |
+    +-----+-----------------------------------------+
+                (loop starts again)
+```
+
+Every lesson in this document teaches you one box in that map.
+
+---
+
+## Lesson 0: Getting Ready
+
+Before you write any code, you need two things installed on your computer:
+Python (the language) and an editor (the place you write code). This lesson
+walks you through both. It takes about 10 minutes.
+
+---
+
+### Step 1: Install Python
+
+Python is free. Go to the official website and download it.
+
+**Mac:**
+
+Open your browser and go to:
+
+```text
+https://www.python.org/downloads/
+```
+
+Click the big yellow "Download Python" button. Open the downloaded file and
+follow the installer. All the default options are fine.
+
+**Windows:**
+
+Go to the same address:
+
+```text
+https://www.python.org/downloads/
+```
+
+Click the big yellow "Download Python" button.
+
+IMPORTANT: On the first screen of the installer, tick the box that says
+"Add Python to PATH" before you click Install Now. If you miss this, Python
+will not work from the terminal.
+
+---
+
+### Step 2: Check That Python Installed
+
+Open the terminal (the black text window where you type commands).
+
+How to open it:
+
+```text
+Mac     -> press Cmd + Space, type Terminal, press Enter
+Windows -> press the Windows key, type cmd, press Enter
+```
+
+Type this and press Enter:
+
+Mac:
+
+```bash
+python3 --version
+```
+
+Windows:
+
+```bash
+python --version
+```
+
+You should see something like:
+
+```text
+Python 3.12.1
+```
+
+Any number starting with 3.6 or higher is fine. If you see an error, go back
+and reinstall Python, making sure to tick "Add to PATH" on Windows.
+
+---
+
+### Step 3: Install VS Code (Your Code Workshop)
+
+**Visual Studio Code (VS Code)** is the editor we use for the whole course. It
+is free, it is what millions of professional programmers use every day, and
+Emrys will always give you steps that match it.
+
+Go to:
+
+```text
+https://code.visualstudio.com
+```
+
+Click the big download button for your computer (Windows or Mac). Open the
+downloaded file and follow the installer (just keep clicking Next / Continue).
+
+**Then add the Python extension** — this teaches VS Code to understand Python:
+
+1. Open VS Code.
+2. On the left edge, click the **Extensions** icon (it looks like four little
+   squares).
+3. In the search box type: `Python`
+4. The first result says **Python** by Microsoft. Click **Install**.
+
+When VS Code is open you will work in two areas:
+
+```text
++------------------------------------------+
+|  EDITOR (the big middle area)            |
+|  This is where you type your code.       |
+|  Think of it as your recipe notepad.     |
++------------------------------------------+
+|  TERMINAL (the bottom panel)             |
+|  This is where results appear when you   |
+|  run your program. Think of it as the    |
+|  kitchen that cooks your recipe and      |
+|  shows what came out.                    |
++------------------------------------------+
+```
+
+If you don't see the terminal, open it from the top menu: **Terminal → New
+Terminal**.
+
+---
+
+### Step 4: Write Your First Line
+
+In VS Code, go to **File → New File**, and when it asks for a name type
+`hello.py` (the `.py` ending tells VS Code this is Python). Save it on your
+Desktop.
+
+Click in the editor and type this:
+
+```python
+print("Hello! I am ready to code.")
+```
+
+Save with **Ctrl+S** (Windows) or **Cmd+S** (Mac). Then press the **▶ Run
+button** at the top-right of the editor.
+
+Look at the TERMINAL panel at the bottom. You should see:
+
+```text
+Hello! I am ready to code.
+```
+
+If you see that message, everything is working. **Copy that line from the
+terminal and paste it to Emrys — or send a screenshot 📸 — so Emrys can
+confirm your setup is perfect.** You are ready to start Lesson 1.
+
+---
+
+### Step 5: Create Your Project File
+
+In VS Code, go to **File → New File**. Name it:
+
+```text
+calculator.py
+```
+
+Save it somewhere easy to find, like your Desktop or a folder called
+my_projects. (Tip: in VS Code you can open that whole folder with **File →
+Open Folder** — then all your project files live in the left sidebar.)
+
+Type this:
+
+```python
+print("My calculator is being built!")
+```
+
+Save (**Ctrl+S**) and run (**▶**). The terminal should show your message.
+
+From now on, you will keep adding code to this same file as you go through
+the lessons. By Lesson 18, it will be a working calculator.
+
+Kid meaning:
+
+```text
+The file is your recipe book.
+Every lesson adds more instructions to it.
+By Lesson 18, the recipe will be complete and the calculator will work.
+```
+
+---
+
+### Quick-Start Checklist
+
+Before moving to Lesson 1, check each item:
+
+```text
+[ ] Python installed  (python --version shows 3.6 or higher)
+[ ] VS Code installed, with the Python extension, and opens without errors
+[ ] Typed print("Hello!") , ran it with the Run button, saw output in the TERMINAL
+[ ] Created calculator.py and saved it
+[ ] Pasted your first output (or a screenshot) to Emrys and got a thumbs-up
+```
+
+If all five are done, you are ready. Move to Lesson 1.
 
 ---
 
@@ -1148,7 +1425,7 @@ Answer: The `else` block.
 
 ---
 
-## Lesson 10: Functions Are Mini Machines
+## Lesson 10a: Functions — Giving a Machine Its Instructions
 
 ### Big Idea
 
@@ -1216,21 +1493,6 @@ answer = describe_result(4, 6)
 print("Returned value:", answer)
 ```
 
-### Functions Without Return
-
-Some functions just do a job and do not give anything back:
-
-```python
-def greet(name):
-    print("Hello,", name)
-    print("Welcome to the calculator!")
-
-greet("Ava")
-greet("Ben")
-```
-
-These are useful for printing menus and messages.
-
 ### Calculator Connection
 
 The project has a function for each operation:
@@ -1253,7 +1515,57 @@ Each function has one job. When the app needs to add, it calls `add`.
 When it needs to divide, it calls `divide`. The app never has to write
 out the operation itself — it just calls the right function.
 
-There is also a function for the menu:
+### Check Your Brain
+
+What does `def` mean?
+
+Answer: It defines (creates) a new function.
+
+What does `return` mean?
+
+Answer: It sends a value back to wherever the function was called.
+
+What does `add(8, 3)` give back?
+
+Answer: `11`
+
+---
+
+## Lesson 10b: Functions That Just Do a Job
+
+### Big Idea
+
+Not every function gives something back. Some functions just carry out
+a task, like printing a menu.
+
+### Kid Meaning
+
+Think of a school bell. When it rings, something happens (everyone stops
+working). The bell does not hand you anything. It just does its job.
+
+Functions without `return` work the same way. You call them and they do
+their task. Nothing comes back.
+
+### Functions Without Return
+
+```python
+def greet(name):
+    print("Hello,", name)
+    print("Welcome to the calculator!")
+
+greet("Ava")
+greet("Ben")
+```
+
+### What Happened?
+
+`greet` printed two lines each time. It did not return a value, but the
+job still got done. You called it twice with different names and it worked
+both times without you rewriting the print lines.
+
+### The Menu Function
+
+The calculator uses this same idea for its menu:
 
 ```python
 def print_menu():
@@ -1273,37 +1585,68 @@ Instead of writing all those print lines every time the menu is needed,
 just call print_menu() and it does the whole job.
 ```
 
-### Kid Meanings
+### Try It
 
-`add` means:
+Type the `print_menu` function above into VS Code. Then call it:
 
-```text
-Add two numbers and give back the answer.
+```python
+print_menu()
+print_menu()
+print_menu()
 ```
 
-`subtract` means:
+The menu appears three times. You wrote the instructions once and called
+them three times.
 
-```text
-Subtract the second number from the first and give back the answer.
+### Calculator Connection
+
+The real app calls `print_menu()` at the start of every loop turn so the
+user always sees their choices:
+
+```python
+while True:
+    print_menu()
+    choice = input("Your choice: ")
 ```
 
-`multiply` means:
+### Kid Meanings Summary
 
 ```text
-Multiply two numbers together and give back the answer.
+add        -> Add two numbers and give back the answer.
+subtract   -> Subtract the second from the first and give back the answer.
+multiply   -> Multiply two numbers and give back the answer.
+divide     -> Divide the first by the second and give back the answer.
+print_menu -> Print all six menu options neatly on the screen.
 ```
 
-`divide` means:
+### Check Your Brain
 
-```text
-Divide the first number by the second and give back the answer.
+What is the difference between a function with `return` and one without?
+
+Answer: A function with `return` gives a value back to the caller.
+A function without `return` just does its task and finishes.
+
+If you call `print_menu()` inside a loop that runs 10 times, how many
+times does the menu appear?
+
+Answer: 10 times.
+
+---
+
+### Functions Without Return
+
+Some functions just do a job and do not give anything back:
+
+```python
+def greet(name):
+    print("Hello,", name)
+    print("Welcome to the calculator!")
+
+greet("Ava")
+greet("Ben")
 ```
 
-`print_menu` means:
-
-```text
-Print all six menu options neatly on the screen.
-```
+These are useful for printing menus and messages.
 
 ---
 
@@ -2054,7 +2397,8 @@ kept digit when the next digit is 5 or more.
 
 ### When Addition And Subtraction Also Get Messy
 
-Floats can be slightly imprecise in Python:
+Computers store decimal numbers in a special way that can sometimes give
+a tiny extra digit. For example:
 
 ```python
 print(0.1 + 0.2)
@@ -2066,8 +2410,11 @@ You might see:
 0.30000000000000004
 ```
 
-This is a known quirk of how computers store decimal numbers. Rounding
-fixes the display problem:
+That looks wrong! The real answer is 0.3, but the computer's storage added
+a tiny rounding error at the end. This is not a Python bug — all computers
+do this. It is just how decimal numbers work inside machines.
+
+The fix is simple — use `round`:
 
 ```python
 print(round(0.1 + 0.2, 2))
@@ -2079,8 +2426,14 @@ You see:
 0.3
 ```
 
-The calculator rounds all answers before showing them for exactly this
-reason.
+The calculator rounds all answers before showing them for exactly this reason.
+
+Note for curious learners: If you want to understand why this happens, it
+is because computers store numbers in binary (using only 0s and 1s), and
+some decimal fractions like 0.1 cannot be stored exactly in binary — just
+like 1/3 cannot be written exactly as a decimal. You do not need to
+understand this to build the calculator. Just remember: always round before
+showing a decimal answer.
 
 ### Calculator Connection
 
@@ -2154,23 +2507,25 @@ The list lives inside the `while True` loop. The loop runs until
 ### Each Lesson In The Code
 
 ```text
-Lesson 1  -> print()
-Lesson 2  -> text vs numbers ("7" vs 7)
-Lesson 3  -> variables (first_number, result, history)
-Lesson 4  -> the calculator.py file itself
-Lesson 5  -> input()
-Lesson 6  -> float()
-Lesson 7  -> + - * /
-Lesson 8  -> while True loop and for loop
-Lesson 9  -> if / elif / else
-Lesson 10 -> def add, def subtract, def multiply, def divide, def print_menu
-Lesson 11 -> history = [] and history.append(...)
-Lesson 12 -> for entry in history: print(entry)
-Lesson 13 -> if second_number == 0
-Lesson 14 -> f"{first_number} {symbol} {second_number} = {answer}"
-Lesson 15 -> the menu printed each loop turn
-Lesson 16 -> break on quit, continue on zero-divide error
-Lesson 17 -> round(result, 2)
+Lesson 0   -> Python and VS Code installed; calculator.py file created
+Lesson 1   -> print()
+Lesson 2   -> text vs numbers ("7" vs 7)
+Lesson 3   -> variables (first_number, result, history)
+Lesson 4   -> the calculator.py file itself
+Lesson 5   -> input()
+Lesson 6   -> float()
+Lesson 7   -> + - * /
+Lesson 8   -> while True loop and for loop
+Lesson 9   -> if / elif / else
+Lesson 10a -> def add, def subtract, def multiply, def divide (with return)
+Lesson 10b -> def print_menu (no return)
+Lesson 11  -> history = [] and history.append(...)
+Lesson 12  -> for entry in history: print(entry)
+Lesson 13  -> if second_number == 0
+Lesson 14  -> f"{first_number} {symbol} {second_number} = {answer}"
+Lesson 15  -> the menu printed each loop turn
+Lesson 16  -> break on quit, continue on zero-divide error
+Lesson 17  -> round(result, 2)
 ```
 
 ### Calculator Connection
@@ -2864,11 +3219,144 @@ Good answer: `7.56`
 
 ---
 
-## Final Encouragement
+## Appendix: The Complete calculator.py
+
+Here is the full finished app in one place. Every line comes from the lessons.
+Read through it and see how many pieces you recognise.
+
+```python
+# calculator.py
+# A Python calculator built step by step through 18 lessons.
+
+# -------------------------------------------------------
+# Lesson 10a: Four operation functions (with return)
+# -------------------------------------------------------
+
+def add(a, b):          # Lesson 10a: def, parameters, return
+    return a + b
+
+def subtract(a, b):
+    return a - b
+
+def multiply(a, b):
+    return a * b
+
+def divide(a, b):
+    return a / b
+
+# -------------------------------------------------------
+# Lesson 10b: Menu function (no return, just prints)
+# -------------------------------------------------------
+
+def print_menu():
+    print("\n--- Calculator Menu ---")  # Lesson 1: print
+    print("1. Add")
+    print("2. Subtract")
+    print("3. Multiply")
+    print("4. Divide")
+    print("5. Show history")
+    print("6. Quit")
+    print("-----------------------")
+
+# -------------------------------------------------------
+# Main app
+# -------------------------------------------------------
+
+def main():
+    print("Welcome to the Python Calculator!")  # Lesson 1: print
+
+    history = []   # Lesson 11: empty list
+
+    while True:    # Lesson 8: loop that runs forever until break
+
+        print_menu()                          # Lesson 10b: call menu function
+        choice = input("Your choice: ").strip()  # Lesson 5: input
+
+        if choice in ("1", "2", "3", "4"):   # Lesson 9: if statement
+
+            # Lesson 5 + 6: input converted to float
+            first_number = float(input("Enter first number: "))
+            second_number = float(input("Enter second number: "))
+
+            # Lesson 9: elif chain
+            if choice == "1":
+                result = add(first_number, second_number)   # Lesson 10a
+                symbol = "+"                                # Lesson 3: variable
+
+            elif choice == "2":
+                result = subtract(first_number, second_number)
+                symbol = "-"
+
+            elif choice == "3":
+                result = multiply(first_number, second_number)
+                symbol = "*"
+
+            elif choice == "4":
+                if second_number == 0:           # Lesson 13: zero check
+                    print("Error: Cannot divide by zero.")
+                    continue                      # Lesson 16: skip this turn
+                result = divide(first_number, second_number)
+                symbol = "/"
+
+            answer = round(result, 2)            # Lesson 17: rounding
+            print(f"Answer: {answer}")           # Lesson 14: f-string
+            history.append(                      # Lesson 11: save to list
+                f"{first_number} {symbol} {second_number} = {answer}"
+            )
+
+        elif choice == "5":                      # Lesson 9: elif
+            if not history:                      # Lesson 11: check empty list
+                print("No calculations yet.")
+            else:
+                print("\n--- History ---")
+                for entry in history:            # Lesson 12: loop through list
+                    print(entry)
+
+        elif choice == "6":
+            print("Goodbye!")
+            break                                # Lesson 16: stop the loop
+
+        else:
+            print("Please pick a number from 1 to 6.")
+
+# Run the app
+main()
+```
+
+### Lesson Map
+
+Every concept you learned appears in the code above:
+
+```text
+Lesson 0  -> python installed, calculator.py file created
+Lesson 1  -> print()
+Lesson 2  -> text vs numbers ("7" vs 7)
+Lesson 3  -> variables (first_number, result, history, symbol)
+Lesson 4  -> the calculator.py file itself
+Lesson 5  -> input()
+Lesson 6  -> float()
+Lesson 7  -> + - * /
+Lesson 8  -> while True loop and for loop
+Lesson 9  -> if / elif / else
+Lesson 10a -> def add, subtract, multiply, divide (with return)
+Lesson 10b -> def print_menu (no return)
+Lesson 11 -> history = [] and history.append(...)
+Lesson 12 -> for entry in history: print(entry)
+Lesson 13 -> if second_number == 0
+Lesson 14 -> f"{first_number} {symbol} {second_number} = {answer}"
+Lesson 15 -> the menu printed each loop turn
+Lesson 16 -> break on quit, continue on zero-divide error
+Lesson 17 -> round(result, 2)
+Lesson 18 -> all pieces working together
+```
+
+---
+
+## Final Encouragement — Part 1 Complete!
 
 If you understand the simple version, you can understand the real code.
 
-The real project may look long, but it is made from small pieces:
+The terminal project may look long, but it is made from small pieces:
 
 ```text
 print
@@ -2887,5 +3375,933 @@ continue
 
 That is programming: small pieces working together.
 
-Keep building. Run the app. Break it a little. Fix it. Change it. Explain it.
-That is how kids become real builders.
+You have built a real working calculator. It runs in the terminal and does
+everything a basic calculator should do.
+
+But there is a next level.
+
+The Windows Calculator you see every day does not show a black terminal window.
+It has a real screen with buttons you can click. In Part 2 (Lessons 20–25)
+you will build exactly that using a Python tool called `tkinter`.
+
+Keep going. The window calculator is closer than you think.
+
+---
+
+# Part 2: Building the Window Calculator
+
+In Part 1 you learned how Python thinks. Now you will learn how Python draws.
+
+The goal of Part 2 is to produce a calculator app that:
+
+- Opens in its own window (not the terminal)
+- Has a display screen showing numbers
+- Has buttons you click with your mouse
+- Adds, subtracts, multiplies, and divides
+- Handles divide-by-zero safely
+- Looks like a real calculator
+
+All the logic you learned in Part 1 (functions, if statements, variables)
+comes with you. In Part 2 you just give it a face.
+
+---
+
+## Lesson 20: What Is tkinter?
+
+### Big Idea
+
+`tkinter` is Python's built-in tool for making windows, buttons, and text
+displays. It comes installed with Python — you do not need to download anything.
+
+### Kid Meaning
+
+In Part 1, Python talked to you through text in the terminal:
+
+```text
+Python: "Enter first number: "
+You:    "8"
+Python: "Answer: 15.0"
+```
+
+In Part 2, Python talks to you through a window with buttons:
+
+```text
+You click:   [8]  [+]  [7]  [=]
+Python shows: 15
+```
+
+Same logic. Different face.
+
+### Real-Life Example
+
+Think of a TV remote. The remote has buttons on the outside and electronics
+on the inside. The buttons are the GUI (the face). The electronics are the
+logic (the brain).
+
+In Part 1 you built the brain. In Part 2 you build the buttons.
+
+### What tkinter Does
+
+`tkinter` gives Python three main powers:
+
+```text
+1. Tk()       -> creates a window
+2. Label()    -> puts text on the window
+3. Button()   -> puts a clickable button on the window
+```
+
+Everything in the GUI calculator comes from mixing those three things.
+
+### Check That tkinter Is Installed
+
+In VS Code open the terminal (Terminal → New Terminal), type `python` and
+press Enter — you get a `>>>` prompt (Python's quick-chat mode). Type this:
+
+```python
+import tkinter
+tkinter._test()
+```
+
+A small window should pop up. If it does, tkinter is working. Close it
+and move on.
+
+If you see an error on Mac, open Terminal and run:
+
+```bash
+python3 -m tkinter
+```
+
+If it says "No module named tkinter", you may need to reinstall Python
+from python.org and choose the full installation option.
+
+### Your First Window
+
+Create a new file. Name it `gui_test.py`. Type this:
+
+```python
+import tkinter as tk
+
+window = tk.Tk()
+window.title("My First Window")
+window.mainloop()
+```
+
+Run it. A small blank window opens. That is tkinter working.
+
+### What Happened?
+
+```text
+import tkinter as tk  -> load tkinter, call it "tk" for short
+tk.Tk()               -> create the window
+window.title(...)     -> give the window a name in the title bar
+window.mainloop()     -> keep the window open and listening for clicks
+```
+
+`mainloop()` is like `while True` for windows. It keeps the app alive
+until you close the window.
+
+### Calculator Connection
+
+The real GUI calculator starts the same way:
+
+```python
+import tkinter as tk
+
+window = tk.Tk()
+window.title("Python Calculator")
+window.mainloop()
+```
+
+Everything else goes between `tk.Tk()` and `window.mainloop()`.
+
+---
+
+## Lesson 21: The Display Screen
+
+### Big Idea
+
+The calculator needs a screen that shows numbers. In tkinter, a text
+display is made with an `Entry` widget — a box that holds text.
+
+### Kid Meaning
+
+An `Entry` is like the display panel on a real calculator. Numbers appear
+there as you press buttons.
+
+### Try It
+
+```python
+import tkinter as tk
+
+window = tk.Tk()
+window.title("Calculator")
+
+display = tk.Entry(window, font=("Arial", 32), justify="right",
+                   bd=5, relief="flat", bg="#f0f4f8")
+display.pack(fill="x", padx=10, pady=10)
+display.insert(0, "0")
+
+window.mainloop()
+```
+
+### What Happened?
+
+```text
+tk.Entry(...)         -> create the display box
+font=("Arial", 32)    -> big clear numbers
+justify="right"       -> numbers line up on the right, like a real calculator
+bd=5                  -> border thickness
+bg="#f0f4f8"          -> light grey-blue background colour
+display.pack(...)     -> place it in the window, stretching to fill the width
+display.insert(0,"0") -> start with 0 showing
+```
+
+### How To Read And Change The Display
+
+```python
+# Read what is currently showing
+current = display.get()
+
+# Clear the display
+display.delete(0, tk.END)
+
+# Put new text in
+display.insert(0, "42")
+```
+
+`tk.END` means "from here to the very end of the text."
+
+### Calculator Connection
+
+Every time the user presses a button, the app reads the display, changes it,
+and puts the new value back. That read-change-put pattern is the heart of the
+GUI calculator.
+
+---
+
+## Lesson 22: Buttons — Making Things You Can Click
+
+### Big Idea
+
+`tk.Button` creates a clickable button. Each button is connected to a
+function that runs when you click it.
+
+### Kid Meaning
+
+A button is a door. When you knock (click), something on the other side runs.
+
+### Try It — One Button
+
+```python
+import tkinter as tk
+
+def say_hello():
+    print("Hello from the button!")
+
+window = tk.Tk()
+btn = tk.Button(window, text="Click Me", command=say_hello,
+                font=("Arial", 18), width=10, height=2)
+btn.pack(padx=20, pady=20)
+
+window.mainloop()
+```
+
+### What Happened?
+
+```text
+command=say_hello -> when clicked, run the say_hello function
+text="Click Me"   -> the label on the button
+font, width, height -> how the button looks and how big it is
+```
+
+Notice: `command=say_hello` — no brackets. You are telling tkinter the
+name of the function to call later, not calling it yourself right now.
+
+### A Grid of Buttons
+
+Real calculators use a grid — rows and columns of buttons. tkinter has
+a `.grid()` layout for this:
+
+```python
+import tkinter as tk
+
+window = tk.Tk()
+
+buttons = [
+    ("7", 0, 0), ("8", 0, 1), ("9", 0, 2),
+    ("4", 1, 0), ("5", 1, 1), ("6", 1, 2),
+    ("1", 2, 0), ("2", 2, 1), ("3", 2, 2),
+    ("0", 3, 0),
+]
+
+for (label, row, col) in buttons:
+    btn = tk.Button(window, text=label, font=("Arial", 18),
+                    width=4, height=2)
+    btn.grid(row=row, column=col, padx=4, pady=4)
+
+window.mainloop()
+```
+
+### What Happened?
+
+```text
+btn.grid(row=row, column=col) -> place the button at that grid position
+padx, pady                    -> space between buttons
+```
+
+You get a neat 3×4 number pad — exactly like a calculator.
+
+### Calculator Connection
+
+The full calculator uses exactly this pattern. Every button is placed
+in a grid row and column. The number buttons call one function. The
+operator buttons call another.
+
+---
+
+## Lesson 23: Connecting Buttons to Logic
+
+### Big Idea
+
+The calculator needs to remember what the user is building up — digits
+pressed, operator chosen, and the first number. Variables store that state.
+
+### Kid Meaning
+
+When you press `8`, then `+`, then `5`, then `=` on a real calculator,
+it has to remember `8` and `+` before you even press `5`. That memory
+is stored in variables that live outside the button functions.
+
+### The Three State Variables
+
+```python
+current_input = ""    # digits being typed right now
+first_number  = None  # the number stored before the operator
+operator      = None  # which operation was chosen (+, -, *, /)
+```
+
+These live at the top level of the program — outside all functions — so
+every button function can reach them.
+
+### Button Functions
+
+```python
+def press_digit(digit):
+    global current_input
+    if current_input == "0" or current_input == "":
+        current_input = digit
+    else:
+        current_input += digit
+    refresh_display()
+
+def press_operator(op):
+    global first_number, operator, current_input
+    if current_input:
+        first_number = float(current_input)
+    operator = op
+    current_input = ""
+    refresh_display()
+
+def press_equals():
+    global first_number, operator, current_input
+    if first_number is None or operator is None:
+        return
+    second_number = float(current_input)
+    if operator == "+" : result = first_number + second_number
+    elif operator == "-": result = first_number - second_number
+    elif operator == "*": result = first_number * second_number
+    elif operator == "/":
+        if second_number == 0:
+            show_error("Cannot divide by zero")
+            return
+        result = first_number / second_number
+    current_input = str(round(result, 10)).rstrip("0").rstrip(".")
+    first_number = None
+    operator = None
+    refresh_display()
+
+def press_clear():
+    global current_input, first_number, operator
+    current_input = ""
+    first_number  = None
+    operator      = None
+    refresh_display()
+
+def refresh_display():
+    display.delete(0, tk.END)
+    display.insert(0, current_input if current_input else "0")
+
+def show_error(message):
+    display.delete(0, tk.END)
+    display.insert(0, message)
+    global current_input, first_number, operator
+    current_input = ""
+    first_number  = None
+    operator      = None
+```
+
+### What Happened?
+
+```text
+global         -> tell Python we are changing a variable from outside
+                  this function (the one defined at the top level)
+press_digit    -> add one digit to what is being typed
+press_operator -> save the first number and remember the operator
+press_equals   -> do the math and show the result
+press_clear    -> reset everything to zero
+refresh_display -> update the display with the current value
+```
+
+### Calculator Connection
+
+Every button in the finished calculator calls one of these functions.
+Number buttons call `press_digit`. Operator buttons call `press_operator`.
+The `=` button calls `press_equals`. `C` calls `press_clear`.
+
+---
+
+## Lesson 24: Styling the Calculator
+
+### Big Idea
+
+Colours, fonts, and sizes make the calculator look like the real thing
+instead of a plain grey window.
+
+### Kid Meaning
+
+The Windows Calculator uses:
+- A light blue-grey background
+- White buttons for numbers
+- A dark blue button for `=`
+- Slightly different shades for operator buttons
+
+You can match that with tkinter colour settings.
+
+### Colour Plan
+
+```python
+# Colours
+BG_COLOR      = "#f3f3f3"   # window background — very light grey
+DISPLAY_BG    = "#f0f4f8"   # display — slightly blue-grey
+NUM_BG        = "#ffffff"   # number buttons — white
+OP_BG         = "#e8e8e8"   # operator buttons — light grey
+EQUAL_BG      = "#0078d4"   # equals button — Windows blue
+EQUAL_FG      = "#ffffff"   # equals text — white
+CLEAR_BG      = "#e8e8e8"   # clear buttons — light grey
+TEXT_COLOR    = "#1a1a1a"   # all button text — near black
+FONT_MAIN     = ("Segoe UI", 20)
+FONT_DISPLAY  = ("Segoe UI", 36, "bold")
+```
+
+### Applying Style to Buttons
+
+```python
+btn = tk.Button(
+    window,
+    text=label,
+    font=FONT_MAIN,
+    bg=NUM_BG,
+    fg=TEXT_COLOR,
+    activebackground="#d0d0d0",  # colour when you hold the mouse down
+    bd=0,
+    relief="flat",
+    width=4,
+    height=2,
+    command=lambda: press_digit(label)
+)
+```
+
+### What is lambda?
+
+`lambda` creates a tiny one-line function on the spot.
+
+The problem: when you write `command=press_digit`, tkinter does not know
+which digit to pass. You need `command=press_digit("7")` — but that runs
+immediately instead of waiting for a click.
+
+The fix:
+
+```python
+command=lambda: press_digit("7")
+```
+
+Kid meaning:
+
+```text
+lambda: press_digit("7")
+```
+
+means "make a tiny function that calls `press_digit("7")` when clicked."
+
+Each button gets its own lambda with its own digit or operator baked in.
+
+---
+
+## Lesson 25: The Complete GUI Calculator
+
+### Big Idea
+
+Put everything together into one file: `gui_calculator.py`.
+
+### What The Finished App Looks Like
+
+```text
++---------------------------------------+
+|  Python Calculator                    |
++---------------------------------------+
+|                                     0 |   <- display
++---------------------------------------+
+|  MC   MR   M+   M-   MS             |   <- (optional, can skip)
++----+------+-------+------+-----------+
+| %  |  CE  |   C   |  ⌫  |           |
++----+------+-------+------+           |
+| 1/x|  x²  |  √x   |  ÷  |           |
++----+------+-------+------+           |
+|  7 |   8  |   9   |  ×  |           |
++----+------+-------+------+           |
+|  4 |   5  |   6   |  −  |           |
++----+------+-------+------+           |
+|  1 |   2  |   3   |  +  |           |
++----+------+-------+------+-----------+
+| +/−|   0  |   .   |       =         |
++----+------+-------+-----------------+
+```
+
+### The Complete Code
+
+Create a new file in VS Code. Name it `gui_calculator.py`. Copy this
+entire code block exactly as written:
+
+```python
+import tkinter as tk
+
+# -------------------------------------------------------
+# Colours and fonts
+# -------------------------------------------------------
+BG_COLOR     = "#f3f3f3"
+DISPLAY_BG   = "#f0f4f8"
+NUM_BG       = "#ffffff"
+OP_BG        = "#e8e8e8"
+EQUAL_BG     = "#0078d4"
+EQUAL_FG     = "#ffffff"
+TEXT_COLOR   = "#1a1a1a"
+FONT_MAIN    = ("Segoe UI", 20)
+FONT_DISPLAY = ("Segoe UI", 36, "bold")
+
+# -------------------------------------------------------
+# State variables — remember what the user is doing
+# -------------------------------------------------------
+current_input = ""
+first_number  = None
+operator      = None
+
+# -------------------------------------------------------
+# Logic functions (same ideas as the terminal calculator)
+# -------------------------------------------------------
+
+def refresh_display():
+    display.delete(0, tk.END)
+    display.insert(0, current_input if current_input else "0")
+
+def show_error(msg):
+    display.delete(0, tk.END)
+    display.insert(0, msg)
+    global current_input, first_number, operator
+    current_input = ""
+    first_number  = None
+    operator      = None
+
+def press_digit(digit):
+    global current_input
+    if current_input in ("0", "") and digit != ".":
+        current_input = digit
+    elif digit == "." and "." in current_input:
+        return                              # no two decimal points
+    else:
+        current_input += digit
+    refresh_display()
+
+def press_operator(op):
+    global first_number, operator, current_input
+    if current_input:
+        first_number = float(current_input)
+    operator      = op
+    current_input = ""
+
+def press_equals():
+    global first_number, operator, current_input
+    if first_number is None or operator is None or current_input == "":
+        return
+    second = float(current_input)
+    try:
+        if operator == "+":
+            result = first_number + second
+        elif operator == "-":
+            result = first_number - second
+        elif operator == "*":
+            result = first_number * second
+        elif operator == "/":
+            if second == 0:
+                show_error("Cannot divide by zero")
+                return
+            result = first_number / second
+        # Tidy the result — remove trailing zeros
+        result = round(result, 10)
+        current_input = (
+            str(int(result)) if result == int(result) else str(result)
+        )
+    except Exception:
+        show_error("Error")
+        return
+    first_number = None
+    operator     = None
+    refresh_display()
+
+def press_clear():
+    global current_input, first_number, operator
+    current_input = ""
+    first_number  = None
+    operator      = None
+    refresh_display()
+
+def press_ce():
+    global current_input
+    current_input = ""
+    refresh_display()
+
+def press_backspace():
+    global current_input
+    current_input = current_input[:-1]
+    refresh_display()
+
+def press_sign():
+    global current_input
+    if current_input and current_input != "0":
+        if current_input.startswith("-"):
+            current_input = current_input[1:]
+        else:
+            current_input = "-" + current_input
+    refresh_display()
+
+def press_percent():
+    global current_input
+    if current_input:
+        try:
+            val = float(current_input) / 100
+            current_input = str(round(val, 10))
+            if "." in current_input:
+                current_input = current_input.rstrip("0").rstrip(".")
+        except Exception:
+            pass
+    refresh_display()
+
+def press_square():
+    global current_input
+    if current_input:
+        try:
+            val = float(current_input) ** 2
+            current_input = str(int(val)) if val == int(val) else str(round(val, 10))
+        except Exception:
+            show_error("Error")
+    refresh_display()
+
+def press_sqrt():
+    global current_input
+    if current_input:
+        try:
+            val = float(current_input)
+            if val < 0:
+                show_error("Invalid input")
+                return
+            import math
+            result = math.sqrt(val)
+            current_input = str(int(result)) if result == int(result) else str(round(result, 10))
+        except Exception:
+            show_error("Error")
+    refresh_display()
+
+def press_reciprocal():
+    global current_input
+    if current_input:
+        try:
+            val = float(current_input)
+            if val == 0:
+                show_error("Cannot divide by zero")
+                return
+            result = 1 / val
+            current_input = str(round(result, 10))
+        except Exception:
+            show_error("Error")
+    refresh_display()
+
+# -------------------------------------------------------
+# Build the window
+# -------------------------------------------------------
+
+window = tk.Tk()
+window.title("Python Calculator")
+window.configure(bg=BG_COLOR)
+window.resizable(False, False)
+
+# --- Display ---
+display_frame = tk.Frame(window, bg=DISPLAY_BG, bd=2, relief="flat")
+display_frame.grid(row=0, column=0, columnspan=4,
+                   padx=10, pady=(10, 4), sticky="nsew")
+
+display = tk.Entry(
+    display_frame,
+    font=FONT_DISPLAY,
+    justify="right",
+    bd=0,
+    relief="flat",
+    bg=DISPLAY_BG,
+    fg=TEXT_COLOR,
+    insertbackground=TEXT_COLOR,
+    state="normal",
+)
+display.pack(fill="x", ipady=18, padx=12)
+display.insert(0, "0")
+
+# -------------------------------------------------------
+# Helper to make a button
+# -------------------------------------------------------
+
+def make_button(parent, text, row, col, cmd,
+                bg=NUM_BG, fg=TEXT_COLOR,
+                colspan=1, font=FONT_MAIN,
+                width=4, height=2):
+    btn = tk.Button(
+        parent,
+        text=text,
+        font=font,
+        bg=bg,
+        fg=fg,
+        activebackground="#c0c0c0" if bg != EQUAL_BG else "#005fa3",
+        activeforeground=fg,
+        bd=1,
+        relief="flat",
+        width=width,
+        height=height,
+        cursor="hand2",
+        command=cmd,
+    )
+    btn.grid(row=row, column=col, columnspan=colspan,
+             padx=3, pady=3, sticky="nsew")
+    return btn
+
+# -------------------------------------------------------
+# Button grid — matches the Windows Calculator layout
+# -------------------------------------------------------
+
+btn_frame = tk.Frame(window, bg=BG_COLOR)
+btn_frame.grid(row=1, column=0, columnspan=4, padx=6, pady=6)
+
+# Row 0 — special functions
+make_button(btn_frame, "%",  0, 0, press_percent,    bg=OP_BG)
+make_button(btn_frame, "CE", 0, 1, press_ce,         bg=OP_BG)
+make_button(btn_frame, "C",  0, 2, press_clear,      bg=OP_BG)
+make_button(btn_frame, "⌫",  0, 3, press_backspace,  bg=OP_BG)
+
+# Row 1 — advanced functions
+make_button(btn_frame, "¹/x", 1, 0, press_reciprocal, bg=OP_BG)
+make_button(btn_frame, "x²",  1, 1, press_square,     bg=OP_BG)
+make_button(btn_frame, "²√x", 1, 2, press_sqrt,       bg=OP_BG)
+make_button(btn_frame, "÷",   1, 3, lambda: press_operator("/"), bg=OP_BG)
+
+# Row 2 — 7 8 9 ×
+make_button(btn_frame, "7", 2, 0, lambda: press_digit("7"))
+make_button(btn_frame, "8", 2, 1, lambda: press_digit("8"))
+make_button(btn_frame, "9", 2, 2, lambda: press_digit("9"))
+make_button(btn_frame, "×", 2, 3, lambda: press_operator("*"), bg=OP_BG)
+
+# Row 3 — 4 5 6 −
+make_button(btn_frame, "4", 3, 0, lambda: press_digit("4"))
+make_button(btn_frame, "5", 3, 1, lambda: press_digit("5"))
+make_button(btn_frame, "6", 3, 2, lambda: press_digit("6"))
+make_button(btn_frame, "−", 3, 3, lambda: press_operator("-"), bg=OP_BG)
+
+# Row 4 — 1 2 3 +
+make_button(btn_frame, "1", 4, 0, lambda: press_digit("1"))
+make_button(btn_frame, "2", 4, 1, lambda: press_digit("2"))
+make_button(btn_frame, "3", 4, 2, lambda: press_digit("3"))
+make_button(btn_frame, "+", 4, 3, lambda: press_operator("+"), bg=OP_BG)
+
+# Row 5 — +/− 0 . =
+make_button(btn_frame, "+/−", 5, 0, press_sign,          bg=OP_BG)
+make_button(btn_frame, "0",   5, 1, lambda: press_digit("0"))
+make_button(btn_frame, ".",   5, 2, lambda: press_digit("."))
+make_button(btn_frame, "=",   5, 3, press_equals,
+            bg=EQUAL_BG, fg=EQUAL_FG)
+
+# -------------------------------------------------------
+# Keep the window open
+# -------------------------------------------------------
+window.mainloop()
+```
+
+### Run It
+
+Save the file as `gui_calculator.py` (Ctrl+S). In VS Code, press the ▶ Run
+button at the top-right.
+
+A window opens with a full calculator. Try it:
+
+```text
+Click 8, click +, click 7, click = -> shows 15
+Click 1, click 0, click ÷, click 0 -> shows Cannot divide by zero
+Click C to reset
+Click 9, click x², click =         -> shows 81
+```
+
+The app runs completely outside the terminal. It is a real desktop program.
+
+### What Each Part Does
+
+```text
+Colours section   -> sets the look (light grey, white, blue equals)
+State variables   -> remember digits, first number, and operator
+press_digit       -> build up the number as you type
+press_operator    -> save the first number and the chosen operation
+press_equals      -> do the math and show the result
+press_clear (C)   -> reset everything to zero
+press_ce          -> clear just the current entry
+press_backspace   -> delete the last digit you typed
+press_sign (+/-)  -> flip between positive and negative
+press_percent     -> divide the number by 100
+press_square      -> multiply the number by itself
+press_sqrt        -> find the square root
+press_reciprocal  -> calculate 1 divided by the number
+make_button       -> a helper function that creates one button with styling
+window.mainloop() -> keep the window open and listening
+```
+
+### Calculator Connection — Part 1 vs Part 2
+
+```text
+Part 1 (terminal)         Part 2 (window)
+-------------------------+---------------------------
+input()                   -> tk.Entry + press_digit()
+print("Enter number:")    -> display shown on screen
+while True loop           -> window.mainloop()
+if choice == "1": add     -> press_operator("+")
+print(f"Answer: {answer}")-> refresh_display()
+Ctrl+C or choice 6 quit   -> close the window button (X)
+```
+
+The logic is exactly the same. Only the way it looks changed.
+
+---
+
+## Lesson 26: Running the App Without VS Code
+
+### Big Idea
+
+A real app should open with a double-click, not by pressing Run in VS Code.
+
+### On Windows
+
+1. Find your `gui_calculator.py` file in File Explorer.
+2. Right-click it.
+3. Choose "Open with" → "Python".
+
+If that option is not there:
+1. Right-click the file.
+2. Choose "Properties".
+3. Click "Change" next to "Opens with".
+4. Find Python in the list and select it.
+
+After setting this once, double-clicking the file will open the calculator
+window directly, with no terminal.
+
+### On Mac
+
+1. Find `gui_calculator.py` in Finder.
+2. Right-click it.
+3. Choose "Open With" → "Python Launcher".
+
+If Python Launcher is not shown, open Terminal and run:
+
+```bash
+python3 /path/to/gui_calculator.py
+```
+
+Replace `/path/to/` with the actual folder where you saved the file.
+
+### Making an Icon (Optional Extra)
+
+If you want the calculator to have a custom icon in the title bar:
+
+```python
+# Add this line after window = tk.Tk()
+window.iconbitmap("calculator.ico")   # Windows only, needs a .ico file
+```
+
+For Mac and Linux, icons work differently and need an extra library.
+This is a bonus challenge for after the main app is working.
+
+---
+
+## Appendix B: GUI Lesson Map
+
+```text
+Lesson 20 -> import tkinter, tk.Tk(), mainloop()
+Lesson 21 -> tk.Entry (the display screen)
+Lesson 22 -> tk.Button, .grid() layout, command=
+Lesson 23 -> state variables, global, press_digit/operator/equals
+Lesson 24 -> colours, fonts, lambda for button commands
+Lesson 25 -> complete gui_calculator.py (full working window app)
+Lesson 26 -> running the app by double-click, no VS Code needed
+```
+
+---
+
+## Words You Now Know (Part 2 additions)
+
+### tkinter
+
+Python's built-in tool for creating windows and buttons.
+
+### Widget
+
+Any item on a window — a button, a text box, a label. Everything visible
+is a widget.
+
+### Entry
+
+A tkinter widget that shows and holds text. Used as the calculator display.
+
+### Button
+
+A tkinter widget you can click. Connected to a function via `command=`.
+
+### grid()
+
+The tkinter layout system that places widgets in rows and columns, like a
+table.
+
+### mainloop()
+
+The tkinter command that keeps the window open and listening for clicks.
+It is the window version of `while True`.
+
+### global
+
+A Python keyword used inside a function to say "I am changing a variable
+that lives outside this function."
+
+### lambda
+
+A tiny one-line function written on the spot. Used to pass a value to
+a button command.
+
+### state variable
+
+A variable that remembers what stage the program is at — for example,
+which operator was last pressed.
+
+### configure() / bg= / fg=
+
+Settings that change how a widget looks — background colour, text colour,
+font, size.
+
+---
