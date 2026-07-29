@@ -11,6 +11,7 @@ const {
   closeAssignmentHandler,
   listMyAssignments,
   submitAssignmentHandler,
+  uploadSubmissionAttachment,
 } = require('../controllers/assignmentController');
 
 const isTeacher = allowRoles('teacher');
@@ -21,6 +22,17 @@ router.use(protect);
 // ── Student routes ────────────────────────────────────────────────
 router.get('/mine', isStudent, listMyAssignments);
 router.post('/:id/submit', isStudent, submitAssignmentHandler);
+// Raw file bytes, same shape as the group-photo upload. Declared BEFORE the
+// JSON body parser would see it, and limited here as well as in the controller.
+router.post(
+  '/:id/attachment',
+  isStudent,
+  express.raw({
+    type: ['image/*', 'application/pdf', 'application/zip', 'text/plain', 'application/octet-stream'],
+    limit: '8mb',
+  }),
+  uploadSubmissionAttachment
+);
 
 // ── Teacher routes ────────────────────────────────────────────────
 router.post('/', isTeacher, createAssignmentHandler);

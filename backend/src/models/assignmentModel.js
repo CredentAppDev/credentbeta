@@ -43,6 +43,33 @@ const createAssignmentTables = async () => {
     )
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_submissions_assignment ON assignment_submissions(assignment_id)`);
+
+  // ── Migrations for databases created before these columns existed ────────
+  // CREATE TABLE IF NOT EXISTS does nothing to a table that already exists, so
+  // every column added after the first deploy needs its own ADD COLUMN.
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      ADD COLUMN IF NOT EXISTS is_late         BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS attachment_url  TEXT,
+      ADD COLUMN IF NOT EXISTS attachment_name TEXT,
+      ADD COLUMN IF NOT EXISTS prev_grade      INTEGER,
+      ADD COLUMN IF NOT EXISTS prev_feedback   TEXT,
+      ADD COLUMN IF NOT EXISTS resubmit_count  INTEGER DEFAULT 0
+  `);
+
+  // The grade ceiling was hard-wired to 100 while an assignment could be worth
+  // up to 1000 points — so a teacher could set "500 points" and then be unable
+  // to award more than 100. The column now allows the full points range and the
+  // controller checks each grade against ITS OWN assignment's points.
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      DROP CONSTRAINT IF EXISTS assignment_submissions_grade_check
+  `);
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      ADD CONSTRAINT assignment_submissions_grade_check
+      CHECK (grade IS NULL OR (grade >= 0 AND grade <= 1000))
+  `);
   console.log('✅ Assignment submissions table ready');
 };
 
@@ -113,7 +140,12 @@ const getStudentAssignments = async (studentId) => {
             sub.grade     AS submission_grade,
             sub.feedback  AS submission_feedback,
             sub.submitted_at AS submission_submitted_at,
-            sub.graded_at    AS submission_graded_at
+            sub.graded_at    AS submission_graded_at,
+            sub.is_late         AS submission_is_late,
+            sub.attachment_url  AS submission_attachment_url,
+            sub.attachment_name AS submission_attachment_name,
+            sub.prev_grade      AS submission_prev_grade,
+            sub.resubmit_count  AS submission_resubmit_count
      FROM assignments a
      JOIN student_groups sg ON sg.id = a.group_id AND sg.is_confirmed = true
      JOIN group_members gm ON gm.group_id = a.group_id AND gm.student_id = $1
@@ -145,7 +177,13 @@ const getSubmissionsForAssignment = async (assignmentId) => {
             sub.grade,
             sub.feedback,
             sub.submitted_at,
-            sub.graded_at
+            sub.graded_at,
+            sub.is_late,
+            sub.attachment_url,
+            sub.attachment_name,
+            sub.prev_grade,
+            sub.prev_feedback,
+            sub.resubmit_count
      FROM assignments a
      JOIN group_members gm ON gm.group_id = a.group_id
      JOIN students s ON s.id = gm.student_id AND s.is_active = true
@@ -158,23 +196,48 @@ const getSubmissionsForAssignment = async (assignmentId) => {
   return result.rows;
 };
 
-// Student hands in (or re-hands-in) their work. A resubmission clears any
-// prior grade so the teacher knows it needs grading again.
+// Student hands in (or re-hands-in) their work.
+//
+// A resubmission still needs re-grading, so the live grade is cleared — but the
+// teacher's marks are now PRESERVED in prev_grade/prev_feedback instead of being
+// deleted. Previously a student could resubmit after grading and silently
+// destroy written feedback with no history and no warning to the teacher.
+//
+// `is_late` is stamped here rather than inferred later, because it is a fact
+// about the moment of handing in: recomputing it afterwards against a due date
+// the teacher may since have changed would give a different answer.
 const upsertSubmission = async (data) => {
   const result = await pool.query(
     `INSERT INTO assignment_submissions
-       (assignment_id, student_id, body, link_url, status, submitted_at)
-     VALUES ($1, $2, $3, $4, 'submitted', NOW())
+       (assignment_id, student_id, body, link_url, attachment_url, attachment_name,
+        status, submitted_at, is_late, resubmit_count)
+     VALUES ($1, $2, $3, $4, $5, $6, 'submitted', NOW(), $7, 0)
      ON CONFLICT (assignment_id, student_id)
      DO UPDATE SET body = EXCLUDED.body,
                    link_url = EXCLUDED.link_url,
+                   -- a resubmission with no new file keeps the old one
+                   attachment_url  = COALESCE(EXCLUDED.attachment_url, assignment_submissions.attachment_url),
+                   attachment_name = COALESCE(EXCLUDED.attachment_name, assignment_submissions.attachment_name),
                    status = 'submitted',
+                   prev_grade = CASE WHEN assignment_submissions.status = 'graded'
+                                     THEN assignment_submissions.grade
+                                     ELSE assignment_submissions.prev_grade END,
+                   prev_feedback = CASE WHEN assignment_submissions.status = 'graded'
+                                        THEN assignment_submissions.feedback
+                                        ELSE assignment_submissions.prev_feedback END,
+                   resubmit_count = assignment_submissions.resubmit_count + 1,
                    grade = NULL,
                    feedback = NULL,
                    graded_at = NULL,
-                   submitted_at = NOW()
+                   submitted_at = NOW(),
+                   is_late = EXCLUDED.is_late
      RETURNING *`,
-    [data.assignment_id, data.student_id, data.body || null, data.link_url || null]
+    [
+      data.assignment_id, data.student_id,
+      data.body || null, data.link_url || null,
+      data.attachment_url || null, data.attachment_name || null,
+      !!data.is_late,
+    ]
   );
   return result.rows[0];
 };
@@ -205,6 +268,19 @@ const closeAssignment = async (id) => {
   return result.rows[0];
 };
 
+// Active students in a group — who to tell when an assignment is set.
+const getGroupStudentIds = async (groupId) => {
+  const result = await pool.query(
+    `SELECT gm.student_id
+     FROM group_members gm
+     JOIN students s ON s.id = gm.student_id AND s.is_active = true
+     JOIN student_groups sg ON sg.id = gm.group_id AND s.school_id = sg.school_id
+     WHERE gm.group_id = $1`,
+    [groupId]
+  );
+  return result.rows.map((r) => r.student_id);
+};
+
 module.exports = {
   createAssignmentTables,
   createAssignment,
@@ -212,6 +288,7 @@ module.exports = {
   getGroupAssignments,
   getStudentAssignments,
   getSubmissionsForAssignment,
+  getGroupStudentIds,
   upsertSubmission,
   gradeSubmission,
   closeAssignment,
