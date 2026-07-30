@@ -427,7 +427,7 @@ const getAiMarkedForTeacher = async (teacherId, { includeReviewed = false, limit
             s.grade, s.feedback, s.status, s.submitted_at, s.is_late,
             a.title AS assignment_title, a.kind, a.points, a.rubric,
             a.project_id, a.roadmap_day,
-            st.name AS student_name
+            st.full_name AS student_name
        FROM assignment_submissions s
        JOIN assignments a ON a.id = s.assignment_id
        LEFT JOIN students st ON st.id = s.student_id
