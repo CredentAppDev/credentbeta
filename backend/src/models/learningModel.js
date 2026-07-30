@@ -689,7 +689,19 @@ const getAiInteractionsForRequester = async ({ requesterType, requesterId, proje
 // → endTutoringSession. Active = ended_at IS NULL AND last_active_at within
 // the TTL window (1 hour by default, controlled by the caller).
 
-const TUTORING_TTL_MINUTES = 60;
+// How long a tutoring session stays resumable after its last message.
+//
+// This was 60 minutes, which quietly restarted teaching. A student who stepped
+// away for lunch came back to a NEW session with empty turns, so Emrys greeted
+// them and offered to start "from the very beginning" — mid-lesson. Continuity
+// is the whole point of the tutor: the session carries current_topic,
+// completed_topics and the last 20 turns, so resuming days later is strictly
+// better than starting over. Turns are capped at 20, so a long-lived session
+// cannot grow the prompt without bound.
+//
+// A session can still be closed deliberately — the "End session" control sets
+// ended_at, and that is excluded from the lookup regardless of this window.
+const TUTORING_TTL_MINUTES = Number(process.env.TUTORING_TTL_MINUTES) || 60 * 24 * 7;
 
 const getActiveTutoringSession = async ({ userType, userId, projectId }) => {
   const result = await pool.query(

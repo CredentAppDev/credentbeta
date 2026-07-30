@@ -2195,7 +2195,12 @@ const tutorAsk = async (req, res) => {
       }))
       .concat([{ role: 'user', content: question }]);
 
-    const raw = await callClaudeForTutor(systemPrompt, messages, 800);
+    // 800 left no room: thinking and the reply share this budget, and below the
+    // 1024 floor the shared config disables reasoning altogether — so the main
+    // teaching turn, the one that has to decide what to teach next and how much
+    // to give away, was running with none. The cap does not lengthen replies;
+    // brevity is enforced by TUTOR_RULES and enforceCodeLineCap.
+    const raw = await callClaudeForTutor(systemPrompt, messages, 8000, { effort: "medium" });
     if (!raw) {
       return res.status(503).json({ message: 'AI service unavailable — set ANTHROPIC_API_KEY' });
     }
