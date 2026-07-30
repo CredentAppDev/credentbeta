@@ -607,6 +607,7 @@ const helpWithAssignmentHandler = async (req, res) => {
     const retrievalQuery = [
       assignment.title,
       assignment.instructions,
+      assignment.rubric,
       day ? day.title : '',
       question,
     ].filter(Boolean).join(' ');
@@ -615,10 +616,26 @@ const helpWithAssignmentHandler = async (req, res) => {
     const submission = await getSubmissionFor(assignmentId, req.user.id);
 
     const briefing = [
-      'THE STUDENT IS ASKING FOR HELP WITH A SET ASSIGNMENT. Coach, do not complete it.',
-      `Assignment: "${assignment.title}"`,
+      assignment.kind === 'exercise'
+        ? 'THE STUDENT IS ASKING FOR HELP WITH A SET EXERCISE. Coach, do not complete it.'
+        : 'THE STUDENT IS ASKING FOR HELP WITH A SET ASSIGNMENT. Coach, do not complete it.',
+      `${assignment.kind === 'exercise' ? 'Exercise' : 'Assignment'}: "${assignment.title}"`,
       assignment.instructions ? `What the teacher asked for: ${assignment.instructions}` : '',
       assignment.due_at ? `Due: ${new Date(assignment.due_at).toDateString()}` : '',
+      // The starter code is the shape of the task. Without it Emrys guesses at
+      // what the student is even looking at.
+      assignment.starter_code
+        ? `The student started from this code — help them build ON it, do not replace it:
+---
+${String(assignment.starter_code).slice(0, 2000)}
+---`
+        : '',
+      // The rubric steers the coaching, but reciting it would hand over a
+      // checklist that IS the answer for a small exercise.
+      assignment.rubric
+        ? `The teacher will mark this against: ${assignment.rubric}
+Use that to decide what to steer them towards. Do NOT read the rubric out to them or turn it into a to-do list.`
+        : '',
       day ? `This assignment belongs to Day ${day.day_number}${day.title ? ` — ${day.title}` : ''} of the course.` : '',
       submission && (submission.body || submission.link_url)
         ? `The student's own work so far (respond to THIS — say what is right, name the one thing to fix first, and do not rewrite it):\n---\n${String(submission.body || submission.link_url).slice(0, 4000)}\n---`

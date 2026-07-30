@@ -292,7 +292,14 @@ const getSubmissionsForAssignment = async (assignmentId) => {
             sub.attachment_name,
             sub.prev_grade,
             sub.prev_feedback,
-            sub.resubmit_count
+            sub.resubmit_count,
+            -- The teacher sees Emrys's mark unconditionally. They are the one
+            -- deciding whether to accept it, so withholding it here would make
+            -- the review queue the only place it was visible.
+            sub.ai_score,
+            sub.ai_feedback,
+            sub.ai_marked_at,
+            sub.teacher_reviewed
      FROM assignments a
      JOIN group_members gm ON gm.group_id = a.group_id
      JOIN students s ON s.id = gm.student_id AND s.is_active = true
