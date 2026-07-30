@@ -340,10 +340,19 @@ const askAi = async (req, res) => {
 // ─── Agent General AI Ask — no project_id required ───────────────
 const validateAgentAskAi = [
   body('question').trim().notEmpty().withMessage('question is required'),
+  // Which class/project chat this was asked in. Optional for older clients,
+  // but without it the interaction can only be filed against a project guessed
+  // from the wording — so "hello" lands somewhere arbitrary and then shows up
+  // in every class's transcript.
+  body('project_id').optional({ nullable: true }).isInt({ min: 1 }).withMessage('project_id must be a positive integer'),
 ];
 
 const validateAiHistoryRequest = [
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('limit must be between 1 and 100'),
+  // Scope the transcript to one class project. Without it the caller gets every
+  // interaction it has ever had, which is how one conversation ended up being
+  // restored into all of the class chats at once.
+  query('project_id').optional().isInt({ min: 1 }).withMessage('project_id must be a positive integer'),
 ];
 
 const agentAskAi = async (req, res) => {
@@ -358,11 +367,14 @@ const agentAskAi = async (req, res) => {
     }
 
     const { question } = req.body;
+    // The chat the agent actually has open. When present this decides where the
+    // interaction is filed, in preference to any project inferred from the text.
+    const scopedProjectId = Number(req.body.project_id) || null;
 
     const progressAnswer = await buildAgentProgressAnswer(question);
     if (progressAnswer) {
       const interaction = await createAiInteraction({
-        project_id: progressAnswer.project_id || null,
+        project_id: scopedProjectId || progressAnswer.project_id || null,
         group_id: progressAnswer.group_id || null,
         help_request_id: null,
         requester_type: req.user.role,
@@ -404,7 +416,7 @@ const agentAskAi = async (req, res) => {
       ].join('\n\n');
 
       const interaction = await createAiInteraction({
-        project_id: null,
+        project_id: scopedProjectId,
         group_id: null,
         help_request_id: null,
         requester_type: req.user.role,
@@ -484,7 +496,10 @@ const agentAskAi = async (req, res) => {
     });
 
     const interaction = await createAiInteraction({
-      project_id: bestProject?.id || null,
+      // The open chat wins over the project inferred from the question — a
+      // greeting has no topic to infer from, and guessing files it under a
+      // class the agent was not even looking at.
+      project_id: scopedProjectId || bestProject?.id || null,
       group_id: null,
       help_request_id: null,
       requester_type: req.user.role,
@@ -532,6 +547,7 @@ const getAiHistory = async (req, res) => {
     const interactions = await getAiInteractionsForRequester({
       requesterType: req.user.role,
       requesterId: req.user.id,
+      projectId: Number(req.query.project_id) || null,
       limit: Number(req.query.limit || 50),
     });
 
@@ -1770,7 +1786,9 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
     // Save to interaction history so messages persist across sessions
     try {
       await createAiInteraction({
-        project_id: null,
+        // The class chat this was sent from. Multipart, so it arrives as a
+        // string. Unscoped rows get restored into every class transcript.
+        project_id: Number(req.body.project_id) || null,
         group_id: null,
         help_request_id: null,
         requester_type: role,
