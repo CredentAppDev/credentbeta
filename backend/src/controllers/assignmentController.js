@@ -13,8 +13,12 @@ const {
   upsertSubmission,
   gradeSubmission,
   closeAssignment,
+  saveAiMark,
+  getAiMarkedForTeacher,
+  markTeacherReviewed,
 } = require('../models/assignmentModel');
 const { createNotification } = require('../models/notificationModel');
+const { markSubmission, formatFeedback } = require('../services/emrysMarkingService');
 const {
   getLearningProjectById,
   getLearningRoadmapDay,
@@ -101,8 +105,12 @@ const studentInGroup = async (studentId, groupId) => {
 const createAssignmentHandler = async (req, res) => {
   try {
     const { group_id, title, instructions, link_url, due_at, points,
-      project_id, roadmap_day } = req.body;
+      project_id, roadmap_day, kind, starter_code, rubric, auto_mark } = req.body;
     const groupId = parseInt(group_id, 10);
+
+    // An exercise is an assignment with a different kind — same submissions,
+    // same grading, same course link. Only the authoring and the marking differ.
+    const itemKind = kind === 'exercise' ? 'exercise' : 'assignment';
 
     if (!Number.isInteger(groupId)) {
       return res.status(400).json({ message: 'Valid group_id is required' });
@@ -178,6 +186,12 @@ const createAssignmentHandler = async (req, res) => {
       points: pts,
       project_id: projectId,
       roadmap_day: roadmapDay,
+      kind: itemKind,
+      starter_code: starter_code ? String(starter_code).slice(0, MAX_TEXT_LEN) : null,
+      rubric: rubric ? String(rubric).slice(0, MAX_TEXT_LEN) : null,
+      // Exercises are marked by Emrys unless the teacher turns it off; plain
+      // assignments only when the teacher asks for it.
+      auto_mark: auto_mark === undefined ? (itemKind === 'exercise') : Boolean(auto_mark),
     });
 
     // Tell the students. The form promises "students will see it the moment you
@@ -397,11 +411,51 @@ const submitAssignmentHandler = async (req, res) => {
       is_late: isLate,
     });
 
+    // Answer the student immediately. Marking is a model call with real
+    // thinking behind it and can take many seconds — holding the response for
+    // it would make submitting feel broken, and a failure to mark would then
+    // read as a failure to submit. The work is already safely stored.
     res.status(201).json({ submission });
+
+    if (assignment.auto_mark) {
+      // Detached on purpose: nothing after this point may affect the response.
+      // If it throws, or the process restarts mid-mark, the submission simply
+      // stays unmarked and waits for the teacher — which is the safe outcome.
+      markSubmissionInBackground({ assignment, submission, studentId: req.user.id })
+        .catch((e) => console.error('[emrysMarking] background mark failed:', e.message));
+    }
   } catch (error) {
     console.error('Submit assignment error:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    // The response may already have been sent before marking was scheduled.
+    if (!res.headersSent) res.status(500).json({ message: 'Server error' });
   }
+};
+
+/**
+ * Mark a submission after the fact and store the result.
+ *
+ * Writes to ai_score / ai_feedback only. The teacher's `grade` is never
+ * touched, so the record always distinguishes what Emrys proposed from what a
+ * teacher decided.
+ */
+const markSubmissionInBackground = async ({ assignment, submission, studentId }) => {
+  let student = null;
+  try {
+    const r = await pool.query('SELECT name FROM students WHERE id = $1', [studentId]);
+    student = r.rows[0] || null;
+  } catch (_) { /* the name is a nicety; mark without it */ }
+
+  const mark = await markSubmission({ assignment, submission, student });
+  if (!mark) return;   // unavailable or unparseable — leave it for the teacher
+
+  await saveAiMark(submission.id, {
+    score: mark.score,
+    feedback: formatFeedback(mark),
+  });
+  console.log(
+    `[emrysMarking] ${assignment.kind || 'assignment'} ${assignment.id} / submission ${submission.id}` +
+    ` → ${mark.score}/${assignment.points || 100} (confidence ${mark.confidence})`
+  );
 };
 
 // POST /api/assignments/:id/attachment  (raw body, Content-Type = the file's)
@@ -600,6 +654,89 @@ const helpWithAssignmentHandler = async (req, res) => {
   }
 };
 
+
+// ── Emrys marking review (teacher) ────────────────────────────────
+// Everything Emrys has marked that the teacher has not yet looked at. This is
+// the queue the "Marked by Emrys" tab reads: the mark is a proposal, and it
+// stays invisible to the student until the teacher has been through it.
+const listAiMarkedHandler = async (req, res) => {
+  try {
+    const includeReviewed = String(req.query.include_reviewed || '') === 'true';
+    const rows = await getAiMarkedForTeacher(req.user.id, { includeReviewed });
+    res.status(200).json({
+      submissions: rows,
+      pending: rows.filter((r) => !r.teacher_reviewed).length,
+    });
+  } catch (error) {
+    console.error('List AI-marked submissions error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * The teacher signs off on a mark.
+ *
+ * Two ways through:
+ *   accept          — take Emrys's score and feedback as the real grade
+ *   override        — the teacher supplies their own grade/feedback
+ *
+ * Either way the submission is flagged reviewed, which is also what releases
+ * Emrys's feedback to the student. Nothing reaches a student on the model's
+ * say-so alone.
+ */
+const reviewAiMarkHandler = async (req, res) => {
+  try {
+    const submissionId = parseInt(req.params.submissionId, 10);
+    if (!Number.isInteger(submissionId)) {
+      return res.status(400).json({ message: 'Invalid submission id' });
+    }
+
+    // Ownership: the submission must belong to an assignment this teacher set.
+    const owned = await pool.query(
+      `SELECT s.id, s.ai_score, s.ai_feedback, a.points, a.teacher_id
+         FROM assignment_submissions s
+         JOIN assignments a ON a.id = s.assignment_id
+        WHERE s.id = $1`,
+      [submissionId]
+    );
+    const row = owned.rows[0];
+    if (!row) return res.status(404).json({ message: 'Submission not found' });
+    if (row.teacher_id !== req.user.id) {
+      return res.status(403).json({ message: 'That submission is not yours to review' });
+    }
+
+    const { accept, grade, feedback } = req.body || {};
+    let finalGrade = null;
+    let finalFeedback = null;
+
+    if (accept) {
+      finalGrade = row.ai_score;
+      finalFeedback = row.ai_feedback;
+    } else if (grade !== undefined && grade !== null && grade !== '') {
+      const g = parseInt(grade, 10);
+      const max = Number.isFinite(Number(row.points)) ? Number(row.points) : 100;
+      if (!Number.isInteger(g) || g < 0 || g > max) {
+        return res.status(400).json({ message: `Grade must be between 0 and ${max}` });
+      }
+      finalGrade = g;
+      finalFeedback = feedback ? String(feedback).slice(0, MAX_FEEDBACK_LEN) : null;
+    }
+
+    // A grade is only written when the teacher actually gave one. Marking a
+    // submission "reviewed" with no grade is legitimate — it means the teacher
+    // has seen Emrys's mark and wants to grade it properly later.
+    if (finalGrade !== null) {
+      await gradeSubmission(submissionId, { grade: finalGrade, feedback: finalFeedback });
+    }
+    const updated = await markTeacherReviewed(submissionId);
+
+    res.status(200).json({ submission: updated, graded: finalGrade !== null });
+  } catch (error) {
+    console.error('Review AI mark error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   createAssignmentHandler,
   listGroupAssignments,
@@ -611,4 +748,6 @@ module.exports = {
   uploadSubmissionAttachment,
   uploadAssignmentAttachment,
   helpWithAssignmentHandler,
+  listAiMarkedHandler,
+  reviewAiMarkHandler,
 };

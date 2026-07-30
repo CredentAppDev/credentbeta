@@ -40,6 +40,31 @@ const createAssignmentTables = async () => {
       ADD COLUMN IF NOT EXISTS attachment_name TEXT
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_assignments_project ON assignments(project_id)`);
+
+  // Exercises are assignments with a different `kind`, not a parallel table.
+  // They share submissions, attachments, grading, the due date, the project and
+  // roadmap link — everything except how they are authored and marked. A second
+  // table would have duplicated all of that and then drifted from it.
+  //
+  //   starter_code  scaffold the student opens with (exercises are Python tasks)
+  //   rubric        what Emrys marks against, in the teacher's own words
+  //   auto_mark     whether Emrys marks a submission the moment it arrives
+  await pool.query(`
+    ALTER TABLE assignments
+      ADD COLUMN IF NOT EXISTS kind         VARCHAR(20) DEFAULT 'assignment',
+      ADD COLUMN IF NOT EXISTS starter_code TEXT,
+      ADD COLUMN IF NOT EXISTS rubric       TEXT,
+      ADD COLUMN IF NOT EXISTS auto_mark    BOOLEAN DEFAULT true
+  `);
+  // Constraint added separately from the column: ADD COLUMN IF NOT EXISTS
+  // cannot carry a CHECK on a re-run, so it is dropped and re-added the same
+  // way the grade ceiling below is.
+  await pool.query(`ALTER TABLE assignments DROP CONSTRAINT IF EXISTS assignments_kind_check`);
+  await pool.query(`
+    ALTER TABLE assignments
+      ADD CONSTRAINT assignments_kind_check CHECK (kind IN ('assignment', 'exercise'))
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_assignments_kind ON assignments(kind)`);
   console.log('✅ Assignments table ready');
 
   await pool.query(`
@@ -86,6 +111,33 @@ const createAssignmentTables = async () => {
       ADD CONSTRAINT assignment_submissions_grade_check
       CHECK (grade IS NULL OR (grade >= 0 AND grade <= 1000))
   `);
+
+  // Emrys's mark is kept SEPARATE from the teacher's grade rather than writing
+  // into it. The teacher stays the authority: they see what Emrys scored and
+  // why, then accept it or set their own. Overwriting `grade` would have made
+  // an AI mark indistinguishable from a human one in the record.
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      ADD COLUMN IF NOT EXISTS ai_score         INTEGER,
+      ADD COLUMN IF NOT EXISTS ai_feedback      TEXT,
+      ADD COLUMN IF NOT EXISTS ai_marked_at     TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS teacher_reviewed BOOLEAN DEFAULT false
+  `);
+  // 'ai_marked' sits between submitted and graded: Emrys has marked it and it
+  // is waiting on the teacher.
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      DROP CONSTRAINT IF EXISTS assignment_submissions_status_check
+  `);
+  await pool.query(`
+    ALTER TABLE assignment_submissions
+      ADD CONSTRAINT assignment_submissions_status_check
+      CHECK (status IN ('submitted', 'ai_marked', 'graded'))
+  `);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_submissions_review
+      ON assignment_submissions(teacher_reviewed, ai_marked_at)
+  `);
   console.log('✅ Assignment submissions table ready');
 };
 
@@ -94,8 +146,8 @@ const createAssignment = async (data) => {
   const result = await pool.query(
     `INSERT INTO assignments
        (group_id, teacher_id, title, instructions, link_url, due_at, points,
-        project_id, roadmap_day)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        project_id, roadmap_day, kind, starter_code, rubric, auto_mark)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
      RETURNING *`,
     [
       data.group_id,
@@ -107,6 +159,14 @@ const createAssignment = async (data) => {
       Number.isInteger(data.points) ? data.points : 100,
       Number.isInteger(data.project_id) ? data.project_id : null,
       Number.isInteger(data.roadmap_day) ? data.roadmap_day : null,
+      data.kind === 'exercise' ? 'exercise' : 'assignment',
+      data.starter_code || null,
+      data.rubric || null,
+      // Default ON for exercises (the point of them is that Emrys marks), and
+      // only if the teacher asked for it on a plain assignment.
+      data.auto_mark === undefined
+        ? data.kind === 'exercise'
+        : Boolean(data.auto_mark),
     ]
   );
   return result.rows[0];
@@ -164,7 +224,14 @@ const getStudentAssignments = async (studentId) => {
             sub.attachment_url  AS submission_attachment_url,
             sub.attachment_name AS submission_attachment_name,
             sub.prev_grade      AS submission_prev_grade,
-            sub.resubmit_count  AS submission_resubmit_count
+            sub.resubmit_count  AS submission_resubmit_count,
+            -- Emrys's mark is released to the student only once the teacher has
+            -- reviewed it. The teacher is the authority: a student must not read
+            -- a score the teacher is about to change, and must never be able to
+            -- infer one before it has been checked.
+            CASE WHEN sub.teacher_reviewed THEN sub.ai_score    END AS submission_ai_score,
+            CASE WHEN sub.teacher_reviewed THEN sub.ai_feedback END AS submission_ai_feedback,
+            sub.teacher_reviewed AS submission_teacher_reviewed
      FROM assignments a
      JOIN student_groups sg ON sg.id = a.group_id AND sg.is_confirmed = true
      JOIN group_members gm ON gm.group_id = a.group_id AND gm.student_id = $1
@@ -323,9 +390,67 @@ const getGroupStudentIds = async (groupId) => {
   return result.rows.map((r) => r.student_id);
 };
 
+// ── Emrys marking ─────────────────────────────────────────────────
+// Records what Emrys scored and why, WITHOUT touching `grade`. The teacher's
+// grade column stays theirs alone, so a mark in the record is never ambiguous
+// about who gave it. Status only advances to 'ai_marked' if the teacher has not
+// already graded it — a teacher's decision is never walked back by the model.
+const saveAiMark = async (submissionId, { score, feedback }) => {
+  const result = await pool.query(
+    `UPDATE assignment_submissions
+        SET ai_score     = $2,
+            ai_feedback  = $3,
+            ai_marked_at = NOW(),
+            status       = CASE WHEN status = 'graded' THEN status ELSE 'ai_marked' END
+      WHERE id = $1
+      RETURNING *`,
+    [submissionId, Number.isFinite(score) ? Math.round(score) : null, feedback || null]
+  );
+  return result.rows[0] || null;
+};
+
+// Everything Emrys has marked that a teacher has not looked at yet, newest
+// first. Scoped to the teacher's OWN assignments — a teacher must not see
+// another class's submissions.
+const getAiMarkedForTeacher = async (teacherId, { includeReviewed = false, limit = 100 } = {}) => {
+  const result = await pool.query(
+    `SELECT s.id, s.assignment_id, s.student_id, s.body, s.link_url,
+            s.attachment_url, s.attachment_name,
+            s.ai_score, s.ai_feedback, s.ai_marked_at, s.teacher_reviewed,
+            s.grade, s.feedback, s.status, s.submitted_at, s.is_late,
+            a.title AS assignment_title, a.kind, a.points, a.rubric,
+            a.project_id, a.roadmap_day,
+            st.name AS student_name
+       FROM assignment_submissions s
+       JOIN assignments a ON a.id = s.assignment_id
+       LEFT JOIN students st ON st.id = s.student_id
+      WHERE a.teacher_id = $1
+        AND s.ai_marked_at IS NOT NULL
+        ${includeReviewed ? '' : 'AND s.teacher_reviewed = false'}
+      ORDER BY s.ai_marked_at DESC
+      LIMIT $2`,
+    [teacherId, limit]
+  );
+  return result.rows;
+};
+
+const markTeacherReviewed = async (submissionId) => {
+  const result = await pool.query(
+    `UPDATE assignment_submissions
+        SET teacher_reviewed = true
+      WHERE id = $1
+      RETURNING *`,
+    [submissionId]
+  );
+  return result.rows[0] || null;
+};
+
 module.exports = {
   createAssignmentTables,
   createAssignment,
+  saveAiMark,
+  getAiMarkedForTeacher,
+  markTeacherReviewed,
   getAssignmentById,
   getGroupAssignments,
   getStudentAssignments,

@@ -14,6 +14,8 @@ const {
   helpWithAssignmentHandler,
   uploadSubmissionAttachment,
   uploadAssignmentAttachment,
+  listAiMarkedHandler,
+  reviewAiMarkHandler,
 } = require('../controllers/assignmentController');
 
 const isTeacher = allowRoles('teacher');
@@ -41,6 +43,10 @@ router.post(
 
 // ── Teacher routes ────────────────────────────────────────────────
 router.post('/', isTeacher, createAssignmentHandler);
+// Emrys's marking queue. Declared BEFORE any '/:id' route — Express matches in
+// order, and '/review' would otherwise be swallowed as an assignment id.
+router.get('/review', isTeacher, listAiMarkedHandler);
+router.post('/review/:submissionId', isTeacher, reviewAiMarkHandler);
 router.get('/groups/:groupId', isTeacher, listGroupAssignments);
 router.get('/:id/submissions', isTeacher, getSubmissions);
 router.post('/:id/submissions/:studentId/grade', isTeacher, gradeSubmissionHandler);

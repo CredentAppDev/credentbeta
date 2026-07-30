@@ -689,19 +689,15 @@ const getAiInteractionsForRequester = async ({ requesterType, requesterId, proje
 // → endTutoringSession. Active = ended_at IS NULL AND last_active_at within
 // the TTL window (1 hour by default, controlled by the caller).
 
-// How long a tutoring session stays resumable after its last message.
+// A tutoring session does not expire on a timer. It is a learning record, not
+// a web session: it carries current_topic, completed_topics and the last 20
+// turns, which is exactly what lets Emrys pick a lesson back up where it
+// stopped. A time window here silently restarted teaching — a student who
+// stepped away came back to an empty session and was greeted as if the lesson
+// had never happened.
 //
-// This was 60 minutes, which quietly restarted teaching. A student who stepped
-// away for lunch came back to a NEW session with empty turns, so Emrys greeted
-// them and offered to start "from the very beginning" — mid-lesson. Continuity
-// is the whole point of the tutor: the session carries current_topic,
-// completed_topics and the last 20 turns, so resuming days later is strictly
-// better than starting over. Turns are capped at 20, so a long-lived session
-// cannot grow the prompt without bound.
-//
-// A session can still be closed deliberately — the "End session" control sets
-// ended_at, and that is excluded from the lookup regardless of this window.
-const TUTORING_TTL_MINUTES = Number(process.env.TUTORING_TTL_MINUTES) || 60 * 24 * 7;
+// A session ends only when someone deliberately ends it (ended_at), which the
+// lookup excludes. Turns stay capped at 20, so age cannot grow the prompt.
 
 const getActiveTutoringSession = async ({ userType, userId, projectId }) => {
   const result = await pool.query(
@@ -711,7 +707,6 @@ const getActiveTutoringSession = async ({ userType, userId, projectId }) => {
         AND user_id = $2
         AND (project_id IS NOT DISTINCT FROM $3)
         AND ended_at IS NULL
-        AND last_active_at > NOW() - INTERVAL '${TUTORING_TTL_MINUTES} minutes'
       ORDER BY last_active_at DESC
       LIMIT 1`,
     [userType, userId, projectId || null]

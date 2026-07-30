@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const { protect } = require('../middleware/auth');
+const { blockStudentOpenChat } = require('../middleware/emrysAccess');
 const { aiDailyCap } = require('../middleware/aiDailyCap');
 const {
   validateAskAi,
@@ -35,9 +36,9 @@ const router = express.Router();
 // Agents/admins are uncapped (see middleware). Routes below that DON'T call
 // Claude (history, roadmap index, reports) skip the cap so testers can still
 // navigate even after they hit it.
-router.post('/ask', protect, aiDailyCap, validateAskAi, askAi);
+router.post('/ask', protect, blockStudentOpenChat, aiDailyCap, validateAskAi, askAi);
 router.post('/agent/ask', protect, validateAgentAskAi, agentAskAi);
-router.post('/ask-with-attachment', protect, aiDailyCap, upload.single('file'), askWithAttachment);
+router.post('/ask-with-attachment', protect, blockStudentOpenChat, aiDailyCap, upload.single('file'), askWithAttachment);
 router.post('/transcribe', protect, upload.single('file'), transcribeAudio);
 router.get('/history', protect, validateAiHistoryRequest, getAiHistory);
 router.get('/roadmap', protect, validateRoadmapRequest, getTeachingRoadmap);
@@ -47,7 +48,7 @@ router.post('/teacher/day-report', protect, validateTeacherDailyReport, submitTe
 router.post('/teacher/group-project-update', protect, validateTeacherGroupProjectUpdate, submitTeacherGroupProjectUpdate);
 
 // Tutor mode (conversational, multi-turn, 10-rule patient teacher)
-router.post('/tutor', protect, aiDailyCap, tutorAsk);
+router.post('/tutor', protect, blockStudentOpenChat, aiDailyCap, tutorAsk);
 router.post('/tutor/:id/end', protect, tutorEnd);
 
 // Build Studio: dedicated 3D build-plan generator (calls Claude → capped).
