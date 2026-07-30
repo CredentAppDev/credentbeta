@@ -8,12 +8,23 @@ const {
   getGroupAssignments,
   getStudentAssignments,
   getSubmissionsForAssignment,
+  getSubmissionFor,
   getGroupStudentIds,
   upsertSubmission,
   gradeSubmission,
   closeAssignment,
 } = require('../models/assignmentModel');
 const { createNotification } = require('../models/notificationModel');
+const {
+  getLearningProjectById,
+  getLearningRoadmapDay,
+  getLearningRoadmapDays,
+  getLearningContentChunks,
+} = require('../models/learningModel');
+const {
+  findRelevantChunks,
+  buildControlledAnswer,
+} = require('../services/controlledAiTutorService');
 
 const MAX_TITLE_LEN = 255;
 const MAX_TEXT_LEN = 5000;
@@ -37,6 +48,23 @@ const cleanUrl = (raw) => {
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return undefined;
   return u.toString().slice(0, MAX_TEXT_LEN);
 };
+
+// Extension from the DECLARED content type, never from a client-supplied
+// filename — a name is attacker-controlled and must not decide what lands on
+// disk. Shared by the student-submission and teacher-assignment uploads so the
+// two can never drift into accepting different things.
+const extFromContentType = (raw) => {
+  const ct = String(raw || '').toLowerCase();
+  if (ct.includes('png')) return 'png';
+  if (ct.includes('webp')) return 'webp';
+  if (ct.includes('gif')) return 'gif';
+  if (ct.includes('pdf')) return 'pdf';
+  if (ct.includes('zip')) return 'zip';
+  if (ct.includes('text/plain')) return 'txt';
+  if (ct.includes('jpeg') || ct.includes('jpg')) return 'jpg';
+  return null;
+};
+const ACCEPTED_TYPES_MESSAGE = 'Only images (PNG, JPEG, WebP, GIF), PDF, ZIP or text files are accepted';
 
 // ── Access helpers ────────────────────────────────────────────────
 // Mirrors assertTeacherAllowed in teacherGroupController.js — a teacher may
@@ -72,7 +100,8 @@ const studentInGroup = async (studentId, groupId) => {
 // ── Teacher handlers ──────────────────────────────────────────────
 const createAssignmentHandler = async (req, res) => {
   try {
-    const { group_id, title, instructions, link_url, due_at, points } = req.body;
+    const { group_id, title, instructions, link_url, due_at, points,
+      project_id, roadmap_day } = req.body;
     const groupId = parseInt(group_id, 10);
 
     if (!Number.isInteger(groupId)) {
@@ -107,6 +136,38 @@ const createAssignmentHandler = async (req, res) => {
       return res.status(400).json({ message: 'Reference link must be a valid http(s) URL' });
     }
 
+    // Optional course link. Validated rather than trusted: a project_id that
+    // does not exist, or a day that is not in that project's roadmap, would
+    // give Emrys confidently wrong context — worse than no context at all.
+    let projectId = null;
+    let roadmapDay = null;
+    if (project_id !== undefined && project_id !== null && project_id !== '') {
+      const pid = parseInt(project_id, 10);
+      if (!Number.isInteger(pid)) {
+        return res.status(400).json({ message: 'project_id must be a number' });
+      }
+      const project = await getLearningProjectById(pid);
+      if (!project) {
+        return res.status(400).json({ message: 'That project does not exist' });
+      }
+      projectId = pid;
+
+      if (roadmap_day !== undefined && roadmap_day !== null && roadmap_day !== '') {
+        const d = parseInt(roadmap_day, 10);
+        if (!Number.isInteger(d) || d < 1) {
+          return res.status(400).json({ message: 'roadmap_day must be a positive number' });
+        }
+        const day = await getLearningRoadmapDay(pid, d);
+        if (!day) {
+          return res.status(400).json({ message: `Day ${d} is not in that project's roadmap` });
+        }
+        roadmapDay = d;
+      }
+    } else if (roadmap_day !== undefined && roadmap_day !== null && roadmap_day !== '') {
+      // A day without a project points at nothing.
+      return res.status(400).json({ message: 'Pick a project before choosing a roadmap day' });
+    }
+
     const assignment = await createAssignment({
       group_id: groupId,
       teacher_id: req.user.id,
@@ -115,6 +176,8 @@ const createAssignmentHandler = async (req, res) => {
       link_url: linkUrl,
       due_at: dueAt,
       points: pts,
+      project_id: projectId,
+      roadmap_day: roadmapDay,
     });
 
     // Tell the students. The form promises "students will see it the moment you
@@ -376,17 +439,9 @@ const uploadSubmissionAttachment = async (req, res) => {
     // Extension comes from the declared type, never from a client-supplied
     // filename — a name is attacker-controlled and must not decide what lands
     // on disk.
-    const ct = String(req.get('content-type') || '').toLowerCase();
-    const ext = ct.includes('png') ? 'png'
-      : ct.includes('webp') ? 'webp'
-        : ct.includes('gif') ? 'gif'
-          : ct.includes('pdf') ? 'pdf'
-            : ct.includes('zip') ? 'zip'
-              : ct.includes('text/plain') ? 'txt'
-                : ct.includes('jpeg') || ct.includes('jpg') ? 'jpg'
-                  : null;
+    const ext = extFromContentType(req.get('content-type'));
     if (!ext) {
-      return res.status(415).json({ message: 'Only images, PDF, ZIP or text files are accepted' });
+      return res.status(415).json({ message: ACCEPTED_TYPES_MESSAGE });
     }
 
     fs.mkdirSync(uploadsRoot, { recursive: true });
@@ -401,6 +456,150 @@ const uploadSubmissionAttachment = async (req, res) => {
   }
 };
 
+// ── Teacher attaches a brief / worksheet / photo to the assignment ──────────
+//
+// The mirror of uploadSubmissionAttachment: same size cap, same type allowlist,
+// same "extension from declared type" rule — but gated on teacherOwnsGroup and
+// written onto the assignment rather than a submission, so every student in the
+// class sees it alongside the instructions.
+const uploadAssignmentAttachment = async (req, res) => {
+  try {
+    const assignmentId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(assignmentId)) {
+      return res.status(400).json({ message: 'Invalid assignment id' });
+    }
+    if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+      return res.status(400).json({ message: 'File body is required' });
+    }
+    if (req.body.length > MAX_ATTACH_BYTES) {
+      return res.status(413).json({
+        message: `File is too large (max ${MAX_ATTACH_BYTES / 1024 / 1024}MB)`,
+      });
+    }
+
+    const assignment = await getAssignmentById(assignmentId);
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
+
+    const allowed = await teacherOwnsGroup(req.user.id, assignment.group_id);
+    if (!allowed) return res.status(403).json({ message: 'Access denied' });
+
+    const ext = extFromContentType(req.get('content-type'));
+    if (!ext) return res.status(415).json({ message: ACCEPTED_TYPES_MESSAGE });
+
+    fs.mkdirSync(uploadsRoot, { recursive: true });
+    const filename = `asnbrief-${assignmentId}-${Date.now()}-`
+      + `${crypto.randomBytes(4).toString('hex')}.${ext}`;
+    fs.writeFileSync(path.join(uploadsRoot, filename), req.body);
+
+    const url = `/uploads/${filename}`;
+    const label = String(req.get('x-file-name') || `attachment.${ext}`).slice(0, 200);
+    const updated = await setAssignmentAttachment(assignmentId, url, label);
+
+    res.status(201).json({ assignment: updated, attachment_url: url, attachment_name: label });
+  } catch (error) {
+    console.error('Assignment attachment error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ── Ask Emrys for help with an assignment ───────────────────────────────────
+//
+// This is the whole point of linking an assignment to a project and a day.
+// Emrys receives the assignment itself, the lesson material it was set on, the
+// course roadmap with that day marked, and the student's own draft — so it can
+// coach against the right material instead of guessing from the title.
+//
+// It cannot do the homework: HOMEWORK_COACHING_POLICY is in the student system
+// prompt, and the framing below tells it plainly that this is an assignment.
+const helpWithAssignmentHandler = async (req, res) => {
+  try {
+    const assignmentId = parseInt(req.params.id, 10);
+    const question = String(req.body.question || '').trim();
+    if (!Number.isInteger(assignmentId)) {
+      return res.status(400).json({ message: 'Invalid assignment id' });
+    }
+    if (!question) {
+      return res.status(400).json({ message: 'Ask Emrys something about the assignment' });
+    }
+
+    const assignment = await getAssignmentById(assignmentId);
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+    const allowed = await studentInGroup(req.user.id, assignment.group_id);
+    if (!allowed) {
+      return res.status(403).json({ message: 'This assignment is not for your group' });
+    }
+
+    // The course context, when the teacher linked one.
+    let project = null;
+    let allChunks = [];
+    let days = [];
+    let day = null;
+    if (assignment.project_id) {
+      project = await getLearningProjectById(assignment.project_id);
+      if (project) {
+        allChunks = await getLearningContentChunks(project.id, 'student');
+        days = await getLearningRoadmapDays(project.id);
+        if (assignment.roadmap_day) {
+          day = await getLearningRoadmapDay(project.id, assignment.roadmap_day);
+        }
+      }
+    }
+
+    // Retrieve against the assignment AND the question together — the title
+    // and instructions say what the work is about, which is often more
+    // informative than a short question like "I'm stuck".
+    const retrievalQuery = [
+      assignment.title,
+      assignment.instructions,
+      day ? day.title : '',
+      question,
+    ].filter(Boolean).join(' ');
+    const chunks = findRelevantChunks(allChunks, retrievalQuery, 8);
+
+    const submission = await getSubmissionFor(assignmentId, req.user.id);
+
+    const briefing = [
+      'THE STUDENT IS ASKING FOR HELP WITH A SET ASSIGNMENT. Coach, do not complete it.',
+      `Assignment: "${assignment.title}"`,
+      assignment.instructions ? `What the teacher asked for: ${assignment.instructions}` : '',
+      assignment.due_at ? `Due: ${new Date(assignment.due_at).toDateString()}` : '',
+      day ? `This assignment belongs to Day ${day.day_number}${day.title ? ` — ${day.title}` : ''} of the course.` : '',
+      submission && (submission.body || submission.link_url)
+        ? `The student's own work so far (respond to THIS — say what is right, name the one thing to fix first, and do not rewrite it):\n---\n${String(submission.body || submission.link_url).slice(0, 4000)}\n---`
+        : 'The student has not submitted anything yet, so there is no draft to react to. Help them find the first step themselves.',
+      `Their question: ${question}`,
+    ].filter(Boolean).join('\n');
+
+    const answer = await buildControlledAnswer({
+      project,
+      question: briefing,
+      chunks,
+      allChunks,
+      audience: 'student',
+      readiness: null,
+      conversationHistory: [],
+      progressEvidence: { dailyReports: [], groupUpdates: [] },
+      days,
+    });
+
+    res.status(200).json({
+      assignment: {
+        id: assignment.id,
+        title: assignment.title,
+        project_id: assignment.project_id,
+        roadmap_day: assignment.roadmap_day,
+        linked: Boolean(project),
+      },
+      answer,
+    });
+  } catch (error) {
+    console.error('Assignment help error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   createAssignmentHandler,
   listGroupAssignments,
@@ -410,4 +609,6 @@ module.exports = {
   listMyAssignments,
   submitAssignmentHandler,
   uploadSubmissionAttachment,
+  uploadAssignmentAttachment,
+  helpWithAssignmentHandler,
 };

@@ -72,6 +72,20 @@ const TEACHING_ANSWER_POLICY = [
 
 // Where students actually WORK, and how Emrys verifies their results. Students
 // never run code "inside Emrys" — they build in VS Code and report back.
+// Homework help that stays help. Emrys teaches from the same material the
+// assignment is set on, which makes it trivially able to produce the answer —
+// so the line has to be stated explicitly, and stated as a test the model can
+// apply to its own reply rather than a vague "don't cheat".
+const HOMEWORK_COACHING_POLICY = [
+  'HOMEWORK AND ASSIGNMENTS — HELP, NEVER HAND IN:',
+  '- A student asking about an assignment wants to understand it, not receive it. Never write the finished answer, the complete code file, or the paragraph they are meant to submit.',
+  '- Teach the idea the assignment is testing, then work a DIFFERENT example all the way through. A parallel example teaches the method without doing the task.',
+  '- If they paste their own attempt, respond to what is actually there: say what is already right, name the ONE thing to fix first, and explain why it is wrong. Do not rewrite it for them.',
+  '- If they ask outright for the answer, say plainly and without lecturing that you will not hand it in for them, then immediately offer the next most useful thing — the concept, a worked parallel example, or a hint at the first step.',
+  '- THE TEST, apply it to your own reply before sending: after reading it, the student must still have work left to do. If they could copy your message into the submission box and be finished, you have gone too far — cut it back.',
+  '- Helping is not withholding. Be generous with explanation, examples, debugging of THEIR code, and encouragement. The restriction is on producing the deliverable, nothing else.',
+].join('\n');
+
 const VSCODE_WORKSPACE_POLICY = [
   'WORKSPACE POLICY — VS CODE IS THE STUDENT\'S WORKSHOP (always enforce this):',
   '- All code is typed, saved, and RUN in Visual Studio Code (VS Code) with the Python extension — never inside this chat. You are the teacher beside them; VS Code is their workbench.',
@@ -176,6 +190,10 @@ const STUDENT_PROJECT_TUTOR_PATTERN = [
 
 // ── Keyword retrieval (this is how we find the textbook pages) ──────────────
 
+// Superseded by termsOf() below, which the TF-IDF scorer uses. Kept only
+// because it is a distinct splitter (it collapses on non-word runs rather than
+// matching word runs) and nothing outside this file should depend on either.
+// eslint-disable-next-line no-unused-vars
 const tokenize = (text) => {
   return String(text || '')
     .toLowerCase()
@@ -184,27 +202,132 @@ const tokenize = (text) => {
     .filter((word) => word.length > 2 && !STOP_WORDS.has(word));
 };
 
-const scoreChunk = (chunk, questionWords) => {
-  const haystack = `${chunk.title} ${chunk.content} ${(chunk.tags || []).join(' ')}`.toLowerCase();
-  return questionWords.reduce((score, word) => score + (haystack.includes(word) ? 1 : 0), 0);
+// ── Retrieval ───────────────────────────────────────────────────────────────
+//
+// The old scorer was `haystack.includes(word)` — a SUBSTRING test. "art"
+// matched "start", "cat" matched "concatenate", and every query word counted
+// once no matter how often it appeared. Paired with a limit of 4 out of up to
+// 40 chunks, a question could pull four sections that merely contained the
+// letters of the query while missing the one actually about it.
+//
+// This is TF-IDF over whole words: a rare query word weighs more than a common
+// one, a hit in a chunk's TITLE weighs more than one buried in its body, and a
+// long chunk cannot win on bulk alone.
+
+const termsOf = (text) =>
+  (String(text || '').toLowerCase().match(/[a-z0-9+#-]+/g) || [])
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+
+const TITLE_WEIGHT = 3;      // the author's own name for the section describes it better than any one sentence
+
+const indexChunks = (chunks) => {
+  const docs = chunks.map((chunk) => {
+    const title = termsOf(chunk.title);
+    const body = termsOf(`${chunk.content} ${(chunk.tags || []).join(' ')}`);
+    const tf = new Map();
+    title.forEach((w) => tf.set(w, (tf.get(w) || 0) + TITLE_WEIGHT));
+    body.forEach((w) => tf.set(w, (tf.get(w) || 0) + 1));
+    return { chunk, tf, length: Math.max(1, title.length * TITLE_WEIGHT + body.length) };
+  });
+  const df = new Map();
+  docs.forEach((d) => {
+    new Set(d.tf.keys()).forEach((w) => df.set(w, (df.get(w) || 0) + 1));
+  });
+  return { docs, df, n: docs.length };
 };
 
-const findRelevantChunks = (chunks, question, limit = 4) => {
-  const words = tokenize(question);
-  if (words.length === 0) {
-    return chunks.slice(0, limit);
+const scoreDoc = (doc, queryTerms, df, n) => {
+  let score = 0;
+  for (const w of queryTerms) {
+    const tf = doc.tf.get(w);
+    if (!tf) continue;
+    const idf = Math.log(1 + n / (1 + (df.get(w) || 0)));
+    // Sub-linear term frequency, normalised by length.
+    score += (idf * (1 + Math.log(tf))) / Math.sqrt(doc.length);
   }
+  return score;
+};
 
-  const scored = chunks
-    .map((chunk) => ({ chunk, score: scoreChunk(chunk, words) }))
+/**
+ * The chunks most relevant to `question`.
+ *
+ * `maxChars` is a character budget alongside the count: raising the limit from
+ * 4 is only safe if a handful of very long sections cannot blow the context
+ * window on their own.
+ */
+const findRelevantChunks = (chunks, question, limit = 8, maxChars = 24000) => {
+  const list = Array.isArray(chunks) ? chunks : [];
+  if (!list.length) return [];
+  const queryTerms = [...new Set(termsOf(question))];
+  if (queryTerms.length === 0) return list.slice(0, limit);
+
+  const { docs, df, n } = indexChunks(list);
+  const scored = docs
+    .map((doc) => ({ doc, score: scoreDoc(doc, queryTerms, df, n) }))
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || (a.chunk.step_number || 9999) - (b.chunk.step_number || 9999));
+    .sort((a, b) => b.score - a.score
+      || (a.doc.chunk.step_number || 9999) - (b.doc.chunk.step_number || 9999));
 
-  if (scored.length === 0) {
-    return [];
+  const picked = [];
+  let chars = 0;
+  for (const { doc } of scored) {
+    if (picked.length >= limit) break;
+    const size = String(doc.chunk.content || '').length;
+    // Always take the top hit, even if it is enormous; skip later ones that
+    // would overflow rather than stopping, so a long chunk cannot starve the
+    // smaller ones behind it.
+    if (picked.length > 0 && chars + size > maxChars) continue;
+    picked.push(doc.chunk);
+    chars += size;
   }
 
-  return scored.slice(0, limit).map((item) => item.chunk);
+  // Hand them back in the source's own order — a lesson reads better in the
+  // order the author wrote it than in relevance order.
+  return picked.sort((a, b) => (a.step_number || 9999) - (b.step_number || 9999));
+};
+
+/**
+ * How well a body of content answers a question, as a single number.
+ *
+ * Picking which project to answer from used to compare `relevant.length` — the
+ * COUNT of chunks that matched at all. That treats one perfect match as worse
+ * than four weak ones, and once the limit rose to 8 most projects tied at the
+ * cap and the first in the list won by accident. This compares the best actual
+ * match instead.
+ */
+const topRelevanceScore = (chunks, question) => {
+  const list = Array.isArray(chunks) ? chunks : [];
+  if (!list.length) return 0;
+  const queryTerms = [...new Set(termsOf(question))];
+  if (queryTerms.length === 0) return 0;
+  const { docs, df, n } = indexChunks(list);
+  return docs.reduce((best, doc) => Math.max(best, scoreDoc(doc, queryTerms, df, n)), 0);
+};
+
+// ── Course roadmap ──────────────────────────────────────────────────────────
+//
+// Emrys used to teach a day with no idea what surrounded it: buildDayTeachingLesson
+// received one `day` object, and buildRoadmapResponse never called the model at
+// all. So it could not say "this builds on Day 3" because it had never seen
+// Day 3. Titles are cheap — the whole arc costs a few hundred tokens.
+const buildRoadmapSection = (days, currentDayNumber) => {
+  const list = Array.isArray(days) ? days : [];
+  if (!list.length) return '';
+  const lines = list
+    .slice()
+    .sort((a, b) => (a.day_number || 0) - (b.day_number || 0))
+    .map((d) => {
+      const here = currentDayNumber && d.day_number === currentDayNumber ? '   ← TODAY' : '';
+      const label = d.section_label ? ` (${d.section_label})` : '';
+      return `  Day ${d.day_number}${label}: ${d.title || 'Untitled'}${here}`;
+    });
+  return [
+    'COURSE ROADMAP — every day of this project, in order:',
+    ...lines,
+    'Use this to place the current work in the arc of the course: what has already been'
+      + ' covered, and what it is building towards. Do not teach a day other than the current'
+      + ' one, and do not assume a later day has already been covered.',
+  ].join('\n');
 };
 
 const isCodeQuestion = (question) => {
@@ -221,7 +344,7 @@ const isCasualQuestion = (question) => {
 
 let _client = null;
 
-const DEFAULT_MODEL = 'claude-sonnet-4-6';
+const { modelName, reasoningParams, textFrom } = require('../config/aiModel');
 
 const getClient = () => {
   const key = process.env.ANTHROPIC_API_KEY;
@@ -253,6 +376,8 @@ ${MASTER_TEACHER_POLICY}
 ${TEACHING_ANSWER_POLICY}
 
 ${VSCODE_WORKSPACE_POLICY}
+
+${HOMEWORK_COACHING_POLICY}
 
 ${STUDENT_PROJECT_TUTOR_PATTERN}
 
@@ -332,40 +457,61 @@ Style: concise, warm, action-focused, and concrete.`,
 Respond naturally to greetings, casual questions, and general conversation. Be upbeat and genuine. You can briefly mention that you are also here to help with learning, projects, and classroom support — but keep it light and friendly. Do not push the learning topic unless the user brings it up.`,
 };
 
-const callClaude = async (systemPrompt, userMessage, maxTokens = 1024) => {
+// Callers here expect null (not '') when the model produced no text, because
+// every one of them falls back to a template answer on a falsy result.
+const textOf = (message) => textFrom(message) || null;
+
+/**
+ * One place where Emrys talks to Claude.
+ *
+ * `callClaude` and `callClaudeWithHistory` were byte-identical apart from how
+ * they built `messages`, so a model or parameter change had to be made twice —
+ * exactly the drift this collapses.
+ *
+ * Token budget note: on this model `max_tokens` caps thinking AND the reply
+ * together, so the old ceilings (256 / 1024) would now truncate mid-sentence.
+ * Each caller states the effort it needs and gets headroom to match.
+ */
+const askClaude = async ({ system, messages, maxTokens = 8000, effort = 'medium', think = true }) => {
   const client = getClient();
   if (!client) return null;
   try {
-    const message = await client.messages.create({
-      model: process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
+    const req = {
+      model: modelName(),
       max_tokens: maxTokens,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    });
-    return message.content[0]?.type === 'text' ? message.content[0].text : null;
+      system,
+      messages,
+      // The reasoning params differ per model generation and a mismatch is a
+      // hard 400, so the shared config builds them rather than each call site.
+      ...reasoningParams(maxTokens, effort, think),
+    };
+
+    // Stream anything large. A non-streaming request with a high max_tokens
+    // hits the SDK's HTTP timeout, and a full day lesson is 700-1500 words of
+    // output on top of the thinking that produced it.
+    if (maxTokens > 16000) {
+      const stream = client.messages.stream(req);
+      return textOf(await stream.finalMessage());
+    }
+    return textOf(await client.messages.create(req));
   } catch (err) {
     console.error('Emrys Claude call failed:', err.message);
     return null;
   }
 };
 
-// Multi-turn call — passes full conversation history so Sonnet knows what was already taught.
-const callClaudeWithHistory = async (systemPrompt, messages, maxTokens = 1024) => {
-  const client = getClient();
-  if (!client) return null;
-  try {
-    const message = await client.messages.create({
-      model: process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages,
-    });
-    return message.content[0]?.type === 'text' ? message.content[0].text : null;
-  } catch (err) {
-    console.error('Emrys Claude multi-turn call failed:', err.message);
-    return null;
-  }
-};
+const callClaude = (systemPrompt, userMessage, maxTokens, opts = {}) =>
+  askClaude({
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userMessage }],
+    maxTokens,
+    ...opts,
+  });
+
+// Multi-turn call — passes full conversation history so the model knows what
+// was already taught.
+const callClaudeWithHistory = (systemPrompt, messages, maxTokens, opts = {}) =>
+  askClaude({ system: systemPrompt, messages, maxTokens, ...opts });
 
 // ── Template fallbacks (used when Claude is unavailable) ─────────────────────
 
@@ -513,10 +659,15 @@ const buildDailyReportGuidanceTemplate = ({ project, roadmapDay, report, readine
 // allChunks = every chunk in the project (for full TOC).
 // chunks    = the keyword-relevant chunks (detailed pages for this question).
 // conversationHistory = array of { question, answer } prior exchanges for this user+project.
-const buildControlledAnswer = async ({ project, question, chunks, allChunks, audience, readiness, conversationHistory, progressEvidence }) => {
+const buildControlledAnswer = async ({ project, question, chunks, allChunks, audience, readiness, conversationHistory, progressEvidence, days }) => {
   // Handle casual/greeting messages directly — no project context needed.
   if (isCasualQuestion(question)) {
-    const casualAnswer = await callClaude(SYSTEM_PROMPTS.casual, question, 256);
+    // A greeting. Nothing to reason about, and thinking here would cost a
+    // second of latency on "hi" — the one place we turn it off outright.
+    const casualAnswer = await callClaude(SYSTEM_PROMPTS.casual, question, 512, {
+      effort: 'low',
+      think: false,
+    });
     if (casualAnswer) {
       return { answer: casualAnswer, steps: [], sources: [], next_action: '', in_scope: true };
     }
@@ -540,6 +691,11 @@ const buildControlledAnswer = async ({ project, question, chunks, allChunks, aud
   const tocSection = tocLines.length > 0
     ? `FULL SYLLABUS OVERVIEW (Book Table of Contents):\n${tocLines.join('\n')}`
     : '';
+
+  // The syllabus above is the CONTENT; this is the SEQUENCE it is taught in.
+  // Without it Emrys could quote any section but had no idea which day the
+  // class is on or what order the days run in.
+  const roadmapSection = buildRoadmapSection(days);
 
   // ── Build the detailed pages for this question ────────────────────────────
   const pagesSection = relevantChunks.length > 0
@@ -577,6 +733,8 @@ const buildControlledAnswer = async ({ project, question, chunks, allChunks, aud
     '',
     TEACHING_ANSWER_POLICY,
     '',
+    roadmapSection,
+    '',
     tocSection,
     '',
     pagesSection,
@@ -610,7 +768,11 @@ const buildControlledAnswer = async ({ project, question, chunks, allChunks, aud
   // truncating the closing sections; Claude returns shorter answers for
   // shorter questions, so this only bills the high cap when we actually
   // produce the long-form lesson.
-  const claudeAnswer = await callClaudeWithHistory(systemPrompt, messages, 4096);
+  // The student-facing turn. It has to weigh the retrieved pages, the roadmap
+  // position, and the coaching policy (help without handing over the answer),
+  // so it gets real thinking room — but stays under the streaming threshold
+  // because the chat endpoint returns one JSON body, not a stream.
+  const claudeAnswer = await callClaudeWithHistory(systemPrompt, messages, 16000, { effort: 'high' });
 
   return {
     ...template,
@@ -682,10 +844,14 @@ const buildRoadmapResponse = ({ project, days, readiness }) => {
 // `allChunks` is the entire project source content (chunks/pages); we pick
 // the chunks that match this day's title + step number so the lesson quotes
 // real material instead of inventing it.
-const buildDayTeachingLesson = async ({ project, day, allChunks, readiness, recentReports }) => {
+const buildDayTeachingLesson = async ({ project, day, allChunks, readiness, recentReports, allDays }) => {
   if (!day) return null;
 
   const dayLabel = `Day ${day.day_number}${day.title ? ` — ${day.title}` : ''}`;
+
+  // The whole arc, with today marked. Previously this function saw exactly one
+  // day, so a lesson could not reference what it built on or what it led to.
+  const roadmapSection = buildRoadmapSection(allDays, day.day_number);
 
   const haystackChunks = Array.isArray(allChunks) ? allChunks : [];
   const relevantChunks = (() => {
@@ -698,7 +864,7 @@ const buildDayTeachingLesson = async ({ project, day, allChunks, readiness, rece
       ...normalizeList(day.materials),
     ].filter(Boolean).join(' ');
 
-    const ranked = findRelevantChunks(haystackChunks, queryParts, 6);
+    const ranked = findRelevantChunks(haystackChunks, queryParts, 10);
 
     if (ranked.length > 0) return ranked;
 
@@ -758,12 +924,17 @@ const buildDayTeachingLesson = async ({ project, day, allChunks, readiness, rece
   const userMessage = [
     dayBriefing,
     '',
+    roadmapSection,
+    '',
     pagesSection,
     '',
     `WRITE THE FULL DAY LESSON FOR "${dayLabel}" following the TEACHER PROJECT LESSON PATTERN exactly. Produce the actual lesson the teacher will read off the screen to a child-beginner class — no roadmap outline, no list of activities, no "the teacher should plan to...". Just the lesson, in order: Day header → Opening (homework check or roadmap on day 1) → Today's Big Idea → 5–10 Teaching bursts (each with a real-life analogy + plain-words explanation + tiny example + a verbatim question to ask the class) → Live Try with both Mac 🍎 and Windows 💻 commands when the project involves a terminal/editor → Project Connection (quote real lines from the project source) → Checkpoint with the expected answer in [Teacher note] → ✅ Recap → Homework → Next-day hook. Target 700–1500 words. Use emojis. Connect every concept back to the actual project file/feature/code.`,
   ].join('\n');
 
-  const claudeAnswer = await callClaude(SYSTEM_PROMPTS.teacher, userMessage, 4096);
+  // A full day's lesson — the longest thing Emrys writes. Over the streaming
+  // threshold on purpose: a non-streamed request this size risks the SDK's
+  // HTTP timeout, and a timeout here costs the teacher their whole lesson.
+  const claudeAnswer = await callClaude(SYSTEM_PROMPTS.teacher, userMessage, 32000, { effort: 'high' });
 
   return {
     day_number: day.day_number,
@@ -803,7 +974,7 @@ const buildDailyReportGuidance = async ({ project, roadmapDay, report, readiness
     'Write clear, practical guidance for this teacher: acknowledge what was accomplished today, address any challenges or missing items, and give specific next steps. If the teacher needs keyboard support, use shorter sentences and copy-ready wording.',
   ].filter(Boolean).join('\n');
 
-  const claudeAnswer = await callClaude(SYSTEM_PROMPTS.teacher, userMessage, 768);
+  const claudeAnswer = await callClaude(SYSTEM_PROMPTS.teacher, userMessage, 8000);
   return claudeAnswer || templateAnswer;
 };
 
@@ -891,6 +1062,8 @@ module.exports = {
   MASTER_TEACHER_POLICY,
   LESSON_FIDELITY_POLICY,
   findRelevantChunks,
+  topRelevanceScore,
+  buildRoadmapSection,
   buildControlledAnswer,
   buildControlledAnswerSync,
   buildTeacherReadinessSupport,

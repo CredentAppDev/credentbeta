@@ -1,5 +1,6 @@
 const { body, query, validationResult } = require('express-validator');
 const pool = require('../config/db');
+const { modelName, reasoningParams } = require('../config/aiModel');
 const {
   getLearningProjects,
   getLearningProjectById,
@@ -25,6 +26,7 @@ const {
 const {
   TEACHER_READINESS_QUESTION,
   findRelevantChunks,
+  topRelevanceScore,
   buildControlledAnswer,
   buildRoadmapResponse,
   buildDayTeachingLesson,
@@ -253,7 +255,11 @@ const askAi = async (req, res) => {
 
     const audience = resolveAudience(userRole);
     const allChunks = await getLearningContentChunks(project.id, audience);
-    const relevantChunks = findRelevantChunks(allChunks, req.body.question, 4);
+    // 8, not 4: the retrieval scorer is now TF-IDF over whole words rather than
+    // a substring test, so a wider slice is both affordable and more accurate.
+    const relevantChunks = findRelevantChunks(allChunks, req.body.question, 8);
+    // The sequence the content is taught in, so Emrys can place the question.
+    const roadmapDays = await getLearningRoadmapDays(project.id);
 
     const recentHistory = await getAiInteractionsForRequester({
       requesterType: userRole,
@@ -277,6 +283,7 @@ const askAi = async (req, res) => {
       readiness,
       conversationHistory: recentHistory,
       progressEvidence,
+      days: roadmapDays,
     });
 
     const interaction = await createAiInteraction({
@@ -437,9 +444,12 @@ const agentAskAi = async (req, res) => {
 
     for (const project of allProjects) {
       const projectChunks = await getLearningContentChunks(project.id, 'teacher');
-      const relevant = findRelevantChunks(projectChunks, question, 4);
-      if (relevant.length > bestScore) {
-        bestScore = relevant.length;
+      const relevant = findRelevantChunks(projectChunks, question, 8);
+      // Compare the BEST match, not how many chunks matched at all — one strong
+      // hit beats four weak ones, and counts tie at the cap.
+      const score = topRelevanceScore(projectChunks, question);
+      if (score > bestScore) {
+        bestScore = score;
         bestRelevantChunks = relevant;
         bestAllChunks = projectChunks;
         bestProject = project;
@@ -457,6 +467,10 @@ const agentAskAi = async (req, res) => {
       ? await getProgressEvidenceForAi({ user: req.user, project: bestProject, groupId: null })
       : { dailyReports: [], groupUpdates: [] };
 
+    const agentRoadmapDays = bestProject
+      ? await getLearningRoadmapDays(bestProject.id)
+      : [];
+
     const answer = await buildControlledAnswer({
       project: bestProject,
       question,
@@ -466,6 +480,7 @@ const agentAskAi = async (req, res) => {
       readiness: null,
       conversationHistory: agentHistory,
       progressEvidence,
+      days: agentRoadmapDays,
     });
 
     const interaction = await createAiInteraction({
@@ -644,7 +659,9 @@ const getTeachingDayLesson = async (req, res) => {
       }
     }
 
-    await ensureRoadmapDays(project);
+    // Keep the full day list — the lesson builder needs the whole arc to say
+    // what today builds on and what it leads to, not just today's row.
+    const allDays = await ensureRoadmapDays(project);
     const day = await getLearningRoadmapDay(project.id, dayNumber);
     if (!day) {
       return res.status(404).json({ message: `Day ${dayNumber} is not in the roadmap for this project` });
@@ -658,6 +675,7 @@ const getTeachingDayLesson = async (req, res) => {
       allChunks,
       readiness,
       recentReports: reports.slice(-3),
+      allDays,
     });
 
     res.status(200).json({
@@ -1734,8 +1752,11 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
     contentBlocks.push({ type: 'text', text: prompt });
 
     const response = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-      max_tokens: 1800,
+      model: modelName(),
+      // Thinking and the reply share this budget, so the old 1800 would have
+      // truncated the answer mid-sentence once thinking was on.
+      max_tokens: 12000,
+      ...reasoningParams(12000, 'medium'),
       system: systemPrompt,
       messages: [{ role: 'user', content: contentBlocks }],
     });
@@ -2273,8 +2294,11 @@ const generateBuildPlan = async (req, res) => {
     const anthropic = new Anthropic({ apiKey });
 
     const response = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-      max_tokens: 4500,
+      model: modelName(),
+      // Must return parseable JSON or the route 422s, so it gets thinking room
+      // on top of the plan itself rather than the old reply-only 4500.
+      max_tokens: 16000,
+      ...reasoningParams(16000, 'high'),
       // Prompt caching on the big system block → cheaper + faster on repeats.
       system: [{ type: 'text', text: BUILD_PLAN_SYSTEM, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: `Build request: ${topic}` }],

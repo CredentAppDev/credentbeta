@@ -24,6 +24,22 @@ const createAssignmentTables = async () => {
     )
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_assignments_group ON assignments(group_id)`);
+
+  // An assignment can be tied to the course it belongs to. Without this an
+  // assignment is free text with no relationship to anything else in the
+  // product — Emrys could coach a student on their homework while having no
+  // idea which project it came from or where in the roadmap it sits.
+  //
+  // ON DELETE SET NULL, not CASCADE: retiring a project must not delete the
+  // homework students already submitted against it.
+  await pool.query(`
+    ALTER TABLE assignments
+      ADD COLUMN IF NOT EXISTS project_id      INTEGER REFERENCES learning_projects(id) ON DELETE SET NULL,
+      ADD COLUMN IF NOT EXISTS roadmap_day     INTEGER,
+      ADD COLUMN IF NOT EXISTS attachment_url  TEXT,
+      ADD COLUMN IF NOT EXISTS attachment_name TEXT
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_assignments_project ON assignments(project_id)`);
   console.log('✅ Assignments table ready');
 
   await pool.query(`
@@ -77,8 +93,9 @@ const createAssignmentTables = async () => {
 const createAssignment = async (data) => {
   const result = await pool.query(
     `INSERT INTO assignments
-       (group_id, teacher_id, title, instructions, link_url, due_at, points)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+       (group_id, teacher_id, title, instructions, link_url, due_at, points,
+        project_id, roadmap_day)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       data.group_id,
@@ -88,6 +105,8 @@ const createAssignment = async (data) => {
       data.link_url || null,
       data.due_at || null,
       Number.isInteger(data.points) ? data.points : 100,
+      Number.isInteger(data.project_id) ? data.project_id : null,
+      Number.isInteger(data.roadmap_day) ? data.roadmap_day : null,
     ]
   );
   return result.rows[0];
@@ -164,6 +183,29 @@ const getStudentAssignments = async (studentId) => {
 
 // Full group roster LEFT JOINed to submissions, so students who have not yet
 // handed in still appear (submission_id NULL). Powers the teacher grading view.
+/** Attach a teacher-uploaded brief/worksheet/photo to an assignment. */
+const setAssignmentAttachment = async (assignmentId, url, name) => {
+  const result = await pool.query(
+    `UPDATE assignments
+     SET attachment_url = $1, attachment_name = $2, updated_at = NOW()
+     WHERE id = $3
+     RETURNING *`,
+    [url, name, assignmentId]
+  );
+  return result.rows[0];
+};
+
+/** One student's own submission for one assignment, or undefined. */
+const getSubmissionFor = async (assignmentId, studentId) => {
+  const result = await pool.query(
+    `SELECT * FROM assignment_submissions
+     WHERE assignment_id = $1 AND student_id = $2
+     LIMIT 1`,
+    [assignmentId, studentId]
+  );
+  return result.rows[0];
+};
+
 const getSubmissionsForAssignment = async (assignmentId) => {
   const result = await pool.query(
     `SELECT s.id            AS student_id,
@@ -288,6 +330,8 @@ module.exports = {
   getGroupAssignments,
   getStudentAssignments,
   getSubmissionsForAssignment,
+  getSubmissionFor,
+  setAssignmentAttachment,
   getGroupStudentIds,
   upsertSubmission,
   gradeSubmission,

@@ -352,12 +352,17 @@ const uploadProjectContentPdf = async (req, res) => {
         const Anthropic = require('@anthropic-ai/sdk');
         const anthropic = new Anthropic({ apiKey });
         const sys = `You organise raw lesson/document text into a clean, ordered set of teaching chunks for an AI tutor to quote from. Return ONLY minified JSON: {"chunks":[{"title":string,"content":string,"step_number":number}]}. Rules: preserve the document's real content and order; 5-25 chunks; each chunk one coherent topic/section with a short clear title; keep code/commands/steps intact inside content; step_number is the 1-based order; do not invent material not in the text.`;
-        const resp = await anthropic.messages.create({
-          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-          max_tokens: 6000,
+        // Streamed, not create(): a request this large can outrun the SDK's
+        // HTTP timeout, and a timeout here loses the whole uploaded document.
+        const resp = await anthropic.messages.stream({
+          model: require('../config/aiModel').modelName(),
+          // Chunking a whole PDF into 5-25 sections is genuinely long output;
+          // thinking now shares the budget, so 6000 was no longer enough.
+          max_tokens: 24000,
+          ...require('../config/aiModel').reasoningParams(24000, 'medium'),
           system: [{ type: 'text', text: sys, cache_control: { type: 'ephemeral' } }],
           messages: [{ role: 'user', content: `Project: ${project.title}\n\nDocument text:\n${docText}` }],
-        });
+        }).finalMessage();
         const raw = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
         const slice = raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
         let obj = null;
