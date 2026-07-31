@@ -2043,9 +2043,14 @@ const buildTutorSystemPrompt = (session, project, chunks, studentWork) => {
 - Teach ONLY this project. Do NOT start, plan, or build any other project.
 - If the learner asks for a different project (e.g. "build me a game/website/app" that is not this one), politely refuse and steer them back: say that for this class you teach "${projectTitle}", and offer the next step of THIS project.
 - You may still answer small general concept questions (e.g. "what is a variable?"), but always tie the lesson back to "${projectTitle}".`
-    : `CLASS PROJECT LOCK (critical):
-- No project is assigned to this class. Do NOT build or plan any project.
-- Only help with small general concepts and tell the learner a project must be assigned to their class first.`;
+    : (Array.isArray(studentWork) && studentWork.length
+      ? `CLASS PROJECT LOCK (critical):
+- No course project is assigned to this class, but the learner HAS work set by their teacher — it is listed below. That work is your scope.
+- Help them with the assignments and exercises they have been set. Coach: explain the idea, point at what they already have, ask them to try the next step. Never write the submission for them.
+- Do NOT start or plan some other project. If they ask for one, say their class has no course project yet and offer to help with the work they do have.`
+      : `CLASS PROJECT LOCK (critical):
+- No project is assigned to this class and no work has been set. Do NOT build or plan any project.
+- Only help with small general concepts and tell the learner a project must be assigned to their class first.`);
 
   // Two blocks. The first is identical for every turn of the session (rules +
   // the whole course), so it is marked cacheable. The second changes each turn.
@@ -2216,7 +2221,15 @@ const tutorAsk = async (req, res) => {
       const allProjects = await getLearningProjects();
       const classProjects = await filterProjectsForUser(req.user, allProjects);
 
-      if (classProjects.length === 0) {
+      // A class with no project can still have exercises and assignments set.
+      // Bailing out here answered "help me with my exercise" with "no project
+      // found for your class" — wrong twice over: the exercise plainly exists,
+      // and Emrys had already been handed it a few lines above, only to throw
+      // it away. When there is set work, carry on and teach from that; the
+      // system prompt handles a null project.
+      const hasSetWork = Array.isArray(req._studentWork) && req._studentWork.length > 0;
+
+      if (classProjects.length === 0 && !hasSetWork) {
         // Nothing is assigned to this class. Say so plainly and tell them to
         // contact their agent — do NOT fall back to generic warm-up questions
         // (e.g. "are you a great typer?"), which is confusing and goes nowhere.
@@ -2237,8 +2250,12 @@ const tutorAsk = async (req, res) => {
 
       // Use the class's project (the single class project; if a class somehow
       // has more than one, take the first — students have exactly one class).
-      project = classProjects[0];
-      chunks = await getChunksForTutor(project.id);
+      //
+      // May legitimately be empty now: a student with set work but no class
+      // project reaches here, and project stays null. Reading classProjects[0].id
+      // unguarded would throw on exactly the case the branch above exists for.
+      project = classProjects[0] || null;
+      if (project) chunks = await getChunksForTutor(project.id);
     }
 
     // Use the RESOLVED project's id (project.id), not the raw request value —
