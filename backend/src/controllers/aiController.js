@@ -1985,7 +1985,49 @@ const buildTutorCorpus = (chunks) => {
   return parts.join('');
 };
 
-const buildTutorSystemPrompt = (session, project, chunks) => {
+/**
+ * The work this student has been set, for the chat to reason about.
+ *
+ * Without it, "can you check my exercise?" reaches a tutor with no idea which
+ * exercise, and the only honest reply is to ask — which is a poor experience
+ * when the server already knows the answer.
+ *
+ * Deliberately does NOT include the rubric. On a small exercise a rubric read
+ * aloud is the answer as a checklist, and the marker uses it separately.
+ */
+const buildStudentWorkSection = (work) => {
+  if (!work || !work.length) return '';
+  const line = (a) => {
+    const bits = [`- ${a.kind === 'exercise' ? 'EXERCISE' : 'Assignment'}: "${a.title}"`];
+    if (a.due_at) bits.push(`due ${new Date(a.due_at).toDateString()}`);
+    if (a.submission_id) {
+      bits.push(a.submission_status === 'graded'
+        ? `already graded ${a.submission_grade}/${a.points ?? 100}`
+        : 'handed in, not yet graded');
+    } else bits.push('NOT handed in yet');
+    return bits.join(' — ');
+  };
+  const detail = work.map((a) => {
+    const parts = [line(a)];
+    if (a.instructions) parts.push(`    what was asked: ${String(a.instructions).slice(0, 600)}`);
+    if (a.starter_code) parts.push(`    starter code they were given:\n${String(a.starter_code).slice(0, 800)}`);
+    if (a.submission_body) parts.push(`    their work so far:\n${String(a.submission_body).slice(0, 1200)}`);
+    return parts.join('\n');
+  }).join('\n');
+
+  return `
+THE WORK THIS STUDENT HAS BEEN SET (you can see all of it — use it):
+${detail}
+
+HOW TO USE THIS
+- If they ask about "my exercise" or "the homework" and only one thing fits, just talk about that one. Do not make them tell you what you can already see.
+- If several could fit, name them and ask which.
+- If they have written something, react to THEIR code: say what is right, then the single most useful thing to fix. Do not paste a corrected version.
+- Coach. After reading your reply they must still have work left to do. If they could copy your message into the submission box and be finished, you have gone too far.
+`;
+};
+
+const buildTutorSystemPrompt = (session, project, chunks, studentWork) => {
   const completed = Array.isArray(session.completed_topics) ? session.completed_topics : [];
   const projectTitle = project?.title || '(no project selected)';
   const projectDesc = project?.description || '';
@@ -2022,12 +2064,18 @@ ${chunkLines}` : ''}
 
 USING THE MATERIAL vs YOUR OWN KNOWLEDGE:`;
 
+  // The student's own work goes in the SESSION block, never the cached one.
+  // The first block is marked ephemeral-cacheable because it holds the rules
+  // and the course, which are identical for everyone in the class. Putting
+  // one student's homework in there would both destroy the cache hit rate and
+  // put their submission in a block shared with their classmates.
   const sessionBlock = `CURRENT SESSION:
 - Project: ${projectTitle}
 - Current topic: ${session.current_topic || '(starting fresh)'}
 - Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
 - Student's last attempt: ${session.last_attempt || '(none yet)'}
-- Turn count so far: ${session.turn_count || 0}`;
+- Turn count so far: ${session.turn_count || 0}
+${buildStudentWorkSection(studentWork)}`;
 
   const tailRule = `
 - ALWAYS prefer the reference material above. When the answer IS in it, teach from it and stay faithful to its components, steps, libraries, and order.
@@ -2096,6 +2144,27 @@ const tutorAsk = async (req, res) => {
     // students through this endpoint, so the intercept has to live here too
     // (mirrors the one in askAi). Returns a tutor-shaped payload.
     if (req.user.role === 'student') {
+      // What their teacher has actually set. Emrys helps with a student's work
+      // inside the chat, so it has to KNOW that work — otherwise "can you check
+      // my exercise?" is answered by something with no idea what the exercise
+      // is. Best-effort: a failure here must leave the chat working, just
+      // without the context.
+      try {
+        // Required here rather than at the top: assignmentModel pulls in the
+        // marking service, which pulls in the AI config, and a top-level import
+        // would close a cycle back through this controller.
+        const { getStudentAssignments } = require('../models/assignmentModel');
+        const mine = await getStudentAssignments(req.user.id);
+        const open = (mine || [])
+          .filter((a) => a.status !== 'closed')
+          .slice(0, 12);
+        if (open.length) {
+          req._studentWork = open;
+        }
+      } catch (e) {
+        console.warn('tutorAsk: could not load student work:', e.message);
+      }
+
       const studentRecords = await buildStudentProgressAnswer(req.user, question);
       if (studentRecords) {
         try {
@@ -2183,7 +2252,7 @@ const tutorAsk = async (req, res) => {
       mode,
     });
 
-    const systemPrompt = buildTutorSystemPrompt(session, project, chunks);
+    const systemPrompt = buildTutorSystemPrompt(session, project, chunks, req._studentWork);
 
     // Multi-turn payload: replay the session's stored turns, then append the
     // current user question.

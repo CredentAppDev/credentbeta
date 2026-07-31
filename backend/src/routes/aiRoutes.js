@@ -48,7 +48,7 @@ router.post('/teacher/day-report', protect, validateTeacherDailyReport, submitTe
 router.post('/teacher/group-project-update', protect, validateTeacherGroupProjectUpdate, submitTeacherGroupProjectUpdate);
 
 // Tutor mode (conversational, multi-turn, 10-rule patient teacher)
-router.post('/tutor', protect, blockStudentOpenChat, aiDailyCap, tutorAsk);
+router.post('/tutor', protect, aiDailyCap, tutorAsk);
 router.post('/tutor/:id/end', protect, tutorEnd);
 
 // Build Studio: dedicated 3D build-plan generator (calls Claude → capped).
