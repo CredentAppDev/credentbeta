@@ -1015,7 +1015,25 @@ const getGroupRosterMembers = async (groupId) => {
      ORDER BY role DESC, full_name ASC`,
     [groupId]
   );
-  return result.rows;
+
+  // Who of them is actually connected right now.
+  //
+  // Decorated here rather than in the two controllers that call this, so the
+  // teacher and student rosters can never disagree about who is online.
+  //
+  // Required lazily: socketService pulls in models of its own, and a top-level
+  // import would close a require cycle. It is also absent in tests and scripts
+  // that use this model without a running server — presence simply reads false
+  // there, which is the truthful answer when there are no sockets.
+  let isPeerOnline = null;
+  try { ({ isPeerOnline } = require('../services/socketService')); } catch (_) { /* no server */ }
+
+  return result.rows.map((r) => ({
+    ...r,
+    // source_id is the real per-table id; `id` is negated for teachers to keep
+    // the union unique, so it must not be used for the presence lookup.
+    is_online: isPeerOnline ? !!isPeerOnline(r.source_id, r.role) : false,
+  }));
 };
 
 const getStudentGroups = async (studentId) => {

@@ -102,6 +102,43 @@ const normaliseCallPayload = (signalType, raw = {}) => {
  */
 const peerKeyFor = (id, role) => `user_${id}_${role}`;
 
+// ─── Presence ─────────────────────────────────────────────────────
+// Who is connected right now, so a class can see which of its members are
+// actually there.
+//
+// Keyed by ROLE AND ID, not id alone. students and teachers are separate
+// tables with their own sequences, so student 5 and teacher 5 both exist — a
+// map keyed on the number alone would show a teacher as online because a
+// student with the same id happened to be.
+//
+// The value is a Set of socket ids: one person can be signed in on a laptop
+// and a classroom machine at once, and closing one must not mark them away.
+// Module scope, not inside initSocket, so HTTP handlers can read it.
+const onlinePeers = new Map();
+const presenceKey = (id, role) => `${role || 'user'}:${id}`;
+
+const markOnline = (id, role, socketId) => {
+  const k = presenceKey(id, role);
+  if (!onlinePeers.has(k)) onlinePeers.set(k, new Set());
+  onlinePeers.get(k).add(socketId);
+  return onlinePeers.get(k).size === 1;   // true = they just came online
+};
+
+const markOffline = (socketId) => {
+  const gone = [];
+  for (const [k, sockets] of onlinePeers) {
+    if (!sockets.delete(socketId)) continue;
+    if (sockets.size === 0) { onlinePeers.delete(k); gone.push(k); }
+  }
+  return gone;                            // keys that went fully offline
+};
+
+/** Is this person connected on at least one device? */
+const isPeerOnline = (id, role) => onlinePeers.has(presenceKey(id, role));
+
+/** Every connected person, as "role:id" strings. */
+const onlinePeerKeys = () => [...onlinePeers.keys()];
+
 /**
  * Broadcast a call signal to every socket in the call's room except the
  * sender. Mobile clients won't be in the room (they poll), so this only
@@ -235,6 +272,13 @@ const initSocket = (server) => {
       connectedUsers[userId] = socket.id;
       socket.join(`user_${userId}`);
       joinPeerRoom(socket);
+
+      // Announce arrival, but only on the FIRST device — otherwise opening a
+      // second window tells the whole class they came online again.
+      const role = socket.authenticatedRole || 'user';
+      if (markOnline(userId, role, socket.id)) {
+        io.emit('presence:changed', { user_id: Number(userId), role, online: true });
+      }
       console.log(`👤 User ${userId} joined socket`);
     });
 
@@ -434,6 +478,13 @@ const initSocket = (server) => {
           console.log(`👤 User ${userId} disconnected`);
         }
       });
+
+      // Only announce someone as away once their LAST device drops. Closing one
+      // of two open windows must not show them as offline to their class.
+      markOffline(socket.id).forEach((k) => {
+        const [role, id] = k.split(':');
+        io.emit('presence:changed', { user_id: Number(id), role, online: false });
+      });
     });
   });
 
@@ -520,6 +571,9 @@ const getIO = () => io;
 
 module.exports = {
   initSocket,
+  // Presence — read by HTTP handlers so a class roster can show who is here.
+  isPeerOnline,
+  onlinePeerKeys,
   sendNotificationToUser,
   sendNotificationToMany,
   sendNotificationToRole,
