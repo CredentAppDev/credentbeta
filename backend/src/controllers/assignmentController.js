@@ -205,7 +205,9 @@ const createAssignmentHandler = async (req, res) => {
         user_id: sid,
         user_role: 'student',
         type: 'assignment',
-        title: `New assignment: ${assignment.title}`,
+        // Say which kind it is. "New assignment" on a Python exercise told the
+        // student the wrong thing about the work they were being given.
+        title: `New ${itemKind === 'exercise' ? 'exercise' : 'assignment'}: ${assignment.title}`,
         body: `${assignment.group_name || 'Your class'} · ${pts} points.${due}`,
         reference_id: assignment.id,
         reference_type: 'assignment',
@@ -456,6 +458,27 @@ const markSubmissionInBackground = async ({ assignment, submission, studentId })
     `[emrysMarking] ${assignment.kind || 'assignment'} ${assignment.id} / submission ${submission.id}` +
     ` → ${mark.score}/${assignment.points || 100} (confidence ${mark.confidence})`
   );
+
+  // Tell the teacher. Nothing else does: the mark is deliberately invisible to
+  // the student until it is reviewed, so without this it sits in the queue
+  // until the teacher happens to open the Assignments tab and notice a badge.
+  // Swallowed on failure — a notification must never lose a mark.
+  if (assignment.teacher_id) {
+    try {
+      const low = mark.confidence === 'low' ? ' Emrys was unsure about this one.' : '';
+      await createNotification({
+        user_id: assignment.teacher_id,
+        user_role: 'teacher',
+        type: 'assignment',
+        title: `Marked by Emrys: ${assignment.title}`,
+        body: `${student?.name || 'A student'} scored ${mark.score}/${assignment.points || 100}. Waiting for your approval.${low}`,
+        reference_id: assignment.id,
+        reference_type: 'assignment',
+      });
+    } catch (e) {
+      console.warn('[emrysMarking] teacher notify failed:', e.message);
+    }
+  }
 };
 
 // POST /api/assignments/:id/attachment  (raw body, Content-Type = the file's)

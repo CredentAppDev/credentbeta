@@ -16,6 +16,8 @@
  *     rubric it falls back to the instructions, and says so in its reasoning,
  *     so a teacher reading a mark can tell what it was actually judged on.
  */
+const fs = require('fs');
+const path = require('path');
 const { modelName, reasoningParams, textFrom } = require('../config/aiModel');
 
 let _client = null;
@@ -80,12 +82,67 @@ const buildMarkingPrompt = ({ assignment, submission, student }) => {
   lines.push(submission.body ? String(submission.body) : '(nothing was typed)');
   if (submission.link_url) lines.push(`Link submitted: ${submission.link_url}`);
   if (submission.attachment_name) {
-    lines.push(`A file was attached (${submission.attachment_name}). You cannot open it.`);
-    lines.push('If the typed submission alone is not enough to judge, say so and set confidence to "low".');
+    // An image attachment is sent to the model as an actual image alongside
+    // this text (see attachmentImageBlock). Anything else — a PDF, a zip — it
+    // genuinely cannot open, and it must say so rather than mark blind.
+    const isImage = /\.(png|jpe?g|webp|gif)$/i.test(submission.attachment_name);
+    if (isImage) {
+      lines.push(`The student attached an image (${submission.attachment_name}). It is included above — MARK WHAT YOU CAN SEE IN IT.`);
+      lines.push('If it is a photo of code or of a finished build, judge that as their work. If it is unreadable, say so and set confidence to "low".');
+    } else {
+      lines.push(`A file was attached (${submission.attachment_name}) which you cannot open.`);
+      lines.push('If the typed submission alone is not enough to judge, say so and set confidence to "low".');
+    }
   }
   if (submission.is_late) lines.push('NOTE: submitted late. Do not deduct for lateness — that is the teacher\'s call.');
 
   return lines.join('\n');
+};
+
+/**
+ * The submitted image, as a content block the model can actually look at.
+ *
+ * Students photograph their screen or their finished build far more often than
+ * they paste code — for a robotics class the photo IS the work. Marking that
+ * from the filename alone was guessing, so the file is read off disk and sent
+ * as a real image block.
+ *
+ * Returns null for anything that is not an image, for a missing file, or for
+ * one too large to send. Every one of those falls back to marking the text,
+ * which the prompt already handles.
+ */
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;   // comfortably under the API limit
+const MIME_BY_EXT = {
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+  webp: 'image/webp', gif: 'image/gif',
+};
+
+const attachmentImageBlock = (submission) => {
+  const url = submission && submission.attachment_url;
+  if (!url || typeof url !== 'string') return null;
+
+  // Only ever a path we issued ourselves. A submission row should not be able
+  // to make the server read an arbitrary file off disk.
+  if (!url.startsWith('/uploads/')) return null;
+  const name = path.basename(url);
+  if (name !== url.slice('/uploads/'.length)) return null;   // no traversal
+
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const media_type = MIME_BY_EXT[ext];
+  if (!media_type) return null;
+
+  const uploadsRoot = process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads');
+  const file = path.join(uploadsRoot, name);
+  try {
+    const stat = fs.statSync(file);
+    if (!stat.isFile() || stat.size === 0 || stat.size > MAX_IMAGE_BYTES) return null;
+    return {
+      type: 'image',
+      source: { type: 'base64', media_type, data: fs.readFileSync(file).toString('base64') },
+    };
+  } catch (_) {
+    return null;   // gone or unreadable — mark the text instead
+  }
 };
 
 /** Tolerant JSON parse — strips a fence, takes the first balanced object. */
@@ -130,6 +187,13 @@ const markSubmission = async ({ assignment, submission, student }) => {
   const system = MARKER_SYSTEM.replace('0..MAX', `0..${maxScore}`);
   const prompt = buildMarkingPrompt({ assignment, submission, student });
 
+  // Image first, then the brief. The model reads the picture as the work and
+  // the text as the instructions about it — the other order makes the image
+  // read like an afterthought appended to a question already asked.
+  const image = attachmentImageBlock(submission);
+  const content = image ? [image, { type: 'text', text: prompt }] : prompt;
+  if (image) console.log(`[emrysMarking] marking submission ${submission.id} WITH its image attachment`);
+
   try {
     const message = await client.messages.create({
       model: modelName(),
@@ -137,7 +201,7 @@ const markSubmission = async ({ assignment, submission, student }) => {
       // Marking is a judgement call against a rubric, so it gets real thinking.
       ...reasoningParams(8000, 'high'),
       system,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content }],
     });
     const parsed = parseMark(textFrom(message), maxScore);
     if (!parsed) {
@@ -163,4 +227,9 @@ const formatFeedback = (mark) => {
   return parts.join('').trim();
 };
 
-module.exports = { markSubmission, formatFeedback, parseMark, buildMarkingPrompt };
+module.exports = {
+  markSubmission, formatFeedback, parseMark, buildMarkingPrompt,
+  // Exported for testing: its path handling is the only place a submission row
+  // can influence which file the server reads, so it needs to be exercisable.
+  attachmentImageBlock,
+};

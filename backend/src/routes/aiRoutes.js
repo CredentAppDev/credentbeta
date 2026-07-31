@@ -1,7 +1,6 @@
 const express = require('express');
 const multer = require('multer');
 const { protect } = require('../middleware/auth');
-const { blockStudentOpenChat } = require('../middleware/emrysAccess');
 const { aiDailyCap } = require('../middleware/aiDailyCap');
 const {
   validateAskAi,
@@ -36,9 +35,12 @@ const router = express.Router();
 // Agents/admins are uncapped (see middleware). Routes below that DON'T call
 // Claude (history, roadmap index, reports) skip the cap so testers can still
 // navigate even after they hit it.
-router.post('/ask', protect, blockStudentOpenChat, aiDailyCap, validateAskAi, askAi);
+router.post('/ask', protect, aiDailyCap, validateAskAi, askAi);
 router.post('/agent/ask', protect, validateAgentAskAi, agentAskAi);
-router.post('/ask-with-attachment', protect, blockStudentOpenChat, aiDailyCap, upload.single('file'), askWithAttachment);
+// Students may send a picture of their work. For a robotics class a photo of
+// the wiring or the screen IS the work, and Emrys judging it from a filename
+// was guessing. The coaching rules still apply — see the briefing built below.
+router.post('/ask-with-attachment', protect, aiDailyCap, upload.single('file'), askWithAttachment);
 router.post('/transcribe', protect, upload.single('file'), transcribeAudio);
 router.get('/history', protect, validateAiHistoryRequest, getAiHistory);
 router.get('/roadmap', protect, validateRoadmapRequest, getTeachingRoadmap);
