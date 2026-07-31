@@ -17,7 +17,13 @@ const {
   getAiMarkedForTeacher,
   markTeacherReviewed,
 } = require('../models/assignmentModel');
-const { createNotification } = require('../models/notificationModel');
+// sendNotificationToUser, NOT the bare createNotification. The model function
+// only INSERTS a row — nothing is pushed, so a student sat in the app saw
+// nothing when homework was set and only found out by opening the tab and
+// looking. This one writes the row AND emits notification:new to that user's
+// socket room, which is what makes the badge appear while they are looking at
+// the screen.
+const { sendNotificationToUser } = require('../services/socketService');
 const { markSubmission, formatFeedback } = require('../services/emrysMarkingService');
 const {
   getLearningProjectById,
@@ -201,9 +207,9 @@ const createAssignmentHandler = async (req, res) => {
     try {
       const studentIds = await getGroupStudentIds(groupId);
       const due = dueAt ? ` Due ${new Date(dueAt).toLocaleDateString()}.` : '';
-      await Promise.all(studentIds.map((sid) => createNotification({
-        user_id: sid,
-        user_role: 'student',
+      await Promise.all(studentIds.map((sid) => sendNotificationToUser({
+        userId: sid,
+        userRole: 'student',
         type: 'assignment',
         // Say which kind it is. "New assignment" on a Python exercise told the
         // student the wrong thing about the work they were being given.
@@ -306,9 +312,9 @@ const gradeSubmissionHandler = async (req, res) => {
     // Being graded is the thing a student is actually waiting for, so it is
     // worth a notification even more than the assignment itself.
     try {
-      await createNotification({
-        user_id: studentId,
-        user_role: 'student',
+      await sendNotificationToUser({
+        userId: studentId,
+        userRole: 'student',
         type: 'assignment',
         title: `Graded: ${assignment.title}`,
         body: `${g} / ${max}${fb ? ` — ${fb.slice(0, 140)}` : ''}`,
@@ -466,9 +472,9 @@ const markSubmissionInBackground = async ({ assignment, submission, studentId })
   if (assignment.teacher_id) {
     try {
       const low = mark.confidence === 'low' ? ' Emrys was unsure about this one.' : '';
-      await createNotification({
-        user_id: assignment.teacher_id,
-        user_role: 'teacher',
+      await sendNotificationToUser({
+        userId: assignment.teacher_id,
+        userRole: 'teacher',
         type: 'assignment',
         title: `Marked by Emrys: ${assignment.title}`,
         body: `${student?.name || 'A student'} scored ${mark.score}/${assignment.points || 100}. Waiting for your approval.${low}`,
