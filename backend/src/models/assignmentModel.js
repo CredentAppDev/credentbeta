@@ -225,12 +225,11 @@ const getStudentAssignments = async (studentId) => {
             sub.attachment_name AS submission_attachment_name,
             sub.prev_grade      AS submission_prev_grade,
             sub.resubmit_count  AS submission_resubmit_count,
-            -- Emrys's mark is released to the student only once the teacher has
-            -- reviewed it. The teacher is the authority: a student must not read
-            -- a score the teacher is about to change, and must never be able to
-            -- infer one before it has been checked.
-            CASE WHEN sub.teacher_reviewed THEN sub.ai_score    END AS submission_ai_score,
-            CASE WHEN sub.teacher_reviewed THEN sub.ai_feedback END AS submission_ai_feedback,
+            -- Emrys's score is shown as an Emrys score, never as the teacher's
+            -- grade. This lets a completed exercise appear in student progress
+            -- straight away while the teacher can still approve or override it.
+            sub.ai_score    AS submission_ai_score,
+            sub.ai_feedback AS submission_ai_feedback,
             sub.teacher_reviewed AS submission_teacher_reviewed
      FROM assignments a
      JOIN student_groups sg ON sg.id = a.group_id AND sg.is_confirmed = true
@@ -345,6 +344,10 @@ const upsertSubmission = async (data) => {
                    grade = NULL,
                    feedback = NULL,
                    graded_at = NULL,
+                   ai_score = NULL,
+                   ai_feedback = NULL,
+                   ai_marked_at = NULL,
+                   teacher_reviewed = false,
                    submitted_at = NOW(),
                    is_late = EXCLUDED.is_late
      RETURNING *`,

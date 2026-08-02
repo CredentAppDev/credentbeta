@@ -395,6 +395,17 @@ const getLearningLeaderboard = async (req, res) => {
              OR ai.answer ~* 'Practice score:\\s*[0-9]+\\s*/\\s*[0-9]+'
           GROUP BY gm.group_id
        ),
+       assigned_exercise_reviews AS (
+         SELECT a.group_id,
+                ROUND(AVG(COALESCE(sub.grade, sub.ai_score)::numeric * 100
+                          / NULLIF(a.points, 0)))::integer AS exercise_score,
+                MAX(COALESCE(sub.graded_at, sub.ai_marked_at, sub.submitted_at)) AS last_reviewed
+           FROM assignments a
+           JOIN assignment_submissions sub ON sub.assignment_id = a.id
+          WHERE a.kind = 'exercise'
+            AND COALESCE(sub.grade, sub.ai_score) IS NOT NULL
+          GROUP BY a.group_id
+       ),
        scored AS (
          SELECT v.id   AS group_id,
                 v.name AS group_name,
@@ -403,8 +414,8 @@ const getLearningLeaderboard = async (req, res) => {
                 COALESCE(a.active_students, 0) AS active_students,
                 COALESCE(a.active_days, 0)     AS active_days,
                 a.last_active,
-                er.exercise_score,
-                er.last_reviewed,
+                COALESCE(aer.exercise_score, er.exercise_score) AS exercise_score,
+                GREATEST(aer.last_reviewed, er.last_reviewed) AS last_reviewed,
                 ROUND(
                     40.0 * COALESCE(a.active_students, 0)
                          / GREATEST(COALESCE(s.member_count, 0), 1)
@@ -415,6 +426,7 @@ const getLearningLeaderboard = async (req, res) => {
            LEFT JOIN sizes    s ON s.group_id = v.id
            LEFT JOIN activity a ON a.group_id = v.id
            LEFT JOIN exercise_reviews er ON er.group_id = v.id
+           LEFT JOIN assigned_exercise_reviews aer ON aer.group_id = v.id
        ),
        rated AS (
          SELECT gr.group_id, gr.project_name,
@@ -767,17 +779,38 @@ const getStudentAnalytics = async (req, res) => {
        SELECT DISTINCT ON (topic)
               CONCAT('Exercise: ', topic) AS project_name,
               ROUND(score)::integer AS score,
+              NULL::integer AS raw_score,
+              NULL::integer AS max_score,
+              'emrys_exercise'::text AS source,
               created_at AS last_updated
          FROM reviews
         ORDER BY topic, created_at DESC`,
       [studentId]
     );
 
+    const assignedExercises = await pool.query(
+      `SELECT CONCAT('Exercise: ', a.title) AS project_name,
+              ROUND(COALESCE(sub.grade, sub.ai_score)::numeric * 100
+                    / NULLIF(a.points, 0))::integer AS score,
+              COALESCE(sub.grade, sub.ai_score)::integer AS raw_score,
+              a.points::integer AS max_score,
+              CASE WHEN sub.ai_score IS NOT NULL THEN 'emrys_exercise'
+                   ELSE 'teacher_exercise' END AS source,
+              COALESCE(sub.graded_at, sub.ai_marked_at, sub.submitted_at) AS last_updated
+         FROM assignment_submissions sub
+         JOIN assignments a ON a.id = sub.assignment_id
+        WHERE sub.student_id = $1
+          AND a.kind = 'exercise'
+          AND COALESCE(sub.grade, sub.ai_score) IS NOT NULL
+        ORDER BY last_updated DESC`,
+      [studentId]
+    );
+
     const projectMap = new Map(
       mine.rows.map(r => [r.project_name, { ...r, class_avg: classMap[r.project_name] ?? null }])
     );
-    exercises.rows.forEach(row => {
-      projectMap.set(row.project_name, { ...row, class_avg: null, source: 'emrys_exercise' });
+    [...exercises.rows, ...assignedExercises.rows].forEach(row => {
+      projectMap.set(row.project_name, { ...row, class_avg: null, source: row.source || 'emrys_exercise' });
     });
     const projects = Array.from(projectMap.values());
     const overall = projects.length

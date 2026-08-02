@@ -739,7 +739,8 @@ const reviewAiMarkHandler = async (req, res) => {
 
     // Ownership: the submission must belong to an assignment this teacher set.
     const owned = await pool.query(
-      `SELECT s.id, s.ai_score, s.ai_feedback, a.points, a.teacher_id
+      `SELECT s.id, s.assignment_id, s.student_id, s.ai_score, s.ai_feedback,
+              a.title, a.points, a.teacher_id
          FROM assignment_submissions s
          JOIN assignments a ON a.id = s.assignment_id
         WHERE s.id = $1`,
@@ -772,9 +773,25 @@ const reviewAiMarkHandler = async (req, res) => {
     // submission "reviewed" with no grade is legitimate — it means the teacher
     // has seen Emrys's mark and wants to grade it properly later.
     if (finalGrade !== null) {
-      await gradeSubmission(submissionId, { grade: finalGrade, feedback: finalFeedback });
+      await gradeSubmission(row.assignment_id, row.student_id, finalGrade, finalFeedback);
     }
     const updated = await markTeacherReviewed(submissionId);
+
+    if (finalGrade !== null) {
+      try {
+        await sendNotificationToUser({
+          userId: row.student_id,
+          userRole: 'student',
+          type: 'assignment',
+          title: `Graded: ${row.title}`,
+          body: `${finalGrade} / ${row.points}`,
+          reference_id: row.assignment_id,
+          reference_type: 'assignment',
+        });
+      } catch (notifyError) {
+        console.error('Review grade notify error:', notifyError.message);
+      }
+    }
 
     res.status(200).json({ submission: updated, graded: finalGrade !== null });
   } catch (error) {
