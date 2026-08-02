@@ -1696,6 +1696,7 @@ const askWithAttachment = async (req, res) => {
 STUDENT EXERCISE SCREENSHOT REVIEW — HIGHEST PRIORITY:
 - Treat a screenshot, photo, or attached code file as a student's exercise attempt that must be CHECKED first. Inspect the actual code, output, errors, and visible instructions before replying. Do not ask the student what exercise it is until you have inspected it.
 - Start every exercise review with exactly one result line: "Result: Correct", "Result: Almost correct", or "Result: Needs a fix".
+- On the next line write "Topic: <the exercise topic>" (for example, "Topic: Python variables").
 - Immediately give "Practice score: X/10". This is Emrys's practice score, not an official teacher grade.
 - If the work is correct, say briefly what in the screenshot proves it is correct, congratulate the student, and stop. Do not teach a new topic, add a new example, offer choices, ask what to explore, or suggest a next task.
 - If the work is wrong, identify the exact visible line or output that needs attention. Explain the idea using one tiny DIFFERENT example if useful, but never give the completed answer or a copyable final solution. Ask the student to make the change and send another screenshot.
@@ -1793,7 +1794,27 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
       .join('\n')
       .trim() || 'I was unable to process that. Please try again.';
 
-    // Save to interaction history so messages persist across sessions
+    const reviewMatch = role === 'student'
+      ? answer.match(/^Result:\s*(Correct|Almost correct|Needs a fix)\s*\n+Topic:\s*([^\n]+)\s*\n+Practice score:\s*(\d{1,3})\s*\/\s*(\d{1,3})/im)
+      : null;
+    const reviewScore = reviewMatch ? Number(reviewMatch[3]) : null;
+    const reviewMaxScore = reviewMatch ? Number(reviewMatch[4]) : null;
+    const emrysExerciseReview = reviewMatch
+      && Number.isInteger(reviewScore)
+      && Number.isInteger(reviewMaxScore)
+      && reviewMaxScore > 0
+      && reviewScore >= 0
+      && reviewScore <= reviewMaxScore
+      ? {
+          result: reviewMatch[1],
+          topic: reviewMatch[2].trim().slice(0, 120),
+          score: reviewScore,
+          max_score: reviewMaxScore,
+        }
+      : null;
+
+    // Save to interaction history so messages persist across sessions and a
+    // student's verified exercise result can power Progress and Leaderboard.
     try {
       await createAiInteraction({
         // The class chat this was sent from. Multipart, so it arrives as a
@@ -1807,7 +1828,10 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
         question: prompt,
         answer,
         sources: [],
-        metadata: requestMetadata(req),
+        metadata: {
+          ...requestMetadata(req),
+          ...(emrysExerciseReview ? { emrys_exercise_review: emrysExerciseReview } : {}),
+        },
       });
     } catch (_) {}
 
