@@ -2074,13 +2074,24 @@ USING THE MATERIAL vs YOUR OWN KNOWLEDGE:`;
   // and the course, which are identical for everyone in the class. Putting
   // one student's homework in there would both destroy the cache hit rate and
   // put their submission in a block shared with their classmates.
+  const studentReviewRule = Array.isArray(studentWork) && studentWork.length ? `
+
+STUDENT EXERCISE REVIEW — HIGHEST PRIORITY:
+- When the student sends a completed exercise, code attempt, result, or screenshot, review and score THAT work before saying anything else.
+- Start with exactly: "Result: Correct", "Result: Almost correct", or "Result: Needs a fix".
+- Then give: "Practice score: X/Y", using the exercise's listed points when available. This is Emrys's practice score, not the teacher's official grade.
+- Give at most two short task-specific reasons. If something is wrong, name only the smallest change needed and ask them to send the updated work for another review.
+- If the exercise is correct, stop after the score and a short congratulations. Do NOT give a new example, teach a concept, suggest another task, ask what they want to explore, or offer a next-step menu.
+- Do not score work you cannot see. Ask for the exercise and the student's attempt instead.
+` : '';
+
   const sessionBlock = `CURRENT SESSION:
 - Project: ${projectTitle}
 - Current topic: ${session.current_topic || '(starting fresh)'}
 - Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
 - Student's last attempt: ${session.last_attempt || '(none yet)'}
 - Turn count so far: ${session.turn_count || 0}
-${buildStudentWorkSection(studentWork)}`;
+${buildStudentWorkSection(studentWork)}${studentReviewRule}`;
 
   const tailRule = `
 - ALWAYS prefer the reference material above. When the answer IS in it, teach from it and stay faithful to its components, steps, libraries, and order.
