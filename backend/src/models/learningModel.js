@@ -148,6 +148,7 @@ const createLearningTables = async () => {
       user_type VARCHAR(20) NOT NULL,
       user_id INTEGER NOT NULL,
       project_id INTEGER REFERENCES learning_projects(id) ON DELETE SET NULL,
+      chat_id VARCHAR(80),
       mode VARCHAR(20) NOT NULL DEFAULT 'student',
       current_topic TEXT,
       completed_topics JSONB DEFAULT '[]'::jsonb,
@@ -159,8 +160,12 @@ const createLearningTables = async () => {
       last_active_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE INDEX IF NOT EXISTS idx_tutoring_active
-      ON ai_tutoring_sessions (user_type, user_id, project_id, ended_at);
+  `);
+
+  await pool.query(`ALTER TABLE ai_tutoring_sessions ADD COLUMN IF NOT EXISTS chat_id VARCHAR(80)`);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_tutoring_active_chat
+      ON ai_tutoring_sessions (user_type, user_id, project_id, chat_id, ended_at)
   `);
 
   await pool.query(`
@@ -699,27 +704,28 @@ const getAiInteractionsForRequester = async ({ requesterType, requesterId, proje
 // A session ends only when someone deliberately ends it (ended_at), which the
 // lookup excludes. Turns stay capped at 20, so age cannot grow the prompt.
 
-const getActiveTutoringSession = async ({ userType, userId, projectId }) => {
+const getActiveTutoringSession = async ({ userType, userId, projectId, chatId = null }) => {
   const result = await pool.query(
     `SELECT *
        FROM ai_tutoring_sessions
       WHERE user_type = $1
         AND user_id = $2
         AND (project_id IS NOT DISTINCT FROM $3)
+        AND (chat_id IS NOT DISTINCT FROM $4)
         AND ended_at IS NULL
       ORDER BY last_active_at DESC
       LIMIT 1`,
-    [userType, userId, projectId || null]
+    [userType, userId, projectId || null, chatId || null]
   );
   return result.rows[0] || null;
 };
 
-const createTutoringSession = async ({ userType, userId, projectId, mode = 'student' }) => {
+const createTutoringSession = async ({ userType, userId, projectId, chatId = null, mode = 'student' }) => {
   const result = await pool.query(
-    `INSERT INTO ai_tutoring_sessions (user_type, user_id, project_id, mode)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO ai_tutoring_sessions (user_type, user_id, project_id, chat_id, mode)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [userType, userId, projectId || null, mode]
+    [userType, userId, projectId || null, chatId || null, mode]
   );
   return result.rows[0];
 };

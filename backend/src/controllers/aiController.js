@@ -2142,6 +2142,9 @@ const tutorAsk = async (req, res) => {
     if (!question) return res.status(400).json({ message: 'question is required' });
     const projectId = req.body.project_id ? parseInt(req.body.project_id, 10) : null;
     const mode = req.body.mode === 'presenter' ? 'presenter' : 'student';
+    const rawChatId = String(req.body.chat_id || '').trim();
+    if (rawChatId.length > 80) return res.status(400).json({ message: 'Invalid chat id' });
+    const chatId = req.user.role === 'student' ? (rawChatId || null) : null;
 
     // A student asking about their OWN records/progress/standing is answered
     // straight from real scores + class leaderboard standing (with a little
@@ -2266,6 +2269,7 @@ const tutorAsk = async (req, res) => {
       userType: req.user.role,
       userId: req.user.id,
       projectId: sessionProjectId,
+      chatId,
       mode,
     });
 
