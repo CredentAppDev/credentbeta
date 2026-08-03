@@ -185,6 +185,14 @@ const getAssignmentById = async (id) => {
 
 // All assignments for one group, newest first, with submission progress
 // counts so the teacher list can show "3/5 submitted · 2 graded".
+//
+// The Emrys counts matter as much as the graded one. An exercise Emrys has
+// marked sits at status 'ai_marked', which `graded_count` does not count — so a
+// class where every student had been scored still read "5/5 submitted · 0
+// graded", and the teacher who set the work had no sign from this screen that
+// any result existed. The average is carried too: a count says work is waiting,
+// a number says how the class actually did, and that is what the teacher opened
+// the tab to find out.
 const getGroupAssignments = async (groupId) => {
   const result = await pool.query(
     `SELECT a.*,
@@ -195,7 +203,15 @@ const getGroupAssignments = async (groupId) => {
             (SELECT COUNT(*) FROM assignment_submissions sub
               WHERE sub.assignment_id = a.id) AS submitted_count,
             (SELECT COUNT(*) FROM assignment_submissions sub
-              WHERE sub.assignment_id = a.id AND sub.status = 'graded') AS graded_count
+              WHERE sub.assignment_id = a.id AND sub.status = 'graded') AS graded_count,
+            (SELECT COUNT(*) FROM assignment_submissions sub
+              WHERE sub.assignment_id = a.id AND sub.ai_score IS NOT NULL) AS ai_marked_count,
+            (SELECT COUNT(*) FROM assignment_submissions sub
+              WHERE sub.assignment_id = a.id
+                AND sub.ai_score IS NOT NULL
+                AND sub.teacher_reviewed = false) AS ai_pending_count,
+            (SELECT ROUND(AVG(sub.ai_score))::int FROM assignment_submissions sub
+              WHERE sub.assignment_id = a.id AND sub.ai_score IS NOT NULL) AS ai_avg_score
      FROM assignments a
      LEFT JOIN teachers t ON t.id = a.teacher_id
      WHERE a.group_id = $1

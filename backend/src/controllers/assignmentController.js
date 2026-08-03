@@ -449,9 +449,16 @@ const submitAssignmentHandler = async (req, res) => {
 const markSubmissionInBackground = async ({ assignment, submission, studentId }) => {
   let student = null;
   try {
-    const r = await pool.query('SELECT name FROM students WHERE id = $1', [studentId]);
+    // full_name, not name — `students` has no `name` column, so this query
+    // threw on every single mark. The catch swallowed it, so marking carried on
+    // but the student was always anonymous: Emrys marked without knowing whose
+    // work it was, and the teacher's notification read "A student scored 8/10"
+    // with no way to tell which student from the alert alone.
+    const r = await pool.query('SELECT full_name AS name FROM students WHERE id = $1', [studentId]);
     student = r.rows[0] || null;
-  } catch (_) { /* the name is a nicety; mark without it */ }
+  } catch (e) {
+    console.warn('[emrysMarking] could not read the student name:', e.message);
+  }
 
   const mark = await markSubmission({ assignment, submission, student });
   if (!mark) return;   // unavailable or unparseable — leave it for the teacher
@@ -465,9 +472,9 @@ const markSubmissionInBackground = async ({ assignment, submission, studentId })
     ` → ${mark.score}/${assignment.points || 100} (confidence ${mark.confidence})`
   );
 
-  // Tell the teacher. Nothing else does: the mark is deliberately invisible to
-  // the student until it is reviewed, so without this it sits in the queue
-  // until the teacher happens to open the Assignments tab and notice a badge.
+  // Tell the teacher, by name and number. The student now sees this score as
+  // soon as Emrys writes it, so the teacher must not be the last to know about
+  // a mark on work they set — that is the wrong way round.
   // Swallowed on failure — a notification must never lose a mark.
   if (assignment.teacher_id) {
     try {
