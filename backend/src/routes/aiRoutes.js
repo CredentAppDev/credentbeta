@@ -24,6 +24,7 @@ const {
   generateBuildPlan,
   generate3DPart,
   get3DPartStatus,
+  getStudentAiHistory,
 } = require('../controllers/aiController');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -43,6 +44,10 @@ router.post('/agent/ask', protect, validateAgentAskAi, agentAskAi);
 router.post('/ask-with-attachment', protect, aiDailyCap, upload.single('file'), askWithAttachment);
 router.post('/transcribe', protect, upload.single('file'), transcribeAudio);
 router.get('/history', protect, validateAiHistoryRequest, getAiHistory);
+// What Emrys said to one of the teacher's OWN students. Role and class
+// membership are both checked in the handler — a child's conversation is not
+// readable by any teacher who happens to know a student id.
+router.get('/student-history', protect, getStudentAiHistory);
 router.get('/roadmap', protect, validateRoadmapRequest, getTeachingRoadmap);
 router.get('/teaching-lesson', protect, aiDailyCap, getTeachingDayLesson);
 router.get('/teacher/reports', protect, getTeacherReports);

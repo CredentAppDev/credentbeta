@@ -2607,6 +2607,75 @@ const get3DPartStatus = async (req, res) => {
   }
 };
 
+
+// ── What Emrys told a student (teacher view) ──────────────────────────────
+//
+// A teacher could see the MARK Emrys gave but never the conversation behind it.
+// For a teaching product that is the more useful half: whether a student was
+// nudged towards the answer or very nearly handed it is exactly what a teacher
+// needs to judge, and it was invisible.
+//
+// Scoped hard. A teacher may read the transcripts of students in a group they
+// actively teach, and nobody else's — this is a child's conversation, not a
+// public log.
+const teacherTeachesStudent = async (teacherId, studentId) => {
+  const r = await pool.query(
+    `SELECT 1
+       FROM group_members gm
+       JOIN teacher_group_access tga
+         ON tga.group_id = gm.group_id AND tga.is_active = true
+      WHERE gm.student_id = $1 AND tga.teacher_id = $2
+      LIMIT 1`,
+    [studentId, teacherId]
+  );
+  return !!r.rows[0];
+};
+
+const getStudentAiHistory = async (req, res) => {
+  try {
+    if (!['teacher', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Only a teacher can read a student\'s Emrys history' });
+    }
+    const studentId = parseInt(req.query.student_id, 10);
+    if (!Number.isInteger(studentId)) {
+      return res.status(400).json({ message: 'student_id is required' });
+    }
+
+    // Admins oversee everything; a teacher must actually teach this student.
+    if (req.user.role !== 'admin' && !(await teacherTeachesStudent(req.user.id, studentId))) {
+      return res.status(403).json({ message: 'That student is not in one of your classes' });
+    }
+
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 40, 1), 100);
+    const interactions = await getAiInteractionsForRequester({
+      requesterType: 'student',
+      requesterId: studentId,
+      projectId: Number(req.query.project_id) || null,
+      limit,
+    });
+
+    const student = await pool.query('SELECT full_name FROM students WHERE id = $1', [studentId]);
+
+    // Flattened into turns, the same shape the chat renders, so the teacher
+    // reads the conversation as it happened rather than as database rows.
+    const messages = [];
+    for (const it of interactions) {
+      messages.push({ role: 'student', text: it.question, at: it.created_at, project_title: it.project_title });
+      messages.push({ role: 'emrys', text: it.answer, at: it.created_at, project_title: it.project_title });
+    }
+
+    res.status(200).json({
+      student_id: studentId,
+      student_name: student.rows[0]?.full_name || null,
+      messages,
+      count: interactions.length,
+    });
+  } catch (error) {
+    console.error('Get student AI history error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   validateAskAi,
   validateRoadmapRequest,
@@ -2629,4 +2698,5 @@ module.exports = {
   generateBuildPlan,
   generate3DPart,
   get3DPartStatus,
+  getStudentAiHistory,
 };
