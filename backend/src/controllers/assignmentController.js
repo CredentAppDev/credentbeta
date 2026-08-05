@@ -110,24 +110,25 @@ const studentInGroup = async (studentId, groupId) => {
 // ── Teacher handlers ──────────────────────────────────────────────
 const createAssignmentHandler = async (req, res) => {
   try {
-    const { group_id, title, instructions, link_url, due_at, points,
+    const { group_id, group_ids, title, instructions, link_url, due_at, points,
       project_id, roadmap_day, kind, starter_code, rubric, auto_mark } = req.body;
-    const groupId = parseInt(group_id, 10);
 
     // An exercise is an assignment with a different kind — same submissions,
     // same grading, same course link. Only the authoring and the marking differ.
     const itemKind = kind === 'exercise' ? 'exercise' : 'assignment';
 
-    if (!Number.isInteger(groupId)) {
-      return res.status(400).json({ message: 'Valid group_id is required' });
+    const rawGroupIds = Array.isArray(group_ids) && group_ids.length ? group_ids : [group_id];
+    const groupIds = [...new Set(rawGroupIds.map((value) => parseInt(value, 10)))];
+    if (!groupIds.length || groupIds.some((id) => !Number.isInteger(id))) {
+      return res.status(400).json({ message: 'At least one valid group is required' });
     }
     if (!title || !String(title).trim()) {
       return res.status(400).json({ message: 'Title is required' });
     }
 
-    const allowed = await teacherOwnsGroup(req.user.id, groupId);
-    if (!allowed) {
-      return res.status(403).json({ message: 'You are not assigned to this group' });
+    const allowed = await Promise.all(groupIds.map((id) => teacherOwnsGroup(req.user.id, id)));
+    if (allowed.some((value) => !value)) {
+      return res.status(403).json({ message: 'You are not assigned to one or more selected groups' });
     }
 
     let dueAt = null;
@@ -182,8 +183,8 @@ const createAssignmentHandler = async (req, res) => {
       return res.status(400).json({ message: 'Pick a project before choosing a roadmap day' });
     }
 
-    const assignment = await createAssignment({
-      group_id: groupId,
+    const assignments = await Promise.all(groupIds.map((selectedGroupId) => createAssignment({
+      group_id: selectedGroupId,
       teacher_id: req.user.id,
       title: String(title).trim().slice(0, MAX_TITLE_LEN),
       instructions: instructions ? String(instructions).slice(0, MAX_TEXT_LEN) : null,
@@ -195,17 +196,16 @@ const createAssignmentHandler = async (req, res) => {
       kind: itemKind,
       starter_code: starter_code ? String(starter_code).slice(0, MAX_TEXT_LEN) : null,
       rubric: rubric ? String(rubric).slice(0, MAX_TEXT_LEN) : null,
-      // Exercises are marked by Emrys unless the teacher turns it off; plain
-      // assignments only when the teacher asks for it.
       auto_mark: auto_mark === undefined ? (itemKind === 'exercise') : Boolean(auto_mark),
-    });
+    })));
 
     // Tell the students. The form promises "students will see it the moment you
     // create it", but nothing was ever sent — they only found out by opening the
     // Assignments tab and looking. A failure here must not fail the assignment
     // itself, so it is logged and swallowed.
     try {
-      const studentIds = await getGroupStudentIds(groupId);
+      await Promise.all(assignments.map(async (assignment) => {
+      const studentIds = await getGroupStudentIds(assignment.group_id);
       const due = dueAt ? ` Due ${new Date(dueAt).toLocaleDateString()}.` : '';
       await Promise.all(studentIds.map((sid) => sendNotificationToUser({
         userId: sid,
@@ -218,11 +218,12 @@ const createAssignmentHandler = async (req, res) => {
         reference_id: assignment.id,
         reference_type: 'assignment',
       })));
+      }));
     } catch (notifyError) {
       console.error('Assignment notify error:', notifyError.message);
     }
 
-    res.status(201).json({ assignment });
+    res.status(201).json({ assignment: assignments[0], assignments });
   } catch (error) {
     console.error('Create assignment error:', error.message);
     res.status(500).json({ message: 'Server error' });
