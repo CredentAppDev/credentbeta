@@ -38,8 +38,22 @@ const desktopAuthRoutes = require('./routes/desktopAuthRoutes');
 const devicePushRoutes = require('./routes/devicePushRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const betaRoutes = require('./routes/betaRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const espRoutes = require('./routes/espRoutes');
 
 const app = express();
+
+// Liveness only: confirms the Node/Express process is running without touching
+// Postgres. Render should use this so a database quota/outage does not cause a
+// crash loop. Keep /api/health below as the DB-aware readiness check.
+app.get('/api/live', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Credent API process is running',
+    uptimeSeconds: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // ─── Security Middleware ─────────────────────────────────────────
 app.use(helmet());
@@ -174,12 +188,15 @@ app.use('/api/auth/desktop', desktopAuthRoutes);
 app.use('/api/devices', devicePushRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/beta', betaRoutes);
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/esp', espRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────
 // Verifies BOTH the web server and the database. A lightweight `SELECT 1`
 // confirms the Neon connection is live. If the DB is unreachable we return
 // 503 so uptime monitors flag a real outage even when Express itself is fine.
-// Used as the Render keep-alive ping target (every ~10 min).
+// Use this for DB-aware readiness checks. Render/UptimeRobot keep-alive pings
+// should use /api/live so they do not keep Neon compute awake.
 app.get('/api/health', async (req, res) => {
   const startedAt = Date.now();
   try {

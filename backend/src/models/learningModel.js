@@ -148,6 +148,7 @@ const createLearningTables = async () => {
       user_type VARCHAR(20) NOT NULL,
       user_id INTEGER NOT NULL,
       project_id INTEGER REFERENCES learning_projects(id) ON DELETE SET NULL,
+      chat_id VARCHAR(80),
       mode VARCHAR(20) NOT NULL DEFAULT 'student',
       current_topic TEXT,
       completed_topics JSONB DEFAULT '[]'::jsonb,
@@ -159,8 +160,12 @@ const createLearningTables = async () => {
       last_active_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE INDEX IF NOT EXISTS idx_tutoring_active
-      ON ai_tutoring_sessions (user_type, user_id, project_id, ended_at);
+  `);
+
+  await pool.query(`ALTER TABLE ai_tutoring_sessions ADD COLUMN IF NOT EXISTS chat_id VARCHAR(80)`);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_tutoring_active_chat
+      ON ai_tutoring_sessions (user_type, user_id, project_id, chat_id, ended_at)
   `);
 
   await pool.query(`
@@ -201,6 +206,14 @@ const createLearningTables = async () => {
   await pool.query(`
     ALTER TABLE ai_interactions
       ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb
+  `);
+
+  // sort_order lets a multi-part 3D build model (STL/GLB uploaded per project)
+  // assemble in a defined order in Build Studio.
+  await pool.query(`
+    ALTER TABLE learning_project_assets
+      ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS generate BOOLEAN DEFAULT false
   `);
 
   console.log('✅ Learning / AI tables ready');
@@ -318,8 +331,8 @@ const getLearningContentChunks = async (projectId, audience = 'both') => {
 const addLearningProjectAsset = async (projectId, data) => {
   const result = await pool.query(
     `INSERT INTO learning_project_assets
-     (project_id, title, file_name, file_path, asset_type, mime_type)
-     VALUES ($1, $2, $3, $4, $5, $6)
+     (project_id, title, file_name, file_path, asset_type, mime_type, sort_order, generate)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
     [
       projectId,
@@ -328,6 +341,8 @@ const addLearningProjectAsset = async (projectId, data) => {
       data.file_path,
       data.asset_type || 'file',
       data.mime_type || null,
+      Number.isInteger(data.sort_order) ? data.sort_order : 0,
+      data.generate === true,
     ]
   );
   return result.rows[0];
@@ -348,10 +363,48 @@ const getLearningProjectAssets = async (projectId) => {
      FROM learning_project_assets
      WHERE project_id = $1
        AND is_active = true
-     ORDER BY created_at ASC`,
+     ORDER BY sort_order ASC, created_at ASC`,
     [projectId]
   );
   return result.rows;
+};
+
+// 3D build models for Build Studio: STL/GLB parts the agent uploaded for this
+// project, in assembly order. Distinct from generic file assets (docs) — these
+// are display models whose URLs are safe to expose to students.
+const getProjectBuildModels = async (projectId) => {
+  const result = await pool.query(
+    `SELECT id, title, file_name, file_path, asset_type, mime_type, sort_order, generate
+     FROM learning_project_assets
+     WHERE project_id = $1
+       AND is_active = true
+       AND asset_type IN ('build_model', 'model_part')
+     ORDER BY sort_order ASC, created_at ASC`,
+    [projectId]
+  );
+  return result.rows;
+};
+
+// Toggle whether a build-model part is a placeholder Emrys should Tripo-generate.
+const setLearningAssetGenerate = async (projectId, assetId, generate) => {
+  const result = await pool.query(
+    `UPDATE learning_project_assets
+     SET generate = $3
+     WHERE id = $1 AND project_id = $2
+     RETURNING id, generate`,
+    [assetId, projectId, generate === true]
+  );
+  return result.rows[0];
+};
+
+const deleteLearningProjectAsset = async (projectId, assetId) => {
+  const result = await pool.query(
+    `DELETE FROM learning_project_assets
+     WHERE id = $1 AND project_id = $2
+     RETURNING id`,
+    [assetId, projectId]
+  );
+  return result.rows[0];
 };
 
 const addLearningRoadmapDay = async (projectId, data) => {
@@ -641,30 +694,38 @@ const getAiInteractionsForRequester = async ({ requesterType, requesterId, proje
 // → endTutoringSession. Active = ended_at IS NULL AND last_active_at within
 // the TTL window (1 hour by default, controlled by the caller).
 
-const TUTORING_TTL_MINUTES = 60;
+// A tutoring session does not expire on a timer. It is a learning record, not
+// a web session: it carries current_topic, completed_topics and the last 20
+// turns, which is exactly what lets Emrys pick a lesson back up where it
+// stopped. A time window here silently restarted teaching — a student who
+// stepped away came back to an empty session and was greeted as if the lesson
+// had never happened.
+//
+// A session ends only when someone deliberately ends it (ended_at), which the
+// lookup excludes. Turns stay capped at 20, so age cannot grow the prompt.
 
-const getActiveTutoringSession = async ({ userType, userId, projectId }) => {
+const getActiveTutoringSession = async ({ userType, userId, projectId, chatId = null }) => {
   const result = await pool.query(
     `SELECT *
        FROM ai_tutoring_sessions
       WHERE user_type = $1
         AND user_id = $2
         AND (project_id IS NOT DISTINCT FROM $3)
+        AND (chat_id IS NOT DISTINCT FROM $4)
         AND ended_at IS NULL
-        AND last_active_at > NOW() - INTERVAL '${TUTORING_TTL_MINUTES} minutes'
       ORDER BY last_active_at DESC
       LIMIT 1`,
-    [userType, userId, projectId || null]
+    [userType, userId, projectId || null, chatId || null]
   );
   return result.rows[0] || null;
 };
 
-const createTutoringSession = async ({ userType, userId, projectId, mode = 'student' }) => {
+const createTutoringSession = async ({ userType, userId, projectId, chatId = null, mode = 'student' }) => {
   const result = await pool.query(
-    `INSERT INTO ai_tutoring_sessions (user_type, user_id, project_id, mode)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO ai_tutoring_sessions (user_type, user_id, project_id, chat_id, mode)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [userType, userId, projectId || null, mode]
+    [userType, userId, projectId || null, chatId || null, mode]
   );
   return result.rows[0];
 };
@@ -731,6 +792,9 @@ module.exports = {
   addLearningProjectAsset,
   replaceLearningProjectAssets,
   getLearningProjectAssets,
+  getProjectBuildModels,
+  setLearningAssetGenerate,
+  deleteLearningProjectAsset,
   addLearningRoadmapDay,
   replaceLearningRoadmapDays,
   getLearningRoadmapDays,

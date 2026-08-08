@@ -1,5 +1,6 @@
 const { body, query, validationResult } = require('express-validator');
 const pool = require('../config/db');
+const { modelName, reasoningParams } = require('../config/aiModel');
 const {
   getLearningProjects,
   getLearningProjectById,
@@ -25,6 +26,7 @@ const {
 const {
   TEACHER_READINESS_QUESTION,
   findRelevantChunks,
+  topRelevanceScore,
   buildControlledAnswer,
   buildRoadmapResponse,
   buildDayTeachingLesson,
@@ -161,6 +163,47 @@ const askAi = async (req, res) => {
       return res.status(403).json({ message: 'AI assistance is not available for this role' });
     }
 
+    // A student asking about their own records/progress is answered straight
+    // from their real scores + class standing (with encouragement) — this runs
+    // BEFORE project resolution so it works even when no project is in scope.
+    if (userRole === 'student') {
+      const studentRecords = await buildStudentProgressAnswer(req.user, req.body.question);
+      if (studentRecords) {
+        const interaction = await createAiInteraction({
+          project_id: null,
+          group_id: req.body.group_id || null,
+          help_request_id: null,
+          requester_type: userRole,
+          requester_id: req.user.id,
+          audience: 'student',
+          question: req.body.question,
+          answer: studentRecords.answer,
+          sources: studentRecords.sources,
+          metadata: requestMetadata(req),
+        });
+
+        return res.status(200).json({
+          message: 'Emrys AI response',
+          requires_teacher_readiness: false,
+          project: null,
+          answer_text: studentRecords.answer,
+          answer: studentRecords.answer,
+          steps: studentRecords.steps,
+          sources: studentRecords.sources,
+          next_action: studentRecords.next_action,
+          interaction,
+          group_message: null,
+          saved_group_message: null,
+          policy: {
+            syllabus_bound: false,
+            in_scope: true,
+            audience: 'student',
+            data_source: 'progress_records',
+          },
+        });
+      }
+    }
+
     const project = await resolveProject(req.user, req.body.project_id, req.body.group_id);
     if (!project) {
       return res.status(404).json({ message: 'Learning project not found or not available for this class' });
@@ -212,7 +255,11 @@ const askAi = async (req, res) => {
 
     const audience = resolveAudience(userRole);
     const allChunks = await getLearningContentChunks(project.id, audience);
-    const relevantChunks = findRelevantChunks(allChunks, req.body.question, 4);
+    // 8, not 4: the retrieval scorer is now TF-IDF over whole words rather than
+    // a substring test, so a wider slice is both affordable and more accurate.
+    const relevantChunks = findRelevantChunks(allChunks, req.body.question, 8);
+    // The sequence the content is taught in, so Emrys can place the question.
+    const roadmapDays = await getLearningRoadmapDays(project.id);
 
     const recentHistory = await getAiInteractionsForRequester({
       requesterType: userRole,
@@ -236,6 +283,7 @@ const askAi = async (req, res) => {
       readiness,
       conversationHistory: recentHistory,
       progressEvidence,
+      days: roadmapDays,
     });
 
     const interaction = await createAiInteraction({
@@ -292,10 +340,19 @@ const askAi = async (req, res) => {
 // ─── Agent General AI Ask — no project_id required ───────────────
 const validateAgentAskAi = [
   body('question').trim().notEmpty().withMessage('question is required'),
+  // Which class/project chat this was asked in. Optional for older clients,
+  // but without it the interaction can only be filed against a project guessed
+  // from the wording — so "hello" lands somewhere arbitrary and then shows up
+  // in every class's transcript.
+  body('project_id').optional({ nullable: true }).isInt({ min: 1 }).withMessage('project_id must be a positive integer'),
 ];
 
 const validateAiHistoryRequest = [
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('limit must be between 1 and 100'),
+  // Scope the transcript to one class project. Without it the caller gets every
+  // interaction it has ever had, which is how one conversation ended up being
+  // restored into all of the class chats at once.
+  query('project_id').optional().isInt({ min: 1 }).withMessage('project_id must be a positive integer'),
 ];
 
 const agentAskAi = async (req, res) => {
@@ -310,11 +367,14 @@ const agentAskAi = async (req, res) => {
     }
 
     const { question } = req.body;
+    // The chat the agent actually has open. When present this decides where the
+    // interaction is filed, in preference to any project inferred from the text.
+    const scopedProjectId = Number(req.body.project_id) || null;
 
     const progressAnswer = await buildAgentProgressAnswer(question);
     if (progressAnswer) {
       const interaction = await createAiInteraction({
-        project_id: progressAnswer.project_id || null,
+        project_id: scopedProjectId || progressAnswer.project_id || null,
         group_id: progressAnswer.group_id || null,
         help_request_id: null,
         requester_type: req.user.role,
@@ -356,7 +416,7 @@ const agentAskAi = async (req, res) => {
       ].join('\n\n');
 
       const interaction = await createAiInteraction({
-        project_id: null,
+        project_id: scopedProjectId,
         group_id: null,
         help_request_id: null,
         requester_type: req.user.role,
@@ -396,9 +456,12 @@ const agentAskAi = async (req, res) => {
 
     for (const project of allProjects) {
       const projectChunks = await getLearningContentChunks(project.id, 'teacher');
-      const relevant = findRelevantChunks(projectChunks, question, 4);
-      if (relevant.length > bestScore) {
-        bestScore = relevant.length;
+      const relevant = findRelevantChunks(projectChunks, question, 8);
+      // Compare the BEST match, not how many chunks matched at all — one strong
+      // hit beats four weak ones, and counts tie at the cap.
+      const score = topRelevanceScore(projectChunks, question);
+      if (score > bestScore) {
+        bestScore = score;
         bestRelevantChunks = relevant;
         bestAllChunks = projectChunks;
         bestProject = project;
@@ -416,6 +479,10 @@ const agentAskAi = async (req, res) => {
       ? await getProgressEvidenceForAi({ user: req.user, project: bestProject, groupId: null })
       : { dailyReports: [], groupUpdates: [] };
 
+    const agentRoadmapDays = bestProject
+      ? await getLearningRoadmapDays(bestProject.id)
+      : [];
+
     const answer = await buildControlledAnswer({
       project: bestProject,
       question,
@@ -425,10 +492,14 @@ const agentAskAi = async (req, res) => {
       readiness: null,
       conversationHistory: agentHistory,
       progressEvidence,
+      days: agentRoadmapDays,
     });
 
     const interaction = await createAiInteraction({
-      project_id: bestProject?.id || null,
+      // The open chat wins over the project inferred from the question — a
+      // greeting has no topic to infer from, and guessing files it under a
+      // class the agent was not even looking at.
+      project_id: scopedProjectId || bestProject?.id || null,
       group_id: null,
       help_request_id: null,
       requester_type: req.user.role,
@@ -476,6 +547,7 @@ const getAiHistory = async (req, res) => {
     const interactions = await getAiInteractionsForRequester({
       requesterType: req.user.role,
       requesterId: req.user.id,
+      projectId: Number(req.query.project_id) || null,
       limit: Number(req.query.limit || 50),
     });
 
@@ -603,7 +675,9 @@ const getTeachingDayLesson = async (req, res) => {
       }
     }
 
-    await ensureRoadmapDays(project);
+    // Keep the full day list — the lesson builder needs the whole arc to say
+    // what today builds on and what it leads to, not just today's row.
+    const allDays = await ensureRoadmapDays(project);
     const day = await getLearningRoadmapDay(project.id, dayNumber);
     if (!day) {
       return res.status(404).json({ message: `Day ${dayNumber} is not in the roadmap for this project` });
@@ -617,6 +691,7 @@ const getTeachingDayLesson = async (req, res) => {
       allChunks,
       readiness,
       recentReports: reports.slice(-3),
+      allDays,
     });
 
     res.status(200).json({
@@ -853,14 +928,14 @@ const getProgressEvidenceForAi = async ({ user, project, groupId = null }) => {
 };
 
 const isProgressQuestion = (question) => {
-  return /progress|student|understanding|report|challenge|support|group|impact|lead|completed|stuck|behind|performance|update|where\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)|how\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)\s+doing/i
+  return /progress|student|understanding|report|challenge|support|group|impact|lead|completed|stuck|behind|performance|update|leaderboard|score|scores|rank|ranking|grade|record|records|standing|top\s+group|where\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)|how\s+(are|is)\s+(they|the\s+students?|the\s+group|the\s+class)\s+doing/i
     .test(String(question || ''));
 };
 
 const buildAgentProgressAnswer = async (question) => {
   if (!isProgressQuestion(question)) return null;
 
-  const [updatesResult, reportsResult] = await Promise.all([
+  const [updatesResult, reportsResult, leadersResult] = await Promise.all([
     pool.query(
       `SELECT lgpu.*,
               lp.title AS project_title,
@@ -885,10 +960,22 @@ const buildAgentProgressAnswer = async (question) => {
        ORDER BY tair.updated_at DESC
        LIMIT 5`
     ),
+    // Top groups by rating — gives the agent the leaderboard standings too.
+    pool.query(
+      `SELECT sg.name AS group_name,
+              gr.project_name,
+              ROUND(AVG(gr.score))::int AS score
+       FROM group_ratings gr
+       JOIN student_groups sg ON sg.id = gr.group_id
+       GROUP BY sg.name, gr.project_name
+       ORDER BY AVG(gr.score) DESC
+       LIMIT 5`
+    ),
   ]);
 
   const updates = updatesResult.rows;
   const reports = reportsResult.rows;
+  const leaders = leadersResult.rows;
   const primaryProjectId = updates[0]?.project_id || reports[0]?.project_id || null;
   const primaryGroupId = updates[0]?.group_id || null;
   const primaryProject = primaryProjectId
@@ -898,7 +985,7 @@ const buildAgentProgressAnswer = async (question) => {
       }
     : null;
 
-  if (updates.length === 0 && reports.length === 0) {
+  if (updates.length === 0 && reports.length === 0 && leaders.length === 0) {
     return {
       project_id: null,
       group_id: null,
@@ -952,8 +1039,51 @@ const buildAgentProgressAnswer = async (question) => {
     });
   }
 
+  if (leaders.length > 0) {
+    lines.push('');
+    lines.push('Leaderboard (top groups by rating):');
+    leaders.forEach((leader, index) => {
+      lines.push(`${index + 1}. ${leader.group_name} — ${leader.score} pts on "${leader.project_name}"`);
+    });
+  }
+
   lines.push('');
   lines.push('Agent next move: follow up on the newest challenge or support-needed item first, then ask the teacher to update the report after the next class activity.');
+
+  // Structured facts → Claude writes a natural agent briefing (varies each
+  // time). The deterministic `lines` above stay as the fallback when the LLM
+  // is unavailable. Facts are the source of truth; the model only rephrases.
+  const facts = {
+    group_updates: updates.map((u) => ({
+      group: u.group_name,
+      project: u.project_title,
+      day: u.day_number,
+      progress: u.group_progress || null,
+      impact: u.impact_summary || null,
+      lead: u.lead_student_name || null,
+      impact_student: u.impact_student_name || null,
+      completed: Array.isArray(u.completed_items) ? u.completed_items : [],
+      next: u.next_actions || null,
+    })),
+    teacher_reports: reports.map((r) => ({
+      teacher: r.teacher_name,
+      project: r.project_title,
+      day: r.day_number,
+      understanding: r.student_understanding || null,
+      challenge: r.challenges || null,
+      support_needed: r.support_needed || null,
+      ai_next_steps: r.ai_next_steps || null,
+    })),
+    leaderboard: leaders.map((l, i) => ({
+      rank: i + 1,
+      group: l.group_name,
+      project: l.project_name,
+      points: l.score,
+    })),
+  };
+
+  const phrased = await phraseAgentProgressWithLLM(facts);
+  const answer = phrased || lines.join('\n');
 
   const steps = [
     ...updates.slice(0, 3).map((update, index) => ({
@@ -986,7 +1116,7 @@ const buildAgentProgressAnswer = async (question) => {
       duration_months: null,
       expected_section_count: null,
     }) : null,
-    answer: lines.join('\n'),
+    answer,
     steps,
     sources: [
       ...updates.map((update) => ({
@@ -1005,6 +1135,263 @@ const buildAgentProgressAnswer = async (question) => {
       })),
     ],
     next_action: 'Follow up on the newest challenge or support-needed item, then ask for a fresh report after the next class activity.',
+  };
+};
+
+// A student asking specifically about THEIR OWN records / progress / standing.
+// Tighter than isProgressQuestion: we require "my <record-word>" or an explicit
+// leaderboard/standing phrase so ordinary project questions that merely contain
+// the word "progress" don't get hijacked away from the controlled tutor.
+const isStudentRecordsQuestion = (question) => {
+  const s = String(question || '').toLowerCase();
+  return (
+    /\bmy\s+(progress|score|scores|result|results|grade|grades|mark|marks|record|records|rank|ranking|standing|position)\b/.test(s)
+    || /\b(leaderboard|how\s+am\s+i\s+doing|how\s+i'?m\s+doing|am\s+i\s+(doing|improving|passing)|where\s+am\s+i\b|what'?s\s+my\s+(score|rank|grade|position|standing))\b/.test(s)
+  );
+};
+
+// Pick a short, warm, age-appropriate motivation line keyed off the best score.
+// Emrys "sometimes motivates the child" — the tone scales with how they're doing
+// so a struggling learner gets encouragement, not empty praise.
+const motivationForScore = (bestScore) => {
+  if (bestScore == null) {
+    return "Every champion starts at zero — your first score is just around the corner. Keep showing up! 🌱";
+  }
+  if (bestScore >= 90) return "Outstanding work — you're shining! ⭐ Keep that curiosity burning and help a teammate level up too.";
+  if (bestScore >= 75) return "Really strong work! 💪 You're close to the top — one more push and you'll get there.";
+  if (bestScore >= 60) return "You're getting there, step by step. 🚀 Keep practising the tricky parts and your score will climb.";
+  return "Every expert was once a beginner. 🌟 Don't give up — ask questions, try again, and you'll surprise yourself.";
+};
+
+// Concrete, friendly study tip per scored skill (used in the deterministic
+// fallback and offered to the LLM as a hint).
+const SKILL_TIPS = {
+  creativity: 'try adding one of your own ideas to the next project',
+  execution: 'break the build into tiny steps and finish them one at a time',
+  teamwork: 'share a task with a groupmate and check in on each other',
+  presentation: 'practise explaining your project out loud in 3 short sentences',
+};
+
+// Lowest-scored skill on a rating row → { skill, value } (or null).
+const weakestSkill = (rating) => {
+  if (!rating) return null;
+  const dims = Object.keys(SKILL_TIPS).filter(
+    (k) => rating[k] !== null && rating[k] !== undefined
+  );
+  if (!dims.length) return null;
+  dims.sort((a, b) => Number(rating[a]) - Number(rating[b]));
+  return { skill: dims[0], value: Number(rating[dims[0]]) };
+};
+
+const tipForWeakestSkill = (rating) => {
+  const w = weakestSkill(rating);
+  if (!w) return null;
+  return `Tip: your lowest area is ${w.skill} — ${SKILL_TIPS[w.skill]}.`;
+};
+
+// Ask Claude to phrase the student's real records as a warm, varied,
+// kid-friendly motivational message. Returns the text, or null if the model is
+// unavailable (caller then falls back to the deterministic template). Reuses
+// callClaudeForTutor (= callClaudeWithHistory) so model + key handling match the
+// rest of the tutor flow. `facts` is the structured truth — the model only
+// rephrases it, it does not invent numbers.
+const phraseStudentRecordsWithLLM = async (facts) => {
+  const systemPrompt = [
+    'You are Emrys, a warm, encouraging AI teacher for children on the Credent learning platform.',
+    "You will be given ONE student's real learning records as JSON. Write a short message (3 to 5 sentences) spoken directly TO the child by their first name.",
+    'Rules:',
+    '- Use simple, friendly words a child understands. A couple of emojis are welcome; do not overdo it.',
+    '- Use ONLY the numbers in the JSON (class rank, points, project scores). Never invent or change a number.',
+    '- Mention their class leaderboard rank and a notable project score.',
+    '- Celebrate what is going well, then gently encourage them on their weakest_skill with ONE concrete, doable tip.',
+    '- Always end on a motivating note. If records are missing or scores are low, be reassuring and kind — never discouraging.',
+    '- Plain prose only: no markdown headings, no bullet lists, no preamble like "Sure" or "Here is".',
+  ].join('\n');
+
+  try {
+    const raw = await callClaudeForTutor(
+      systemPrompt,
+      [{ role: 'user', content: JSON.stringify(facts) }],
+      400
+    );
+    return raw && raw.trim() ? raw.trim() : null;
+  } catch (e) {
+    console.warn('phraseStudentRecordsWithLLM failed:', e.message);
+    return null;
+  }
+};
+
+// Ask Claude to turn the agent's saved progress records into a natural, concise
+// operational briefing (varies each time). Professional tone — this is for
+// staff managing schools/teachers/groups, NOT a child. Returns text or null
+// (caller falls back to the deterministic summary). The JSON facts are the
+// source of truth; the model only rephrases them.
+const phraseAgentProgressWithLLM = async (facts) => {
+  const systemPrompt = [
+    'You are Emrys, the AI assistant for a Credent agent/admin who manages schools, teachers and student groups.',
+    'You will be given the latest saved progress records as JSON: recent group project updates, teacher daily reports, and the current leaderboard (top groups).',
+    'Write a concise briefing for the agent:',
+    '- 2 to 4 short sentences (a couple of short bullet lines are fine if they aid scanning).',
+    '- Use ONLY the facts and numbers in the JSON. Never invent names, scores, or events.',
+    '- Surface what matters operationally: who is progressing, any challenges or support-needed flags, and the top leaderboard groups.',
+    '- End with ONE clear next move for the agent.',
+    '- Professional, clear tone for staff (not a child). No markdown headings, no preamble like "Sure" or "Here is".',
+  ].join('\n');
+
+  try {
+    const raw = await callClaudeForTutor(
+      systemPrompt,
+      [{ role: 'user', content: JSON.stringify(facts) }],
+      500
+    );
+    return raw && raw.trim() ? raw.trim() : null;
+  } catch (e) {
+    console.warn('phraseAgentProgressWithLLM failed:', e.message);
+    return null;
+  }
+};
+
+// Builds Emrys's answer when a STUDENT asks about their own records/progress.
+// Pulls real scores + feedback from group_ratings and the student's class
+// leaderboard standing, then wraps them in an encouraging, kid-friendly note.
+// Returns null when the question isn't a records question so the normal tutor
+// flow runs instead.
+const buildStudentProgressAnswer = async (student, question) => {
+  if (!isStudentRecordsQuestion(question)) return null;
+
+  const [ratingsResult, standingResult] = await Promise.all([
+    pool.query(
+      `SELECT gr.project_name,
+              ROUND(gr.score)::int AS score,
+              gr.feedback,
+              gr.creativity, gr.execution, gr.teamwork, gr.presentation,
+              sg.name AS group_name,
+              gr.submitted_at
+       FROM group_ratings gr
+       JOIN student_groups sg ON sg.id = gr.group_id
+       JOIN group_members gm ON gm.group_id = sg.id
+       WHERE gm.student_id = $1
+       ORDER BY gr.submitted_at DESC NULLS LAST
+       LIMIT 8`,
+      [student.id]
+    ),
+    pool.query(
+      `WITH class_scope AS (
+         SELECT sg.id AS group_id, sg.name AS group_name, AVG(gr.score) AS avg_score
+         FROM group_ratings gr
+         JOIN student_groups sg ON sg.id = gr.group_id
+         JOIN students viewer_s
+           ON viewer_s.id = $1
+          AND viewer_s.school_id = sg.school_id
+          AND (
+               sg.class_name IS NULL
+            OR viewer_s.class_name IS NULL
+            OR LOWER(sg.class_name) = LOWER(viewer_s.class_name)
+          )
+         GROUP BY sg.id, sg.name
+       ),
+       ranked AS (
+         SELECT group_id, group_name,
+                ROUND(avg_score)::int AS score,
+                ROW_NUMBER() OVER (ORDER BY avg_score DESC) AS rank,
+                COUNT(*) OVER () AS total_groups
+         FROM class_scope
+       )
+       SELECT r.rank, r.group_name, r.score, r.total_groups
+       FROM ranked r
+       JOIN group_members gm ON gm.group_id = r.group_id
+       WHERE gm.student_id = $1
+       ORDER BY r.rank ASC
+       LIMIT 1`,
+      [student.id]
+    ),
+  ]);
+
+  const ratings = ratingsResult.rows;
+  const standing = standingResult.rows[0] || null;
+  const hasData = ratings.length > 0 || !!standing;
+
+  const scores = ratings.map((r) => Number(r.score)).filter((n) => Number.isFinite(n));
+  if (standing && Number.isFinite(Number(standing.score))) scores.push(Number(standing.score));
+  const bestScore = scores.length ? Math.max(...scores) : null;
+
+  const firstName = student.full_name ? String(student.full_name).split(' ')[0] : null;
+  const weakest = weakestSkill(ratings[0]);
+
+  // ── Deterministic fallback text (used verbatim if the LLM is unavailable) ──
+  const lines = [];
+  if (!hasData) {
+    lines.push(`Hi ${firstName || 'there'}! 👋`);
+    lines.push("You don't have any project scores yet — that's totally fine, it just means your adventure is only getting started.");
+    lines.push('Your scores and class ranking will show up here as soon as your teacher rates your group on a project.');
+    lines.push(motivationForScore(null));
+  } else {
+    lines.push(`Here's your learning record so far, ${firstName || 'champ'} 🌟`);
+    if (standing) {
+      const place = standing.rank === 1
+        ? "you're at the TOP"
+        : `you're ranked #${standing.rank} of ${standing.total_groups}`;
+      lines.push('');
+      lines.push(`🏆 In your class leaderboard, ${place} with ${standing.group_name} (${standing.score} pts).`);
+    }
+    if (ratings.length > 0) {
+      lines.push('');
+      lines.push('📊 Your project scores:');
+      ratings.forEach((r) => {
+        const parts = [`• ${r.project_name}: ${r.score}/100`];
+        if (r.feedback) parts.push(`teacher said: "${r.feedback}"`);
+        lines.push(parts.join(' — '));
+      });
+    }
+    lines.push('');
+    lines.push(motivationForScore(bestScore));
+    const tip = tipForWeakestSkill(ratings[0]);
+    if (tip) lines.push(tip);
+  }
+  const fallbackText = lines.join('\n');
+
+  // ── Structured facts → Claude phrases them naturally (varies each time) ──
+  const facts = {
+    name: firstName || 'friend',
+    has_records: hasData,
+    class_rank: standing
+      ? {
+          rank: standing.rank,
+          total_groups: standing.total_groups,
+          group: standing.group_name,
+          points: standing.score,
+        }
+      : null,
+    best_score: bestScore,
+    projects: ratings.map((r) => ({
+      project: r.project_name,
+      score: r.score,
+      feedback: r.feedback || null,
+    })),
+    weakest_skill: weakest
+      ? { skill: weakest.skill, value: weakest.value, suggested_tip: SKILL_TIPS[weakest.skill] }
+      : null,
+  };
+
+  const phrased = await phraseStudentRecordsWithLLM(facts);
+  const answer = phrased || fallbackText;
+
+  const sources = ratings.map((r) => ({
+    source_type: 'group_rating',
+    project_name: r.project_name,
+    group_name: r.group_name,
+    score: r.score,
+  }));
+
+  return {
+    answer,
+    steps: [],
+    sources,
+    next_action: !hasData
+      ? 'Keep taking part in your group projects — your first score is on its way.'
+      : bestScore != null && bestScore < 75
+        ? 'Pick one tricky topic and ask Emrys to explain it again — small wins add up.'
+        : 'Keep up the great work and aim for your next project score.',
   };
 };
 
@@ -1304,7 +1691,18 @@ const askWithAttachment = async (req, res) => {
     const anthropic = new Anthropic({ apiKey });
 
     const role = req.user?.role || 'student';
-    const systemPrompt = `You are Emrys, the AI teacher on the Credent education platform. You help ${role}s understand content shared with you. When given a file or image, analyse it fully and answer any question about it. When given a voice transcription, treat it as the user's spoken question.
+    const studentAttachmentReview = role === 'student' ? `
+
+STUDENT EXERCISE SCREENSHOT REVIEW — HIGHEST PRIORITY:
+- Treat a screenshot, photo, or attached code file as a student's exercise attempt that must be CHECKED first. Inspect the actual code, output, errors, and visible instructions before replying. Do not ask the student what exercise it is until you have inspected it.
+- Start every exercise review with exactly one result line: "Result: Correct", "Result: Almost correct", or "Result: Needs a fix".
+- On the next line write "Topic: <the exercise topic>" (for example, "Topic: Python variables").
+- Immediately give "Practice score: X/10". This is Emrys's practice score, not an official teacher grade.
+- If the work is correct, say briefly what in the screenshot proves it is correct, congratulate the student, and stop. Do not teach a new topic, add a new example, offer choices, ask what to explore, or suggest a next task.
+- If the work is wrong, identify the exact visible line or output that needs attention. Explain the idea using one tiny DIFFERENT example if useful, but never give the completed answer or a copyable final solution. Ask the student to make the change and send another screenshot.
+- Only say that the task is missing when the screenshot genuinely contains neither the question/instructions nor enough evidence to assess the attempt. Even then, describe what you can see first and ask for the missing task in one sentence.
+` : '';
+    const systemPrompt = `You are Emrys, the AI teacher on the Credent education platform. You help ${role}s understand content shared with you. When given a file or image, analyse it fully and answer any question about it. When given a voice transcription, treat it as the user's spoken question.${studentAttachmentReview}
 
 Teaching rule: Emrys is the active teacher for the lesson, not only a reference book or roadmap writer. The learners are children and beginners, so explain at kids level with simple words, tiny steps, familiar examples, and no unexplained technical terms. Use full teaching and technical knowledge inside the project scope to identify likely requirements before starting, including apps, files, packages, libraries, hardware, accounts, internet access, folders, and setup steps. Treat project files, code, roadmap notes, screenshots, and manuals as source material and a final target. They are not proof that students already have the code, setup, wiring, or files. If the user is teaching a project, start from the first unfinished foundation unless they clearly say earlier work is complete.
 
@@ -1381,8 +1779,11 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
     contentBlocks.push({ type: 'text', text: prompt });
 
     const response = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-      max_tokens: 1800,
+      model: modelName(),
+      // Thinking and the reply share this budget, so the old 1800 would have
+      // truncated the answer mid-sentence once thinking was on.
+      max_tokens: 12000,
+      ...reasoningParams(12000, 'medium'),
       system: systemPrompt,
       messages: [{ role: 'user', content: contentBlocks }],
     });
@@ -1393,10 +1794,32 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
       .join('\n')
       .trim() || 'I was unable to process that. Please try again.';
 
-    // Save to interaction history so messages persist across sessions
+    const reviewMatch = role === 'student'
+      ? answer.match(/^Result:\s*(Correct|Almost correct|Needs a fix)\s*\n+Topic:\s*([^\n]+)\s*\n+Practice score:\s*(\d{1,3})\s*\/\s*(\d{1,3})/im)
+      : null;
+    const reviewScore = reviewMatch ? Number(reviewMatch[3]) : null;
+    const reviewMaxScore = reviewMatch ? Number(reviewMatch[4]) : null;
+    const emrysExerciseReview = reviewMatch
+      && Number.isInteger(reviewScore)
+      && Number.isInteger(reviewMaxScore)
+      && reviewMaxScore > 0
+      && reviewScore >= 0
+      && reviewScore <= reviewMaxScore
+      ? {
+          result: reviewMatch[1],
+          topic: reviewMatch[2].trim().slice(0, 120),
+          score: reviewScore,
+          max_score: reviewMaxScore,
+        }
+      : null;
+
+    // Save to interaction history so messages persist across sessions and a
+    // student's verified exercise result can power Progress and Leaderboard.
     try {
       await createAiInteraction({
-        project_id: null,
+        // The class chat this was sent from. Multipart, so it arrives as a
+        // string. Unscoped rows get restored into every class transcript.
+        project_id: Number(req.body.project_id) || null,
         group_id: null,
         help_request_id: null,
         requester_type: role,
@@ -1405,7 +1828,10 @@ Answer rule: do not give only a roadmap. If the project is starting or setup is 
         question: prompt,
         answer,
         sources: [],
-        metadata: requestMetadata(req),
+        metadata: {
+          ...requestMetadata(req),
+          ...(emrysExerciseReview ? { emrys_exercise_review: emrysExerciseReview } : {}),
+        },
       });
     } catch (_) {}
 
@@ -1509,25 +1935,138 @@ HARD OUTPUT CAPS (enforced by code, do not break):
 - One concept per response. Never bundle two topics.
 - Prefer plain English over code in every turn.
 
+VS CODE IS THE STUDENT'S WORKBENCH — YOU ARE NOT (critical):
+- You are the TEACHER. You are NOT a code editor, NOT a terminal, and NOT a
+  place to run programs. Real Visual Studio Code is where all the actual work
+  happens.
+- Every single time you ask a student to write, change, save or run code, send
+  them to VS Code explicitly. Name the file, e.g. "open number_game.py in VS
+  Code", "save with Ctrl+S", "press the Run button".
+- NEVER pretend to run their code. NEVER invent or describe output as if you
+  executed it. You did not run anything — only their computer did.
+- NEVER accept your chat box as a substitute for doing the work. If a student
+  types code at you instead of running it, warmly redirect: ask them to put it
+  in VS Code, save, run it, and tell you what actually happened.
+- After every task, ASK FOR PROOF FROM THEIR MACHINE. One of:
+    • a screenshot of the window their program opened, or
+    • a screenshot of VS Code, or
+    • the exact text they copied from the terminal (including any red error).
+  Then react to what they actually send — praise what worked, and read errors
+  with them line by line.
+- Do not move to the next step until they have shown you a result from VS Code.
+  "Show me what you got" is a required step, not an optional one.
+- If they say it did not work, ask for the EXACT red error text or a screenshot
+  before guessing. Never guess at an error you have not seen.
+
 STATE MARKERS — append at the very end of your response when applicable:
 - When you move to a new topic, write: [advance: <topic name>]
 - When the student has clearly grasped a concept, write: [checkpoint: <concept>]
 - Markers are stripped before the student sees the response. They update memory.
 
-If this is the FIRST turn of the session, greet the student warmly, ask which
-part of the project they want to start with, and use a real-world analogy to
-welcome them. Do NOT dump the syllabus.`;
+GREETINGS & SMALL TALK — IMPORTANT (read carefully):
+- This applies to WHOEVER you're chatting with — a student, or a teacher
+  running the class. Treat a greeting the same warm way for everyone.
+- If their latest message is just a greeting or small talk ("hi", "good
+  morning", "how are you", "thanks", "I'm back", etc.), reply the way a warm
+  human teacher would: greet them back, react to what they actually said, and
+  ask ONE light, friendly question — how they're doing, or whether they're
+  ready to start today. Keep it to 2–4 short, easy sentences.
+- On a greeting, do NOT pitch the project, do NOT list what it will do, do NOT
+  lay out the roadmap, and do NOT start a lesson. Ease in like a person — let
+  them settle in first. It is fine for the whole first reply to just be a warm
+  hello and a "ready when you are 😊".
+- Only AFTER they show they want to begin (e.g. "let's start", "I'm ready",
+  "what are we building?", or they ask a real question) do you move toward the
+  project — and even then, keep it to 1–2 friendly lines about what they'll
+  build, then invite them into the FIRST tiny step. Never dump the syllabus.
 
-const buildTutorSystemPrompt = (session, project, chunks) => {
+When they ARE ready to start (the first real lesson turn): greet warmly if you
+haven't already, name the project in a single line, use one quick real-world
+analogy, ask which part they'd like to begin with, and stop there. Do NOT dump
+the syllabus.`;
+
+// Emrys gets the WHOLE course, not a preview of it.
+//
+// This used to send `chunks.slice(0,30)` with each lesson cut to 600 characters
+// and all whitespace collapsed. On the real courses that meant Emrys saw ~17% of
+// the material — the Big Idea and Kid Meaning of each lesson, but never the
+// code, the line-by-line walkthrough, Your Turn, or Common Mistakes. Worse, the
+// whitespace collapse flattened Python indentation, which IS syntax.
+//
+// Now the full lesson text goes in verbatim. It is large (~90k chars for a
+// 24-lesson course), so it is emitted as a separate CACHED system block: the
+// corpus is static for the whole session, so after the first turn Anthropic
+// serves it from cache and repeat turns stay cheap. The volatile session state
+// lives in its own uncached block below.
+const TUTOR_CORPUS_CHAR_BUDGET = 320000;   // ~80k tokens; well inside context
+
+const buildTutorCorpus = (chunks) => {
+  const ordered = [...(chunks || [])].sort(
+    (a, b) => (a.step_number ?? 9999) - (b.step_number ?? 9999));
+  const parts = [];
+  let used = 0;
+  let dropped = 0;
+  for (const c of ordered) {
+    const body = String(c.content || '');
+    const block = `\n===== ${c.title || 'Untitled'} =====\n${body}\n`;
+    if (used + block.length > TUTOR_CORPUS_CHAR_BUDGET) { dropped += 1; continue; }
+    parts.push(block);
+    used += block.length;
+  }
+  if (dropped) {
+    parts.push(`\n[${dropped} further lesson(s) omitted — course exceeds the prompt budget.]\n`);
+  }
+  return parts.join('');
+};
+
+/**
+ * The work this student has been set, for the chat to reason about.
+ *
+ * Without it, "can you check my exercise?" reaches a tutor with no idea which
+ * exercise, and the only honest reply is to ask — which is a poor experience
+ * when the server already knows the answer.
+ *
+ * Deliberately does NOT include the rubric. On a small exercise a rubric read
+ * aloud is the answer as a checklist, and the marker uses it separately.
+ */
+const buildStudentWorkSection = (work) => {
+  if (!work || !work.length) return '';
+  const line = (a) => {
+    const bits = [`- ${a.kind === 'exercise' ? 'EXERCISE' : 'Assignment'}: "${a.title}"`];
+    if (a.due_at) bits.push(`due ${new Date(a.due_at).toDateString()}`);
+    if (a.submission_id) {
+      bits.push(a.submission_status === 'graded'
+        ? `already graded ${a.submission_grade}/${a.points ?? 100}`
+        : 'handed in, not yet graded');
+    } else bits.push('NOT handed in yet');
+    return bits.join(' — ');
+  };
+  const detail = work.map((a) => {
+    const parts = [line(a)];
+    if (a.instructions) parts.push(`    what was asked: ${String(a.instructions).slice(0, 600)}`);
+    if (a.starter_code) parts.push(`    starter code they were given:\n${String(a.starter_code).slice(0, 800)}`);
+    if (a.submission_body) parts.push(`    their work so far:\n${String(a.submission_body).slice(0, 1200)}`);
+    return parts.join('\n');
+  }).join('\n');
+
+  return `
+THE WORK THIS STUDENT HAS BEEN SET (you can see all of it — use it):
+${detail}
+
+HOW TO USE THIS
+- If they ask about "my exercise" or "the homework" and only one thing fits, just talk about that one. Do not make them tell you what you can already see.
+- If several could fit, name them and ask which.
+- If they have written something, react to THEIR code: say what is right, then the single most useful thing to fix. Do not paste a corrected version.
+- Coach. After reading your reply they must still have work left to do. If they could copy your message into the submission box and be finished, you have gone too far.
+`;
+};
+
+const buildTutorSystemPrompt = (session, project, chunks, studentWork) => {
   const completed = Array.isArray(session.completed_topics) ? session.completed_topics : [];
   const projectTitle = project?.title || '(no project selected)';
   const projectDesc = project?.description || '';
   const projectGoals = project?.learning_goals || '';
-  const chunkLines = (chunks || []).slice(0, 30).map(c => {
-    const title = c.title || 'Untitled';
-    const body = (c.content || '').replace(/\s+/g, ' ').slice(0, 600);
-    return `- ${title}: ${body}`;
-  }).join('\n');
+  const chunkLines = buildTutorCorpus(chunks);
 
   // Hard class-scope rule: Emrys teaches ONLY this class's assigned project.
   // If the learner asks to build a different/unrelated project, it must decline
@@ -1538,32 +2077,71 @@ const buildTutorSystemPrompt = (session, project, chunks) => {
 - Teach ONLY this project. Do NOT start, plan, or build any other project.
 - If the learner asks for a different project (e.g. "build me a game/website/app" that is not this one), politely refuse and steer them back: say that for this class you teach "${projectTitle}", and offer the next step of THIS project.
 - You may still answer small general concept questions (e.g. "what is a variable?"), but always tie the lesson back to "${projectTitle}".`
-    : `CLASS PROJECT LOCK (critical):
-- No project is assigned to this class. Do NOT build or plan any project.
-- Only help with small general concepts and tell the learner a project must be assigned to their class first.`;
+    : (Array.isArray(studentWork) && studentWork.length
+      ? `CLASS PROJECT LOCK (critical):
+- No course project is assigned to this class, but the learner HAS work set by their teacher — it is listed below. That work is your scope.
+- Help them with the assignments and exercises they have been set. Coach: explain the idea, point at what they already have, ask them to try the next step. Never write the submission for them.
+- Do NOT start or plan some other project. If they ask for one, say their class has no course project yet and offer to help with the work they do have.`
+      : `CLASS PROJECT LOCK (critical):
+- No project is assigned to this class and no work has been set. Do NOT build or plan any project.
+- Only help with small general concepts and tell the learner a project must be assigned to their class first.`);
 
-  return `${TUTOR_RULES}
+  // Two blocks. The first is identical for every turn of the session (rules +
+  // the whole course), so it is marked cacheable. The second changes each turn.
+  const stableBlock = `${TUTOR_RULES}
 
 ${scopeRule}
 
-CURRENT SESSION:
+PROJECT GROUNDING (prefer this material; it is the source of truth for THIS project):
+Description: ${projectDesc}
+Learning goals: ${projectGoals}
+${chunkLines ? `
+FULL COURSE MATERIAL — every lesson, complete and unabridged. This is the whole
+syllabus, in order. Code blocks are reproduced exactly, including indentation;
+when you quote code to a student, quote it EXACTLY as written here.
+${chunkLines}` : ''}
+
+USING THE MATERIAL vs YOUR OWN KNOWLEDGE:`;
+
+  // The student's own work goes in the SESSION block, never the cached one.
+  // The first block is marked ephemeral-cacheable because it holds the rules
+  // and the course, which are identical for everyone in the class. Putting
+  // one student's homework in there would both destroy the cache hit rate and
+  // put their submission in a block shared with their classmates.
+  const studentReviewRule = Array.isArray(studentWork) && studentWork.length ? `
+
+STUDENT EXERCISE REVIEW — HIGHEST PRIORITY:
+- When the student sends a completed exercise, code attempt, result, or screenshot, review and score THAT work before saying anything else.
+- Start with exactly: "Result: Correct", "Result: Almost correct", or "Result: Needs a fix".
+- Then give: "Practice score: X/Y", using the exercise's listed points when available. This is Emrys's practice score, not the teacher's official grade.
+- Give at most two short task-specific reasons. If something is wrong, name only the smallest change needed and ask them to send the updated work for another review.
+- If the exercise is correct, stop after the score and a short congratulations. Do NOT give a new example, teach a concept, suggest another task, ask what they want to explore, or offer a next-step menu.
+- Do not score work you cannot see. Ask for the exercise and the student's attempt instead.
+` : '';
+
+  const sessionBlock = `CURRENT SESSION:
 - Project: ${projectTitle}
 - Current topic: ${session.current_topic || '(starting fresh)'}
 - Topics already covered: ${completed.length ? completed.join(', ') : '(none yet)'}
 - Student's last attempt: ${session.last_attempt || '(none yet)'}
 - Turn count so far: ${session.turn_count || 0}
+${buildStudentWorkSection(studentWork)}${studentReviewRule}`;
 
-PROJECT GROUNDING (prefer this material; it is the source of truth for THIS project):
-Description: ${projectDesc}
-Learning goals: ${projectGoals}
-${chunkLines ? `\nReference material:\n${chunkLines}` : ''}
-
-USING THE MATERIAL vs YOUR OWN KNOWLEDGE:
+  const tailRule = `
 - ALWAYS prefer the reference material above. When the answer IS in it, teach from it and stay faithful to its components, steps, libraries, and order.
 - When the student's question is NOT covered by the material (a gap, an error they hit, a "why", a debugging issue, a related concept), DO NOT refuse and DO NOT go blank — use your own expert knowledge to help them, while keeping it tied to "${projectTitle}" and consistent with the material.
 - Stay within this project's scope: don't switch to teaching a DIFFERENT project, but freely use general knowledge to unblock the student on THIS one.
 
-Now respond to the student's latest message. Remember: small step, plain English first, ask them to try. Stay on "${projectTitle}".`;
+Now respond to the student's latest message. Remember: small step, plain English
+first, ask them to try it in VS Code, and ask them to show you the result. Stay
+on "${projectTitle}".`;
+
+  // Anthropic system blocks. Only the first is cacheable — it holds the rules
+  // and the entire course, which never change during a session.
+  return [
+    { type: 'text', text: stableBlock + tailRule, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: sessionBlock },
+  ];
 };
 
 // Parse [advance:] / [checkpoint:] markers from the end of the response.
@@ -1609,6 +2187,66 @@ const tutorAsk = async (req, res) => {
     if (!question) return res.status(400).json({ message: 'question is required' });
     const projectId = req.body.project_id ? parseInt(req.body.project_id, 10) : null;
     const mode = req.body.mode === 'presenter' ? 'presenter' : 'student';
+    const rawChatId = String(req.body.chat_id || '').trim();
+    if (rawChatId.length > 80) return res.status(400).json({ message: 'Invalid chat id' });
+    const chatId = req.user.role === 'student' ? (rawChatId || null) : null;
+
+    // A student asking about their OWN records/progress/standing is answered
+    // straight from real scores + class leaderboard standing (with a little
+    // encouragement), short-circuiting the project tutor flow. The chat sends
+    // students through this endpoint, so the intercept has to live here too
+    // (mirrors the one in askAi). Returns a tutor-shaped payload.
+    if (req.user.role === 'student') {
+      // What their teacher has actually set. Emrys helps with a student's work
+      // inside the chat, so it has to KNOW that work — otherwise "can you check
+      // my exercise?" is answered by something with no idea what the exercise
+      // is. Best-effort: a failure here must leave the chat working, just
+      // without the context.
+      try {
+        // Required here rather than at the top: assignmentModel pulls in the
+        // marking service, which pulls in the AI config, and a top-level import
+        // would close a cycle back through this controller.
+        const { getStudentAssignments } = require('../models/assignmentModel');
+        const mine = await getStudentAssignments(req.user.id);
+        const open = (mine || [])
+          .filter((a) => a.status !== 'closed')
+          .slice(0, 12);
+        if (open.length) {
+          req._studentWork = open;
+        }
+      } catch (e) {
+        console.warn('tutorAsk: could not load student work:', e.message);
+      }
+
+      const studentRecords = await buildStudentProgressAnswer(req.user, question);
+      if (studentRecords) {
+        try {
+          await persistTutorTurn({
+            project_id: null,
+            group_id: null,
+            requester_type: req.user.role,
+            requester_id: req.user.id,
+            audience: 'student',
+            question,
+            answer: studentRecords.answer,
+            sources: studentRecords.sources,
+            metadata: { source: 'tutor', kind: 'records' },
+          });
+        } catch (e) {
+          console.warn('tutorAsk: records persist failed:', e.message);
+        }
+        return res.status(200).json({
+          session_id: null,
+          answer: studentRecords.answer,
+          current_topic: null,
+          completed_topics: [],
+          turn_count: 0,
+          advanced: false,
+          checkpoint: null,
+          data_source: 'progress_records',
+        });
+      }
+    }
 
     // ── Access gate + class scoping ──────────────────────────────────────
     // Without this, a teacher with no assignment to project X can POST
@@ -1631,7 +2269,15 @@ const tutorAsk = async (req, res) => {
       const allProjects = await getLearningProjects();
       const classProjects = await filterProjectsForUser(req.user, allProjects);
 
-      if (classProjects.length === 0) {
+      // A class with no project can still have exercises and assignments set.
+      // Bailing out here answered "help me with my exercise" with "no project
+      // found for your class" — wrong twice over: the exercise plainly exists,
+      // and Emrys had already been handed it a few lines above, only to throw
+      // it away. When there is set work, carry on and teach from that; the
+      // system prompt handles a null project.
+      const hasSetWork = Array.isArray(req._studentWork) && req._studentWork.length > 0;
+
+      if (classProjects.length === 0 && !hasSetWork) {
         // Nothing is assigned to this class. Say so plainly and tell them to
         // contact their agent — do NOT fall back to generic warm-up questions
         // (e.g. "are you a great typer?"), which is confusing and goes nowhere.
@@ -1652,8 +2298,12 @@ const tutorAsk = async (req, res) => {
 
       // Use the class's project (the single class project; if a class somehow
       // has more than one, take the first — students have exactly one class).
-      project = classProjects[0];
-      chunks = await getChunksForTutor(project.id);
+      //
+      // May legitimately be empty now: a student with set work but no class
+      // project reaches here, and project stays null. Reading classProjects[0].id
+      // unguarded would throw on exactly the case the branch above exists for.
+      project = classProjects[0] || null;
+      if (project) chunks = await getChunksForTutor(project.id);
     }
 
     // Use the RESOLVED project's id (project.id), not the raw request value —
@@ -1664,10 +2314,11 @@ const tutorAsk = async (req, res) => {
       userType: req.user.role,
       userId: req.user.id,
       projectId: sessionProjectId,
+      chatId,
       mode,
     });
 
-    const systemPrompt = buildTutorSystemPrompt(session, project, chunks);
+    const systemPrompt = buildTutorSystemPrompt(session, project, chunks, req._studentWork);
 
     // Multi-turn payload: replay the session's stored turns, then append the
     // current user question.
@@ -1679,7 +2330,12 @@ const tutorAsk = async (req, res) => {
       }))
       .concat([{ role: 'user', content: question }]);
 
-    const raw = await callClaudeForTutor(systemPrompt, messages, 800);
+    // 800 left no room: thinking and the reply share this budget, and below the
+    // 1024 floor the shared config disables reasoning altogether — so the main
+    // teaching turn, the one that has to decide what to teach next and how much
+    // to give away, was running with none. The cap does not lengthen replies;
+    // brevity is enforced by TUTOR_RULES and enforceCodeLineCap.
+    const raw = await callClaudeForTutor(systemPrompt, messages, 8000, { effort: "medium" });
     if (!raw) {
       return res.status(503).json({ message: 'AI service unavailable — set ANTHROPIC_API_KEY' });
     }
@@ -1796,8 +2452,11 @@ const generateBuildPlan = async (req, res) => {
     const anthropic = new Anthropic({ apiKey });
 
     const response = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
-      max_tokens: 4500,
+      model: modelName(),
+      // Must return parseable JSON or the route 422s, so it gets thinking room
+      // on top of the plan itself rather than the old reply-only 4500.
+      max_tokens: 16000,
+      ...reasoningParams(16000, 'high'),
       // Prompt caching on the big system block → cheaper + faster on repeats.
       system: [{ type: 'text', text: BUILD_PLAN_SYSTEM, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: `Build request: ${topic}` }],
@@ -1948,6 +2607,75 @@ const get3DPartStatus = async (req, res) => {
   }
 };
 
+
+// ── What Emrys told a student (teacher view) ──────────────────────────────
+//
+// A teacher could see the MARK Emrys gave but never the conversation behind it.
+// For a teaching product that is the more useful half: whether a student was
+// nudged towards the answer or very nearly handed it is exactly what a teacher
+// needs to judge, and it was invisible.
+//
+// Scoped hard. A teacher may read the transcripts of students in a group they
+// actively teach, and nobody else's — this is a child's conversation, not a
+// public log.
+const teacherTeachesStudent = async (teacherId, studentId) => {
+  const r = await pool.query(
+    `SELECT 1
+       FROM group_members gm
+       JOIN teacher_group_access tga
+         ON tga.group_id = gm.group_id AND tga.is_active = true
+      WHERE gm.student_id = $1 AND tga.teacher_id = $2
+      LIMIT 1`,
+    [studentId, teacherId]
+  );
+  return !!r.rows[0];
+};
+
+const getStudentAiHistory = async (req, res) => {
+  try {
+    if (!['teacher', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Only a teacher can read a student\'s Emrys history' });
+    }
+    const studentId = parseInt(req.query.student_id, 10);
+    if (!Number.isInteger(studentId)) {
+      return res.status(400).json({ message: 'student_id is required' });
+    }
+
+    // Admins oversee everything; a teacher must actually teach this student.
+    if (req.user.role !== 'admin' && !(await teacherTeachesStudent(req.user.id, studentId))) {
+      return res.status(403).json({ message: 'That student is not in one of your classes' });
+    }
+
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 40, 1), 100);
+    const interactions = await getAiInteractionsForRequester({
+      requesterType: 'student',
+      requesterId: studentId,
+      projectId: Number(req.query.project_id) || null,
+      limit,
+    });
+
+    const student = await pool.query('SELECT full_name FROM students WHERE id = $1', [studentId]);
+
+    // Flattened into turns, the same shape the chat renders, so the teacher
+    // reads the conversation as it happened rather than as database rows.
+    const messages = [];
+    for (const it of interactions) {
+      messages.push({ role: 'student', text: it.question, at: it.created_at, project_title: it.project_title });
+      messages.push({ role: 'emrys', text: it.answer, at: it.created_at, project_title: it.project_title });
+    }
+
+    res.status(200).json({
+      student_id: studentId,
+      student_name: student.rows[0]?.full_name || null,
+      messages,
+      count: interactions.length,
+    });
+  } catch (error) {
+    console.error('Get student AI history error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   validateAskAi,
   validateRoadmapRequest,
@@ -1970,4 +2698,5 @@ module.exports = {
   generateBuildPlan,
   generate3DPart,
   get3DPartStatus,
+  getStudentAiHistory,
 };

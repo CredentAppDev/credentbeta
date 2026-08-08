@@ -9,13 +9,15 @@
 # automatic rebuild + zero-downtime deploy. No SSH, no terminal commands.
 #
 # Free tier notes:
-#   • Service spins down after 15 min idle (first request after sleep waits
-#     30–60s). Pair with UptimeRobot (see backend/deploy/UPTIME_MONITORING.md)
-#     to keep it warm — pings /api/health every 5 min, free forever.
-#   • 750 instance-hours/month free (enough for one always-on service).
+#   - Service spins down after 15 min idle (first request after sleep waits
+#     30-60s). Pair with UptimeRobot (see backend/deploy/UPTIME_MONITORING.md)
+#     to keep it warm by pinging /api/live, which does not touch Postgres.
+#   - Avoid pinging /api/health every 5 min on Neon free; it queries Postgres
+#     and can exhaust the monthly compute quota.
+#   - 750 instance-hours/month free (enough for one always-on service).
 #
-# Postgres: NOT included here. We use Neon (free, always-on, no spin-down)
-# and connect via the DATABASE_URL env var set in the Render dashboard.
+# Postgres: NOT included here. We use Neon via the DATABASE_URL env var set in
+# the Render dashboard.
 # =============================================================================
 
 services:
@@ -27,8 +29,13 @@ services:
     rootDir: backend           # the backend lives in /backend in this repo
     buildCommand: npm install --omit=dev
     startCommand: node server.js
-    healthCheckPath: /api/health
+    healthCheckPath: /api/live
     autoDeploy: true           # rebuild on every push to the main branch
+    # Staying on the FREE tier (no paid disk). Uploaded files — Build Studio 3D
+    # models, group photos, voice notes — live on Render's ephemeral disk and are
+    # wiped on every deploy, so re-upload after a deploy. To make them persistent
+    # later (paid): add a disk at /var/data and set UPLOAD_DIR=/var/data/uploads
+    # (the exact block is in git history, commit 3828fb9).
     envVars:
       - key: NODE_ENV
         value: production
@@ -43,6 +50,19 @@ services:
       #   JWT_SECRET            <128 hex chars>
       #   JWT_REFRESH_SECRET    <128 hex chars, DIFFERENT from JWT_SECRET>
       #   ANTHROPIC_API_KEY     sk-ant-...
+      #   DEEPGRAM_API_KEY      <40-char Deepgram key>   ← voice→Emrys transcription
+      #   OPENAI_API_KEY        sk-...  (optional; Whisper, preferred over Deepgram)
+      #   TRIPO_API_KEY         tsk_...  ← Build Studio organic 3D meshes (text→3D)
+      #   MESHY_API_KEY         msy_...  (optional alternative to Tripo)
+      #
+      # Voice input ("record your voice and Emrys replies") calls
+      # /api/ai/transcribe, which needs DEEPGRAM_API_KEY *or* OPENAI_API_KEY.
+      # Without at least one, transcription returns 503 and voice does nothing.
+      #
+      # Build Studio's "organic 3D" upgrade (real meshes instead of primitive
+      # shapes) calls /api/ai/generate-3d, which needs TRIPO_API_KEY (preferred)
+      # or MESHY_API_KEY. Without either, builds still work — they just stay as
+      # the procedural primitive shapes (graceful fallback).
       #
       # The `sync: false` flag marks them as set-once secrets — Render won't
       # overwrite them on subsequent deploys.
@@ -53,6 +73,14 @@ services:
       - key: JWT_REFRESH_SECRET
         sync: false
       - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DEEPGRAM_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TRIPO_API_KEY
+        sync: false
+      - key: MESHY_API_KEY
         sync: false
 
       # ─── Non-secret config with safe defaults ──────────────────────────

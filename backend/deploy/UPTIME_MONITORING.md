@@ -1,40 +1,55 @@
-# Uptime monitoring with UptimeRobot
+# Uptime Monitoring With UptimeRobot
 
-Free service that pings `/api/health` every 5 minutes and emails you if the backend dies. Zero cost, zero code.
+Use UptimeRobot to ping `/api/live` every 5 minutes and email you if the
+backend process dies. `/api/live` does not touch Postgres, so it keeps Render
+awake without keeping the Neon database compute awake.
 
-## Setup (3 minutes)
+Do not ping `/api/health` every 5 minutes on the Neon free plan. That endpoint
+queries Postgres, and frequent pings can burn through the monthly compute quota.
 
-1. Sign up at **https://uptimerobot.com** with your email (no credit card)
-2. After login → **+ New Monitor**
+## Setup
+
+1. Sign up at **https://uptimerobot.com** with your email.
+2. After login, choose **+ New Monitor**.
 3. Settings:
    - **Monitor Type**: HTTP(s)
-   - **Friendly Name**: `Credent Beta API`
-   - **URL**: `https://YOUR-TUNNEL-URL/api/health`
-   - **Monitoring Interval**: 5 minutes (the lowest the free tier allows)
+   - **Friendly Name**: `Credent API liveness`
+   - **URL**: `https://credent-backend.onrender.com/api/live`
+   - **Monitoring Interval**: 5 minutes
    - **HTTP Method**: GET
-   - **Keyword Monitoring** (optional but recommended):
-     - Keyword Type: exists
-     - Keyword: `"status":"OK"`
-     - This catches the case where the server is up but the DB is broken — `/api/health` would still respond but the JSON body changes.
-4. Under **Alert Contacts** → confirm your email is checked
-5. Click **Create Monitor**
+   - **Keyword Monitoring**: optional, keyword `"status":"OK"`
+4. Under **Alert Contacts**, confirm your email is checked.
+5. Click **Create Monitor**.
 
-UptimeRobot now pings every 5 min. If three consecutive checks fail you get an email.
+UptimeRobot now pings the Node service every 5 minutes. If consecutive checks
+fail, you get an email.
 
-## What to do when you get an alert
+## DB Health
 
-1. SSH into the VM: `ssh -i your-key.key ubuntu@<VM_IP>`
-2. Check the backend process: `pm2 status`
-3. If `credent-backend` is `errored` or `stopped`: `pm2 logs credent-backend --lines 50` to see the crash
-4. Check the tunnel: `sudo systemctl status cloudflared`
-5. Common fixes:
-   - Out of memory → `pm2 restart credent-backend`
-   - Neon DB hiccup → wait 30s, check Neon dashboard
-   - Tunnel down → `sudo systemctl restart cloudflared`
+Use `/api/health` when you specifically want to verify Postgres:
 
-## Free tier limits
+```bash
+curl https://credent-backend.onrender.com/api/health
+```
 
-- 50 monitors max (you'll use 1)
-- 5-minute interval (enough for beta)
-- Email alerts only (no SMS without paid tier)
-- 2 months of uptime history
+Expected states:
+
+- `200 OK` with `db: "connected"` means the API and database are both working.
+- `503 DEGRADED` means the Node service is up but Postgres is unavailable or
+  the Neon quota is exhausted.
+
+## What To Do When You Get An Alert
+
+1. Check the Render service logs.
+2. If the process is down, restart or redeploy `credent-backend`.
+3. If `/api/live` is up but `/api/health` returns 503, check Neon usage/quota
+   and the `DATABASE_URL` value in Render.
+4. If Neon says compute quota is exhausted, upgrade the Neon project, wait for
+   quota reset, or switch `DATABASE_URL` to a database with available compute.
+
+## Free Tier Notes
+
+- UptimeRobot free tier supports 5-minute intervals and email alerts.
+- Neon free projects have a monthly compute allowance; DB-aware pings consume it.
+- Render free services can sleep when idle, so `/api/live` is the safe keep-warm
+  target.

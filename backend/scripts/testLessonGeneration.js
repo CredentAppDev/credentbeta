@@ -17,6 +17,7 @@ require('dotenv').config();
 const pool = require('../src/config/db');
 const Anthropic = require('@anthropic-ai/sdk');
 const { SYSTEM_PROMPTS } = require('../src/services/controlledAiTutorService');
+const { modelName, reasoningParams, textFrom } = require('../src/config/aiModel');
 
 const PROJECT_ID = Number(process.argv[2] || 1);
 const SECTION_NUM = Number(process.argv[3] || 12);
@@ -169,14 +170,17 @@ Exact instructions + expected outcome + predict-step + 3-tier hints + failure mo
   if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing in .env');
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const t0 = Date.now();
-  const resp = await anthropic.messages.create({
-    model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929',
-    max_tokens: 4096,
+  // Mirrors buildDayTeachingLesson exactly — model, budget, effort, streaming.
+  // If this script drifts from the real path it stops being a useful test.
+  const resp = await anthropic.messages.stream({
+    model: modelName(),
+    max_tokens: 32000,
+    ...reasoningParams(32000, 'high'),
     system: SYSTEM_PROMPTS.teacher,
     messages: [{ role: 'user', content: prompt }],
-  });
+  }).finalMessage();
   const dur = ((Date.now() - t0) / 1000).toFixed(1);
-  const answer = resp.content[0]?.type === 'text' ? resp.content[0].text : '';
+  const answer = textFrom(resp);
 
   console.log(`═══ GENERATED LESSON (${resp.usage?.output_tokens} tokens, ${dur}s) ═══\n`);
   console.log(answer);

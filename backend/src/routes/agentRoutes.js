@@ -4,6 +4,9 @@ const path = require('path');
 const fs = require('fs');
 const sgMail = require('@sendgrid/mail');
 const pool = require('../config/db');
+// Canonicalise class names on write so one class has exactly one stored
+// spelling ('JHS 3' / 'JHS3' / 'jhs-3' all collapse to 'JHS 3').
+const { canonicalClassName } = require('../utils/classNames');
 const { protect } = require('../middleware/auth');
 const { allowRoles } = require('../middleware/roles');
 const { updateUserProfilePicture } = require('../models/userModel');
@@ -364,7 +367,13 @@ router.get('/students', async (req, res) => {
               COALESCE(st.class_name, '') AS class_name,
               st.passkey,
               st.is_active,
-              st.created_at
+              st.created_at,
+              -- Self-service profile complete? (student fills these themselves)
+              (st.date_of_birth IS NOT NULL
+                AND COALESCE(st.gender, '') <> ''
+                AND COALESCE(st.guardian_name, '') <> ''
+                AND COALESCE(st.guardian_phone, '') <> ''
+                AND COALESCE(st.address, '') <> '') AS profile_completed
        FROM students st
        LEFT JOIN schools sc ON sc.id = st.school_id
        WHERE st.is_active = true
@@ -407,7 +416,7 @@ router.post('/students', async (req, res) => {
         fullName,
         clean(req.body.email) || null,
         clean(req.body.grade) || null,
-        clean(req.body.class_name) || null,
+        canonicalClassName(req.body.class_name),
         passkey,
         new Date(Date.now() + 24 * 60 * 60 * 1000),
       ]
@@ -440,8 +449,18 @@ router.get('/students/:studentId', async (req, res) => {
               st.full_name,
               st.student_id,
               COALESCE(st.email, '') AS email,
+              COALESCE(st.phone_number, '') AS phone_number,
               COALESCE(st.grade, '') AS grade,
               COALESCE(st.class_name, '') AS class_name,
+              COALESCE(st.semester, '') AS semester,
+              to_char(st.date_of_birth, 'YYYY-MM-DD') AS date_of_birth,
+              COALESCE(st.gender, '') AS gender,
+              COALESCE(st.address, '') AS address,
+              COALESCE(st.bio, '') AS bio,
+              COALESCE(st.guardian_name, '') AS guardian_name,
+              COALESCE(st.guardian_phone, '') AS guardian_phone,
+              COALESCE(st.hobbies, '') AS hobbies,
+              st.profile_picture_url,
               st.passkey,
               st.school_id,
               sc.name AS school_name,
@@ -478,7 +497,7 @@ router.patch('/students/:studentId', async (req, res) => {
     const fullName = clean(req.body.full_name) || null;
     const email = clean(req.body.email) || null;
     const grade = clean(req.body.grade) || null;
-    const className = clean(req.body.class_name) || null;
+    const className = canonicalClassName(req.body.class_name);
     const result = await pool.query(
       `UPDATE students SET
          full_name  = COALESCE($1, full_name),
@@ -607,7 +626,7 @@ router.post('/schools/:schoolId/students/register', async (req, res) => {
         fullName,
         clean(req.body.email) || null,
         clean(req.body.grade) || null,
-        clean(req.body.class_name) || null,
+        canonicalClassName(req.body.class_name),
         parseSemester(req.body.semester),
         passkey,
         new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -656,7 +675,7 @@ router.get('/schools/:schoolId/students', async (req, res) => {
     const school = await findActiveSchool(req.params.schoolId);
     if (!school) return res.status(404).json({ message: 'School not found' });
 
-    const className = req.query.class_name || null;
+    const className = canonicalClassName(req.query.class_name);
     const values = className ? [school.id, className] : [school.id];
     const classFilter = className ? 'AND st.class_name = $2' : '';
 
@@ -747,7 +766,13 @@ router.get('/teachers', async (req, res) => {
               COALESCE(t.phone_number, '') AS phone_number,
               t.passkey,
               t.is_active,
-              t.created_at
+              t.created_at,
+              -- Self-service profile complete? (teacher fills these themselves)
+              (t.date_of_birth IS NOT NULL
+                AND COALESCE(t.gender, '') <> ''
+                AND COALESCE(t.qualification, '') <> ''
+                AND COALESCE(t.subjects, '') <> ''
+                AND COALESCE(t.phone_number, '') <> '') AS profile_completed
        FROM teachers t
        WHERE t.is_active = true
        ORDER BY t.created_at DESC`
@@ -819,6 +844,16 @@ router.get('/teachers/:teacherId', async (req, res) => {
               t.teacher_id,
               COALESCE(t.email, '') AS email,
               COALESCE(t.phone_number, '') AS phone_number,
+              COALESCE(t.account_number, '') AS account_number,
+              COALESCE(t.certificate, '') AS certificate,
+              to_char(t.date_of_birth, 'YYYY-MM-DD') AS date_of_birth,
+              COALESCE(t.gender, '') AS gender,
+              COALESCE(t.address, '') AS address,
+              COALESCE(t.bio, '') AS bio,
+              COALESCE(t.qualification, '') AS qualification,
+              COALESCE(t.subjects, '') AS subjects,
+              t.years_of_experience,
+              t.profile_picture_url,
               t.passkey,
               t.created_at
        FROM teachers t
@@ -1011,7 +1046,7 @@ router.post('/schools/:schoolId/teachers', async (req, res) => {
 router.post('/schools/:schoolId/groups/auto', async (req, res) => {
   try {
     const school = await findActiveSchool(req.params.schoolId);
-    const className = clean(req.body.class_name);
+    const className = canonicalClassName(req.body.class_name);
     const semester = parseSemester(req.body.semester);
 
     if (!school) {
@@ -1042,7 +1077,7 @@ router.post('/schools/:schoolId/groups/auto', async (req, res) => {
 router.get('/schools/:schoolId/groups', async (req, res) => {
   try {
     const school = await findActiveSchool(req.params.schoolId);
-    const className = clean(req.query.class_name);
+    const className = canonicalClassName(req.query.class_name);
     const semester = parseSemester(req.query.semester);
 
     if (!school) {
@@ -1069,7 +1104,7 @@ router.get('/schools/:schoolId/groups', async (req, res) => {
 router.post('/schools/:schoolId/groups/confirm', async (req, res) => {
   try {
     const school = await findActiveSchool(req.params.schoolId);
-    const className = clean(req.body.class_name);
+    const className = canonicalClassName(req.body.class_name);
     const semester = parseSemester(req.body.semester);
 
     if (!school) {
@@ -1125,8 +1160,34 @@ router.post('/schools/:schoolId/groups/manual', async (req, res) => {
     const school = await findActiveSchool(req.params.schoolId);
     if (!school) return res.status(404).json({ message: 'School not found' });
     const name = clean(req.body.name);
-    const className = clean(req.body.class_name) || null;
+    const className = canonicalClassName(req.body.class_name);
     if (!name) return res.status(400).json({ message: 'name is required' });
+
+    // Reject a duplicate name within the same school AND class. Nothing used to
+    // stop this, so a school ended up with two groups both called "Credent
+    // Group" in Class 6 — indistinguishable in every list, and they showed up
+    // as two separate rows on the leaderboard. The same name in a DIFFERENT
+    // class is fine ("Group A" in Class 4 and in Class 6 are not a collision),
+    // so the check is scoped to school + class. Comparison ignores case and
+    // surrounding/repeated whitespace.
+    const dupe = await pool.query(
+      `SELECT id, name FROM student_groups
+        WHERE school_id = $1
+          AND COALESCE(class_name, '') = $2
+          AND LOWER(REGEXP_REPLACE(TRIM(name), '\\s+', ' ', 'g'))
+            = LOWER(REGEXP_REPLACE(TRIM($3::text), '\\s+', ' ', 'g'))
+        LIMIT 1`,
+      [school.id, className || '', name]
+    );
+    if (dupe.rows.length) {
+      return res.status(409).json({
+        message: className
+          ? `A group called "${dupe.rows[0].name}" already exists in ${className}. Pick a different name.`
+          : `A group called "${dupe.rows[0].name}" already exists in this school. Pick a different name.`,
+        existing_group_id: dupe.rows[0].id,
+      });
+    }
+
     const existing = await pool.query(
       className
         ? `SELECT COUNT(*) FROM student_groups WHERE school_id = $1 AND class_name = $2`
